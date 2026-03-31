@@ -26,6 +26,7 @@ const SenderReceiverDetails = lazy(() => import('./modules/user/pages/parcel/Sen
 // Profile & History
 const Activity = lazy(() => import('./modules/user/pages/Activity'));
 const Profile = lazy(() => import('./modules/user/pages/Profile'));
+const Wallet = lazy(() => import('./modules/user/pages/Wallet'));
 
 // Profile Settings Sub-pages
 const ProfileSettings = lazy(() => import('./modules/user/pages/profile/ProfileSettings'));
@@ -69,8 +70,21 @@ const AdminLayout = lazy(() => import('./modules/admin/components/AdminLayout'))
 const AdminLogin = lazy(() => import('./modules/admin/pages/auth/AdminLogin'));
 const AdminDashboard = lazy(() => import('./modules/admin/pages/dashboard/MainDashboard'));
 const AdminUserList = lazy(() => import('./modules/admin/pages/users/UserList'));
+const AdminDeleteRequestUsers = lazy(() => import('./modules/admin/pages/users/DeleteRequestUsers'));
+const AdminUserBulkUpload = lazy(() => import('./modules/admin/pages/users/UserBulkUpload'));
+
+// DRIVER MANAGEMENT IMPORTS
 const AdminDriverList = lazy(() => import('./modules/admin/pages/drivers/DriverList'));
+const AdminPendingDrivers = lazy(() => import('./modules/admin/pages/drivers/PendingDrivers'));
+const AdminDriverSubscriptions = lazy(() => import('./modules/admin/pages/drivers/DriverSubscriptions'));
+const AdminDriverRatings = lazy(() => import('./modules/admin/pages/drivers/DriverRatings'));
+const AdminDriverWallet = lazy(() => import('./modules/admin/pages/drivers/DriverWallet'));
+const AdminDriverDeleteRequests = lazy(() => import('./modules/admin/pages/drivers/DriverDeleteRequests'));
+const AdminGlobalDocuments = lazy(() => import('./modules/admin/pages/drivers/GlobalDocuments'));
+const AdminDriverBulkUpload = lazy(() => import('./modules/admin/pages/drivers/DriverBulkUpload'));
 const AdminDriverAudit = lazy(() => import('./modules/admin/pages/drivers/DriverAudit'));
+const AdminPaymentMethods = lazy(() => import('./modules/admin/pages/drivers/PaymentMethods'));
+
 const AdminGeoFencing = lazy(() => import('./modules/admin/pages/geo/GeoFencing'));
 const AdminFinance = lazy(() => import('./modules/admin/pages/finance/Finance'));
 const AdminFareConfig = lazy(() => import('./modules/admin/pages/finance/FareConfiguration'));
@@ -84,7 +98,7 @@ const MainLayout = ({ children }) => {
   const isAdminPath = location.pathname.startsWith('/admin');
 
   if (isAdminPath) {
-    return <div className="redigo-admin-root min-h-screen bg-gray-50">{children}</div>;
+    return <div className="redigo-admin-root h-screen bg-gray-50 overflow-hidden">{children}</div>;
   }
 
   return (
@@ -127,6 +141,7 @@ function App() {
 
             <Route path="/activity" element={<Activity />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/wallet" element={<Wallet />} />
 
             <Route path="/profile/settings" element={<ProfileSettings />} />
             <Route path="/profile/payments" element={<PaymentSettings />} />
@@ -169,14 +184,21 @@ function App() {
               <Route index element={<Navigate to="/admin/dashboard" />} />
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="users" element={<AdminUserList />} />
-              <Route path="users/delete-requests" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Delete Requests - Under Setup</div>} />
-              <Route path="users/bulk-upload" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Bulk Upload Tool - Under Setup</div>} />
+              <Route path="users/delete-requests" element={<AdminDeleteRequestUsers />} />
+              <Route path="users/bulk-upload" element={<AdminUserBulkUpload />} />
               
               <Route path="drivers" element={<AdminDriverList />} />
-              <Route path="drivers/pending" element={<div className="flex items-center justify-center min-h-[500px] text-orange-400 font-bold uppercase tracking-widest">Pending Approvals Queue - Processing...</div>} />
-              <Route path="drivers/wallet" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Driver Ledger & Wallet - Under Setup</div>} />
-              <Route path="drivers/documents" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Global Documents Vault - Under Setup</div>} />
+              <Route path="drivers/pending" element={<AdminPendingDrivers />} />
+              <Route path="drivers/subscription" element={<AdminDriverSubscriptions />} />
+              <Route path="drivers/ratings" element={<AdminDriverRatings />} />
+              <Route path="drivers/wallet" element={<AdminDriverWallet />} />
+              <Route path="drivers/delete-requests" element={<AdminDriverDeleteRequests />} />
+              <Route path="drivers/documents" element={<AdminGlobalDocuments />} />
+              <Route path="drivers/bulk-upload" element={<AdminDriverBulkUpload />} />
+              <Route path="drivers/payment-methods" element={<AdminPaymentMethods />} />
               <Route path="drivers/audit/:id" element={<AdminDriverAudit />} />
+              <Route path="referrals/config" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Referral Configuration - Under Setup</div>} />
+              <Route path="referrals/active" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Active Referrals Logs - Under Setup</div>} />
               <Route path="geo" element={<AdminGeoFencing />} />
               <Route path="finance" element={<AdminFinance />} />
               <Route path="pricing" element={<AdminFareConfig />} />

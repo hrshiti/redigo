@@ -1,19 +1,22 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Wallet } from 'lucide-react';
 import RedigoLogo from '@/assets/redigologo.png';
 
 const HeaderGreeting = ({ name = "hritik raghuwanshi" }) => {
+  const navigate = useNavigate();
+
   return (
     <div className="pt-8 pb-3 space-y-4">
       {/* Brand Header */}
       <div className="px-4 md:px-5 flex items-center justify-between">
          <img src={RedigoLogo} alt="Redigo" className="h-8 object-contain drop-shadow-sm" />
-         <div className="w-10 h-10 rounded-full border border-gray-100 p-0.5 overflow-hidden shadow-sm shrink-0">
-            <img 
-              src="https://ui-avatars.com/api/?name=Hritik+Raghuwanshi&background=E85D04&color=fff" 
-              alt="Profile" 
-              className="w-full h-full rounded-full object-cover"
-            />
-         </div>
+         <button 
+           onClick={() => navigate('/wallet')}
+           className="w-10 h-10 rounded-full border border-gray-100 bg-white flex items-center justify-center shadow-sm shrink-0 active:scale-95 transition-transform"
+         >
+            <Wallet size={20} className="text-gray-900" strokeWidth={2.5} />
+         </button>
       </div>
 
       {/* Greeting Row */}

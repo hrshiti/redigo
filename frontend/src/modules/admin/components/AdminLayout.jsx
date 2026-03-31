@@ -17,7 +17,10 @@ import {
   ChevronRight,
   HelpCircle,
   Package,
-  Command
+  Command,
+  Gift,
+  Briefcase,
+  TrendingUp
 } from 'lucide-react';
 
 const SidebarItem = ({ icon: Icon, label, path, isCollapsed }) => (
@@ -87,35 +90,72 @@ const AdminLayout = () => {
     { icon: BarChart3, label: 'Dashboard', path: '/admin/dashboard' },
     { 
        icon: Users, 
-       label: 'Passenger Mgmt', 
+       label: 'Customer Mgmt', 
        subItems: [
-         { label: 'Passenger List', path: '/admin/users' },
-         { label: 'Delete Requests', path: '/admin/users/delete-requests' },
-         { label: 'Bulk Upload', path: '/admin/users/bulk-upload' },
+         { label: 'User List', path: '/admin/users' },
+         { label: 'Delete Request Users', path: '/admin/users/delete-requests' },
+         { label: 'User Bulk Upload', path: '/admin/users/bulk-upload' },
        ]
     },
     { 
        icon: Car, 
        label: 'Driver Mgmt', 
        subItems: [
+         { label: 'Pending Drivers', path: '/admin/drivers/pending' },
          { label: 'Approved Drivers', path: '/admin/drivers' },
-         { label: 'Pending Approvals', path: '/admin/drivers/pending' },
+         { label: 'Subscription', path: '/admin/drivers/subscription' },
+         { label: 'Drivers Ratings', path: '/admin/drivers/ratings' },
          { label: 'Driver Wallet', path: '/admin/drivers/wallet' },
-         { label: 'Verification Docs', path: '/admin/drivers/documents' },
+         { label: 'Delete Request Drivers', path: '/admin/drivers/delete-requests' },
+         { label: 'Driver Needed Documents', path: '/admin/drivers/documents' },
+         { label: 'Driver Bulk Upload', path: '/admin/drivers/bulk-upload' },
+         { label: 'Payment Methods', path: '/admin/drivers/payment-methods' },
        ]
     },
-    { icon: MapPin, label: 'Geo Fencing', path: '/admin/geo' },
-    { icon: IndianRupee, label: 'Pricing', path: '/admin/pricing' },
+    { 
+       icon: Briefcase, 
+       label: 'Owner Management', 
+       subItems: [
+         { label: 'Owner Dashboard', path: '/admin/owners/dashboard' },
+         { label: 'Manage Owners', path: '/admin/owners' },
+         { label: 'Owner Wallet', path: '/admin/owners/wallet' },
+         { label: 'Fleet Management', path: '/admin/owners/fleet' },
+         { label: 'Owner Needed Document', path: '/admin/owners/documents' },
+         { label: 'Deleted Owners', path: '/admin/owners/deleted' },
+         { label: 'Bookings', path: '/admin/owners/bookings' },
+       ]
+    },
+    { 
+       icon: Gift, 
+       label: 'Referral Management', 
+       subItems: [
+         { label: 'Referral Dashboard', path: '/admin/referrals/dashboard' },
+         { label: 'User Referral Settings', path: '/admin/referrals/user-settings' },
+         { label: 'Driver Referral Settings', path: '/admin/referrals/driver-settings' },
+         { label: 'Referral Translation', path: '/admin/referrals/translation' },
+       ]
+    },
+    { 
+       icon: MapPin, 
+       label: 'Geo Fencing', 
+       subItems: [
+         { label: 'Heat Map', path: '/admin/geo/heatmap' },
+         { label: 'Gods Eyes', path: '/admin/geo/gods-eyes' },
+         { label: 'Peak Zone', path: '/admin/geo/peak-zone' },
+       ]
+    },
+    { icon: TrendingUp, label: 'Promotions Management', path: '/admin/promotions' },
+    { icon: IndianRupee, label: 'Price Management', path: '/admin/pricing' },
     { icon: Layers, label: 'Finance', path: '/admin/finance' },
     { icon: ShieldAlert, label: 'Safety (SOS)', path: '/admin/safety' },
     { icon: Package, label: 'App CMS', path: '/admin/cms' },
   ];
 
   return (
-    <div className="flex min-h-screen bg-[#F8F9FA] font-sans text-gray-900 overflow-hidden">
+    <div className="flex h-screen bg-[#F8F9FA] font-sans text-gray-900 overflow-hidden">
       {/* SIDEBAR - Dark Theme (Match 'Mate' Image) */}
       <aside 
-        className={`bg-[#0F172A] border-r border-white/5 transition-all duration-300 flex flex-col relative z-50 ${
+        className={`bg-[#0F172A] border-r border-white/5 transition-all duration-300 flex flex-col relative z-50 h-screen ${
           isCollapsed ? 'w-20' : 'w-64'
         } ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
       >

@@ -54,9 +54,9 @@ const Profile = () => {
              />
              <SettingRow 
                 icon={Wallet} 
-                title="Payments" 
-                sub="UPI, Cards & Wallet details" 
-                onClick={() => navigate('/profile/payments')}
+                title="Wallet" 
+                sub="Balance, Transactions & Add Money" 
+                onClick={() => navigate('/wallet')}
                 color="bg-blue-50 text-blue-600" 
              />
              <SettingRow 
