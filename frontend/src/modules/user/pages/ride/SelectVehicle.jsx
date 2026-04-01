@@ -50,7 +50,7 @@ const SelectVehicle = () => {
   const routeState = location.state || {};
   const pickup = routeState.pickup || 'Pipaliyahana, Indore';
   const drop = routeState.drop || 'Vijay Nagar, Indore';
-  const stop = routeState.stop || null;
+  const stops = routeState.stops || [];
 
   const vehicles = [
     { id: 'bike', icon: '/1_Bike.png', name: 'Bike', capacity: 1, badge: 'FASTEST', sublabel: 'Quick Bike rides', eta: 2, dropTime: '12:24', price: 22 },
@@ -134,7 +134,7 @@ const SelectVehicle = () => {
                   state: {
                     pickup,
                     drop,
-                    stop,
+                    stops,
                     vehicle: selectedVehicleData,
                     paymentMethod,
                     fare: selectedVehicleData?.price || 22,

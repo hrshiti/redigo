@@ -32,6 +32,7 @@ const ActiveTrip = () => {
 
     const [phase, setPhase] = useState('to_pickup'); // to_pickup, otp_verification, in_trip, payment_confirm, review
     const [otp, setOtp] = useState('');
+    const [selectedRating, setSelectedRating] = useState(0);
 
     const tripData = isParcel ? {
         sender: { name: 'Hritik Raghuwanshi', rating: '5.0', phone: '+91 96913 2XXXX' },
@@ -294,11 +295,31 @@ const ActiveTrip = () => {
                                 </div>
                                 <div className="flex justify-center gap-3">
                                      {[1,2,3,4,5].map(s => (
-                                        <motion.div whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }}>
-                                            <Star key={s} size={40} className="text-taxi-primary transition-all cursor-pointer" fill="#f0c419" strokeWidth={2} />
+                                        <motion.div
+                                            key={s}
+                                            whileHover={{ scale: 1.2 }}
+                                            whileTap={{ scale: 0.9 }}
+                                            onClick={() => setSelectedRating(s)}
+                                            className="cursor-pointer"
+                                        >
+                                            <Star
+                                                size={40}
+                                                className={`transition-all ${s <= selectedRating ? 'text-taxi-primary' : 'text-slate-200'}`}
+                                                fill={s <= selectedRating ? '#f0c419' : 'transparent'}
+                                                strokeWidth={2}
+                                            />
                                         </motion.div>
                                      ))}
                                 </div>
+                                {selectedRating > 0 && (
+                                    <motion.p
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        className="text-[12px] font-black text-emerald-500 uppercase tracking-widest"
+                                    >
+                                        {selectedRating === 5 ? '⭐ Excellent!' : selectedRating >= 3 ? '👍 Good!' : '📝 Could be better'}
+                                    </motion.p>
+                                )}
                              </div>
 
                              <motion.button 

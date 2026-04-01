@@ -1,192 +1,351 @@
 import React, { useState } from 'react';
 import { 
-  FileText, 
+  Plus, 
   Search, 
   ChevronRight, 
-  ShieldCheck, 
-  Download, 
-  Filter, 
-  MoreHorizontal, 
-  CheckCircle2, 
-  XCircle, 
-  AlertTriangle, 
-  Eye, 
-  FolderLock, 
-  Files, 
-  Clock, 
-  ArrowRight,
-  TrendingDown,
-  BadgeCheck,
-  LayoutGrid,
-  FileCheck2
+  Edit2, 
+  Trash2, 
+  FileText,
+  Save,
+  X,
+  Check,
+  ChevronDown,
+  Info,
+  ShieldCheck,
+  AlertCircle
 } from 'lucide-react';
 
 const GlobalDocuments = () => {
+  const [view, setView] = useState('list'); // 'list' or 'edit' or 'add'
   const [searchTerm, setSearchTerm] = useState('');
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   
-  const [docStats] = useState({
-    verified: 14248,
-    pending: 1358,
-    expired: 42,
-    rejected: 890
-  });
-
-  const [documents] = useState([
-    { id: 'DOC-101', driver: 'Rajesh K.', type: 'Driving License', expiry: 'Jan 2032', status: 'Verified', uploaded: 'Mar 28, 2024' },
-    { id: 'DOC-102', driver: 'Suresh S.', type: 'Vehicle RC', expiry: 'Feb 2028', status: 'Verified', uploaded: 'Mar 28, 2024' },
-    { id: 'DOC-103', driver: 'Vijay P.', type: 'Insurance', expiry: 'May 2024', status: 'Expiring Soon', uploaded: 'Mar 29, 2024' },
-    { id: 'DOC-104', driver: 'Anil D.', type: 'Fitness Cert.', expiry: 'Invalid', status: 'Rejected', uploaded: 'Mar 30, 2024' },
-    { id: 'DOC-105', driver: 'Pankaj S.', type: 'Aadhar Card', expiry: 'N/A', status: 'Verified', uploaded: 'Mar 31, 2024' },
+  const [documents, setDocuments] = useState([
+    { id: 1, name: 'Aadhar Card', accountType: 'individual', status: true },
+    { id: 2, name: 'pan card', accountType: 'individual', status: true },
+    { id: 3, name: 'Driving Licence', accountType: 'individual', status: true },
+    { id: 4, name: 'Registration Certificate', accountType: 'individual', status: true },
+    { id: 5, name: 'Insurance', accountType: 'individual', status: true },
   ]);
 
+  const [formData, setFormData] = useState({
+    name: 'Aadhar Card',
+    accountType: 'Individual',
+    hasExpiryDate: 'No',
+    imageType: 'Front&Back',
+    nameFront: 'Aadhar Front',
+    nameBack: 'Aadhar Back',
+    hasIdentifyNumber: 'No',
+    isEditable: true,
+    isRequired: true
+  });
+
+  const handleEdit = (doc) => {
+    setFormData({
+      ...formData,
+      name: doc.name,
+      accountType: doc.accountType.charAt(0).toUpperCase() + doc.accountType.slice(1)
+    });
+    setView('edit');
+  };
+
+  const filteredDocs = documents.filter(doc => 
+    doc.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  if (view === 'edit' || view === 'add') {
+    return (
+      <div className="space-y-8 p-1 animate-in fade-in slide-in-from-bottom-4 duration-500 font-sans text-gray-950 max-w-7xl mx-auto">
+        {/* HEADER */}
+        <div className="flex items-center justify-between">
+           <div className="flex items-center gap-4">
+              <button onClick={() => setView('list')} className="p-3 bg-white border border-gray-100 rounded-2xl hover:bg-gray-50 text-gray-400 hover:text-gray-950 transition-all shadow-sm">
+                 <X size={20} />
+              </button>
+              <div>
+                 <h1 className="text-xl font-black text-gray-900 tracking-tight uppercase leading-none mb-1.5">{view === 'edit' ? 'Edit Document' : 'Add New Document'}</h1>
+                 <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                    <span>Masters</span>
+                    <ChevronRight size={10} />
+                    <span>Needed Documents</span>
+                    <ChevronRight size={10} />
+                    <span className="text-indigo-600">Config</span>
+                 </div>
+              </div>
+           </div>
+        </div>
+
+        {/* FORM CARD */}
+        <div className="bg-white rounded-[40px] border border-gray-50 shadow-sm p-10">
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+              {/* Document Name */}
+              <div className="space-y-2">
+                 <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                    Document Name <span className="text-rose-500">*</span>
+                 </label>
+                 <input 
+                    type="text" 
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    placeholder="Enter Document Name"
+                    className="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-[20px] text-[14px] font-bold focus:bg-white focus:border-indigo-100 outline-none transition-all shadow-inner"
+                 />
+              </div>
+
+              {/* Account Type */}
+              <div className="space-y-2">
+                 <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                    Account Type <span className="text-rose-500">*</span>
+                 </label>
+                 <div className="relative">
+                    <select 
+                       value={formData.accountType}
+                       onChange={(e) => setFormData({...formData, accountType: e.target.value})}
+                       className="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-[20px] text-[14px] font-bold focus:bg-white focus:border-indigo-100 outline-none transition-all shadow-inner appearance-none cursor-pointer"
+                    >
+                       <option>Individual</option>
+                       <option>Corporate</option>
+                    </select>
+                    <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
+                 </div>
+              </div>
+
+              {/* Has Expiry Date */}
+              <div className="space-y-2">
+                 <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                    Has Expiry Date <span className="text-rose-500">*</span>
+                 </label>
+                 <div className="relative">
+                    <select 
+                       value={formData.hasExpiryDate}
+                       onChange={(e) => setFormData({...formData, hasExpiryDate: e.target.value})}
+                       className="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-[20px] text-[14px] font-bold focus:bg-white focus:border-indigo-100 outline-none transition-all shadow-inner appearance-none cursor-pointer"
+                    >
+                       <option>No</option>
+                       <option>Yes</option>
+                    </select>
+                    <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
+                 </div>
+              </div>
+
+              {/* Image Type */}
+              <div className="space-y-2">
+                 <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                    Image Type <span className="text-rose-500">*</span>
+                 </label>
+                 <div className="relative">
+                    <select 
+                       value={formData.imageType}
+                       onChange={(e) => setFormData({...formData, imageType: e.target.value})}
+                       className="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-[20px] text-[14px] font-bold focus:bg-white focus:border-indigo-100 outline-none transition-all shadow-inner appearance-none cursor-pointer"
+                    >
+                       <option>Front&Back</option>
+                       <option>Front Only</option>
+                       <option>Back Only</option>
+                    </select>
+                    <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
+                 </div>
+              </div>
+
+              {/* Document Name Front */}
+              <div className="space-y-2">
+                 <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                    Document Name Front <span className="text-rose-500">*</span>
+                 </label>
+                 <input 
+                    type="text" 
+                    value={formData.nameFront}
+                    onChange={(e) => setFormData({...formData, nameFront: e.target.value})}
+                    placeholder="e.g. Aadhar Front"
+                    className="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-[20px] text-[14px] font-bold focus:bg-white focus:border-indigo-100 outline-none transition-all shadow-inner"
+                 />
+              </div>
+
+              {/* Document Name Back */}
+              <div className="space-y-2">
+                 <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                    Document Name Back <span className="text-rose-500">*</span>
+                 </label>
+                 <input 
+                    type="text" 
+                    value={formData.nameBack}
+                    onChange={(e) => setFormData({...formData, nameBack: e.target.value})}
+                    placeholder="e.g. Aadhar Back"
+                    className="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-[20px] text-[14px] font-bold focus:bg-white focus:border-indigo-100 outline-none transition-all shadow-inner"
+                 />
+              </div>
+
+              {/* Has Identify Number */}
+              <div className="space-y-2">
+                 <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                    Has Identify Number <span className="text-rose-500">*</span>
+                 </label>
+                 <div className="relative">
+                    <select 
+                       value={formData.hasIdentifyNumber}
+                       onChange={(e) => setFormData({...formData, hasIdentifyNumber: e.target.value})}
+                       className="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-[20px] text-[14px] font-bold focus:bg-white focus:border-indigo-100 outline-none transition-all shadow-inner appearance-none cursor-pointer"
+                    >
+                       <option>No</option>
+                       <option>Yes</option>
+                    </select>
+                    <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
+                 </div>
+              </div>
+
+              {/* Checkboxes */}
+              <div className="col-span-2 flex items-center gap-12 pt-4">
+                 <label className="flex items-center gap-3 cursor-pointer group">
+                    <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${formData.isEditable ? 'bg-indigo-600 border-indigo-600 shadow-lg shadow-indigo-100' : 'border-gray-200 group-hover:border-indigo-200'}`}>
+                       {formData.isEditable && <Check size={14} className="text-white" strokeWidth={4} />}
+                       <input type="checkbox" className="hidden" checked={formData.isEditable} onChange={() => setFormData({...formData, isEditable: !formData.isEditable})} />
+                    </div>
+                    <span className="text-[13px] font-black uppercase tracking-widest text-gray-700">Is Editable?</span>
+                 </label>
+
+                 <label className="flex items-center gap-3 cursor-pointer group">
+                    <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${formData.isRequired ? 'bg-indigo-600 border-indigo-600 shadow-lg shadow-indigo-100' : 'border-gray-200 group-hover:border-indigo-200'}`}>
+                       {formData.isRequired && <Check size={14} className="text-white" strokeWidth={4} />}
+                       <input type="checkbox" className="hidden" checked={formData.isRequired} onChange={() => setFormData({...formData, isRequired: !formData.isRequired})} />
+                    </div>
+                    <span className="text-[13px] font-black uppercase tracking-widest text-gray-700">Is Required?</span>
+                 </label>
+              </div>
+           </div>
+
+           <div className="mt-12 pt-10 border-t border-gray-50 flex justify-end gap-4">
+              <button onClick={() => setView('list')} className="px-10 py-4 border border-gray-100 rounded-[24px] text-[13px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-950 hover:bg-gray-50 transition-all">Cancel</button>
+              <button 
+                onClick={() => setView('list')}
+                className="px-12 py-4 bg-indigo-600 text-white rounded-[24px] text-[13px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100 flex items-center gap-3"
+              >
+                 <Save size={18} /> Update Document
+              </button>
+           </div>
+        </div>
+
+        {/* INFO FOOTER */}
+        <div className="bg-amber-50 border border-amber-100 p-8 rounded-[40px] flex gap-5 text-amber-900 shadow-sm relative overflow-hidden group">
+           <div className="absolute top-0 right-0 p-8 opacity-10 -rotate-12 translate-x-4"><AlertCircle size={80} strokeWidth={1} /></div>
+           <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center border border-amber-100 shrink-0 shadow-sm"><Info size={24} className="text-amber-500" /></div>
+           <div className="relative z-10">
+              <h4 className="text-[14px] font-black uppercase tracking-widest mb-1.5 focus:outline-none">Configuration Notice</h4>
+              <p className="text-[12px] font-bold leading-relaxed max-w-4xl opacity-80 italic">Changes to global document requirements for drivers will reflect immediately on the mobile application for all agents. Ensure OCR compatibility before requiring specific image types (Front/Back/Merge).</p>
+           </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-10 p-1 animate-in fade-in duration-700 font-sans text-gray-950">
+    <div className="space-y-8 p-1 animate-in fade-in duration-700 font-sans text-gray-950">
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+      <div className="flex items-start justify-between">
          <div>
-            <h1 className="text-4xl font-black tracking-tight text-gray-900 mb-2 leading-none">Global Document Vault</h1>
+            <h1 className="text-4xl font-black tracking-tight text-gray-900 mb-2 leading-none uppercase tracking-tighter">Driver Needed Documents</h1>
             <div className="flex items-center gap-2 text-[13px] font-bold text-gray-400">
-               <span className="text-gray-950">Systems Management</span>
+               <span className="text-gray-950 uppercase tracking-widest leading-none">Masters</span>
                <ChevronRight size={14} />
-               <span>Document Compliance</span>
+               <span className="uppercase tracking-widest leading-none">Global Config</span>
             </div>
          </div>
-         <div className="flex items-center gap-3">
-            <button className="bg-white border border-gray-100 text-gray-950 px-5 py-2.5 rounded-xl text-[12px] font-black flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm">
-               <Files size={16} className="text-gray-400" /> Export All
-            </button>
-            <button className="bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-[12px] font-black flex items-center gap-2 hover:opacity-90 transition-all shadow-xl">
-               <FileCheck2 size={16} /> Bulk Re-Verify
-            </button>
-         </div>
+         <button 
+            onClick={() => setView('add')}
+            className="bg-indigo-600 text-white px-8 py-3.5 rounded-[24px] text-[13px] font-black flex items-center gap-3 hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100 uppercase tracking-widest"
+         >
+            <Plus size={18} /> Add Driver Needed Documents
+         </button>
       </div>
 
-      {/* DASHBOARD STATS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-         <div className="bg-white p-8 rounded-[40px] border border-gray-50 shadow-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-6 opacity-5 scale-[2.5] -rotate-12 translate-x-4"><ShieldCheck size={80} strokeWidth={1} /></div>
-            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6 relative z-10">Compliance Rate</p>
-            <div className="relative z-10">
-               <p className="text-5xl font-black text-gray-950 tracking-tighter leading-none mb-2">94%</p>
-               <p className="text-[11px] font-black text-emerald-500 uppercase flex items-center gap-1.5 leading-none mt-4 uppercase">
-                  Optimal Condition
-               </p>
-            </div>
-         </div>
+      {/* TOOLBAR */}
+      <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-6 overflow-hidden">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-3 text-[13px] font-black uppercase tracking-widest text-gray-400 leading-none">
+            show 
+            <select 
+              value={itemsPerPage}
+              onChange={(e) => setItemsPerPage(e.target.value)}
+              className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-2 text-gray-950 font-black focus:outline-none focus:border-indigo-200 transition-all cursor-pointer shadow-inner"
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+            </select>
+            entries
+          </div>
 
-         <div className="bg-white p-8 rounded-[40px] border border-gray-50 shadow-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-6 opacity-5 scale-[2] -rotate-12 translate-x-4"><Clock size={80} strokeWidth={1} /></div>
-            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6 relative z-10">Awaiting OCR Audit</p>
-            <div className="relative z-10">
-               <p className="text-3xl font-black text-gray-950 tracking-tight leading-none mb-2">{docStats.pending}</p>
-               <p className="text-[11px] font-bold text-amber-500 uppercase flex items-center gap-1.5 leading-none mt-4">
-                  Manual Review Queue
-               </p>
-            </div>
-         </div>
-
-         <div className="bg-white p-8 rounded-[40px] border border-rose-50 shadow-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-6 opacity-10 text-rose-500 scale-[2.5] -rotate-12 translate-x-4"><AlertTriangle size={80} strokeWidth={1} /></div>
-            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6 relative z-10">Expired Certs</p>
-            <div className="relative z-10">
-               <p className="text-3xl font-black text-rose-500 tracking-tight leading-none mb-2">{docStats.expired}</p>
-               <p className="text-[11px] font-bold text-rose-600 uppercase flex items-center gap-1.5 leading-none mt-4">
-                  CRITICAL ALERTS
-               </p>
-            </div>
-         </div>
-
-         <div className="bg-gray-950 p-8 rounded-[40px] text-white shadow-2xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-6 opacity-20 scale-[2.5] -rotate-12 translate-x-4"><FolderLock size={80} strokeWidth={1} /></div>
-            <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-6 relative z-10">Storage Pool</p>
-            <div className="relative z-10 mb-8">
-               <p className="text-3xl font-black tracking-tighter leading-none mb-2">42.4 GB</p>
-               <p className="text-[11px] font-black text-emerald-400 flex items-center gap-1.5 leading-none mt-4 uppercase">
-                  Encrypted Vault
-               </p>
-            </div>
-         </div>
+          <div className="relative w-full md:w-96 group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
+            <input 
+               type="text" 
+               placeholder="Filter documents..." 
+               value={searchTerm}
+               onChange={(e) => setSearchTerm(e.target.value)}
+               className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-transparent rounded-[20px] text-[13px] font-bold focus:bg-white focus:border-indigo-100 outline-none transition-all shadow-inner"
+            />
+          </div>
+        </div>
       </div>
 
-      {/* SEARCH/FILTER TOOLS */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-         <h2 className="text-2xl font-black tracking-tight text-gray-900 leading-none">Audit History</h2>
-         <div className="flex flex-wrap items-center gap-3">
-            <div className="px-5 py-2.5 bg-black text-white text-[12px] font-black rounded-xl">All Types</div>
-            <div className="px-5 py-2.5 bg-white text-gray-500 text-[12px] font-black rounded-xl border border-gray-100 hover:bg-gray-50 transition-all flex items-center gap-2 cursor-pointer shadow-sm">
-               Rejected Only
-            </div>
-            <div className="relative w-64 md:w-80">
-               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-               <input type="text" placeholder="Search ID, Name or Doc Type..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-11 pr-4 py-3 bg-white border border-gray-100 rounded-xl text-[12px] font-bold focus:ring-2 focus:ring-gray-100 outline-none transition-all shadow-sm" />
-            </div>
-         </div>
-      </div>
+      {/* DOCUMENT LIST */}
+      <div className="bg-white rounded-[40px] border border-gray-50 shadow-sm overflow-hidden min-h-[500px]">
+        <div className="overflow-x-auto no-scrollbar">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-gray-50/50 border-b border-gray-50 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                <th className="px-10 py-6">Name</th>
+                <th className="px-6 py-6 text-center">Account Type</th>
+                <th className="px-6 py-6 text-center">Status</th>
+                <th className="px-10 py-6 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {filteredDocs.map((doc) => (
+                <tr key={doc.id} className="group hover:bg-indigo-50/10 transition-all duration-300">
+                  <td className="px-10 py-6">
+                    <div className="flex items-center gap-4">
+                       <div className="p-2.5 bg-gray-100 rounded-xl text-indigo-500 shadow-inner group-hover:bg-gray-950 group-hover:text-white transition-all"><FileText size={18} /></div>
+                       <p className="text-[15px] font-black text-gray-950 uppercase tracking-tight leading-none">{doc.name}</p>
+                    </div>
+                  </td>
+                  <td className="px-6 py-6 text-center">
+                    <span className="text-[13px] font-black text-gray-400 uppercase tracking-widest italic">{doc.accountType}</span>
+                  </td>
+                  <td className="px-6 py-6">
+                     <div className="flex justify-center items-center">
+                        <label className="relative inline-flex items-center cursor-pointer">
+                           <input type="checkbox" className="sr-only peer" checked={doc.status} onChange={() => {}} />
+                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                        </label>
+                     </div>
+                  </td>
+                  <td className="px-10 py-6 text-right">
+                     <div className="flex items-center justify-end gap-2">
+                        <button 
+                          onClick={() => handleEdit(doc)}
+                          className="p-3 text-amber-500 hover:bg-amber-50 rounded-xl transition-all shadow-sm border border-transparent hover:border-amber-100"
+                        >
+                           <Edit2 size={18} />
+                        </button>
+                        <button className="p-3 text-rose-500 hover:bg-rose-50 rounded-xl transition-all shadow-sm border border-transparent hover:border-rose-100">
+                           <Trash2 size={18} />
+                        </button>
+                     </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-      {/* DOC TABLE */}
-      <div className="bg-white rounded-[40px] border border-gray-50 shadow-sm overflow-hidden">
-         <div className="overflow-x-auto no-scrollbar">
-            <table className="w-full text-left">
-               <thead>
-                  <tr className="border-b border-gray-50 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] bg-gray-50/20">
-                     <th className="px-8 py-6">Operator Name</th>
-                     <th className="px-6 py-6">Document Type</th>
-                     <th className="px-6 py-6 text-center">Expiry Period</th>
-                     <th className="px-6 py-6 text-center">Outcome</th>
-                     <th className="px-6 py-6">Uploaded AT</th>
-                     <th className="px-8 py-6 text-right w-10"></th>
-                  </tr>
-               </thead>
-               <tbody className="divide-y divide-gray-50">
-                  {documents.map((doc, i) => (
-                     <tr key={i} className="hover:bg-gray-50/10 transition-all cursor-pointer group">
-                        <td className="px-8 py-6">
-                           <div className="flex items-center gap-4">
-                              <div className="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 text-gray-950 font-black text-[12px] flex items-center justify-center uppercase shadow-inner group-hover:scale-105 transition-transform">
-                                 {doc.driver.split(' ').map(n => n[0]).join('')}
-                              </div>
-                              <p className="text-[13px] font-bold text-gray-950 tracking-tight leading-none mb-1.5 focus:outline-none">{doc.driver}</p>
-                           </div>
-                        </td>
-                        <td className="px-6 py-6">
-                           <div className="flex items-center gap-2">
-                              <FileText size={16} className="text-gray-300" />
-                              <span className="text-[13px] font-black text-gray-800">{doc.type}</span>
-                           </div>
-                        </td>
-                        <td className="px-6 py-6 text-center">
-                           <p className={`text-[12px] font-black ${doc.status === 'Expiring Soon' ? 'text-amber-500' : 'text-gray-950'}`}>{doc.expiry}</p>
-                        </td>
-                        <td className="px-6 py-6 text-center">
-                           <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-widest border ${doc.status === 'Verified' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : doc.status === 'Expiring Soon' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
-                              {doc.status}
-                           </span>
-                        </td>
-                        <td className="px-6 py-6">
-                           <div className="flex items-center gap-2 text-[12px] font-bold text-gray-500">
-                              <Clock size={14} /> {doc.uploaded}
-                           </div>
-                        </td>
-                        <td className="px-8 py-6 text-right">
-                           <div className="flex items-center justify-end gap-2">
-                              <button className="p-2.5 text-gray-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-xl transition-all shadow-sm border border-transparent hover:border-emerald-100 active:scale-95"><Eye size={18} /></button>
-                              <button className="p-2.5 text-gray-400 hover:text-gray-950 hover:bg-white rounded-xl transition-all shadow-sm border border-transparent hover:border-gray-50"><MoreHorizontal size={18} /></button>
-                           </div>
-                        </td>
-                     </tr>
-                  ))}
-               </tbody>
-            </table>
-         </div>
-      </div>
-
-      {/* FOOTER AUDIT NOTE */}
-      <div className="p-8 bg-gray-50/50 rounded-[40px] border border-gray-100 flex items-start gap-5">
-         <div className="w-12 h-12 rounded-2xl bg-white text-gray-950 flex items-center justify-center border border-gray-200 shrink-0 shadow-sm transition-all animate-pulse"><BadgeCheck size={26} /></div>
-         <div>
-            <h4 className="text-[14px] font-black text-gray-950 uppercase tracking-widest mb-1.5 focus:outline-none">Security & Privacy Lock</h4>
-            <p className="text-[12px] font-bold text-gray-400 leading-relaxed max-w-4xl">All documents are stored in an AES-256 encrypted vault. Personnel accessing the vault for manual re-verification are logged. Masked identifiers are used for data transmission between client and administrative nodes.</p>
-         </div>
+        {/* PAGINATION */}
+        <div className="p-8 border-t border-gray-50 flex items-center justify-between">
+           <p className="text-[11px] font-black text-gray-400 uppercase tracking-widest italic">Showing 1 to {filteredDocs.length} of {filteredDocs.length} entries</p>
+           <div className="flex items-center gap-2">
+              <button className="px-4 py-2 border border-gray-100 rounded-xl text-[10px] font-black text-gray-400 hover:text-gray-950 transition-all" disabled>PREV</button>
+              <button className="w-10 h-10 bg-indigo-600 text-white rounded-xl text-[13px] font-black shadow-lg shadow-indigo-100">1</button>
+              <button className="px-4 py-2 border border-gray-100 rounded-xl text-[10px] font-black text-gray-400 hover:text-gray-950 transition-all font-black" disabled>NEXT</button>
+           </div>
+        </div>
       </div>
     </div>
   );

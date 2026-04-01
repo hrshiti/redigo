@@ -28,8 +28,13 @@ const Activity = lazy(() => import('./modules/user/pages/Activity'));
 const Profile = lazy(() => import('./modules/user/pages/Profile'));
 const Wallet = lazy(() => import('./modules/user/pages/Wallet'));
 
-// Coming Soon placeholder
+// Coming Soon placeholder (for /tours and any unbuilt routes)
 const ComingSoon = lazy(() => import('./modules/shared/pages/ComingSoon'));
+
+// New Feature Pages
+const BikeRentalHome = lazy(() => import('./modules/user/pages/rental/BikeRentalHome'));
+const IntercityHome = lazy(() => import('./modules/user/pages/intercity/IntercityHome'));
+const CabSharing = lazy(() => import('./modules/user/pages/cabsharing/CabSharing'));
 
 // Profile Settings Sub-pages
 const ProfileSettings = lazy(() => import('./modules/user/pages/profile/ProfileSettings'));
@@ -73,20 +78,33 @@ const AdminLayout = lazy(() => import('./modules/admin/components/AdminLayout'))
 const AdminLogin = lazy(() => import('./modules/admin/pages/auth/AdminLogin'));
 const AdminDashboard = lazy(() => import('./modules/admin/pages/dashboard/MainDashboard'));
 const AdminUserList = lazy(() => import('./modules/admin/pages/users/UserList'));
+const AdminUserDetails = lazy(() => import('./modules/admin/pages/users/UserDetails'));
 const AdminDeleteRequestUsers = lazy(() => import('./modules/admin/pages/users/DeleteRequestUsers'));
 const AdminUserBulkUpload = lazy(() => import('./modules/admin/pages/users/UserBulkUpload'));
 
 // DRIVER MANAGEMENT IMPORTS
 const AdminDriverList = lazy(() => import('./modules/admin/pages/drivers/DriverList'));
+const AdminDriverDetails = lazy(() => import('./modules/admin/pages/drivers/DriverDetails'));
 const AdminPendingDrivers = lazy(() => import('./modules/admin/pages/drivers/PendingDrivers'));
 const AdminDriverSubscriptions = lazy(() => import('./modules/admin/pages/drivers/DriverSubscriptions'));
 const AdminDriverRatings = lazy(() => import('./modules/admin/pages/drivers/DriverRatings'));
+const AdminDriverRatingDetail = lazy(() => import('./modules/admin/pages/drivers/DriverRatingDetail'));
 const AdminDriverWallet = lazy(() => import('./modules/admin/pages/drivers/DriverWallet'));
+const AdminNegativeBalanceDrivers = lazy(() => import('./modules/admin/pages/drivers/NegativeBalanceDrivers'));
+const AdminWithdrawalRequestDrivers = lazy(() => import('./modules/admin/pages/drivers/WithdrawalRequestDrivers'));
+const AdminWithdrawalRequestDetail = lazy(() => import('./modules/admin/pages/drivers/WithdrawalRequestDetail'));
 const AdminDriverDeleteRequests = lazy(() => import('./modules/admin/pages/drivers/DriverDeleteRequests'));
 const AdminGlobalDocuments = lazy(() => import('./modules/admin/pages/drivers/GlobalDocuments'));
 const AdminDriverBulkUpload = lazy(() => import('./modules/admin/pages/drivers/DriverBulkUpload'));
 const AdminDriverAudit = lazy(() => import('./modules/admin/pages/drivers/DriverAudit'));
 const AdminPaymentMethods = lazy(() => import('./modules/admin/pages/drivers/PaymentMethods'));
+const AdminServiceConfig = lazy(() => import('./modules/admin/pages/drivers/ServiceConfig'));
+const AdminReferralDashboard = lazy(() => import('./modules/admin/pages/referrals/ReferralDashboard'));
+const AdminReferralSettings = lazy(() => import('./modules/admin/pages/referrals/ReferralSettings'));
+
+// OWNER MANAGEMENT IMPORTS
+const AdminOwnerDashboard = lazy(() => import('./modules/admin/pages/owners/OwnerDashboard'));
+const AdminManageOwners = lazy(() => import('./modules/admin/pages/owners/ManageOwners'));
 
 const AdminGeoFencing = lazy(() => import('./modules/admin/pages/geo/GeoFencing'));
 const AdminFinance = lazy(() => import('./modules/admin/pages/finance/Finance'));
@@ -143,11 +161,11 @@ function App() {
             <Route path="/parcel/contacts" element={<SenderReceiverDetails />} />
             <Route path="/parcel/detail/:id" element={<RideDetail />} />
 
-            {/* New Service Routes — Coming Soon pages */}
-            <Route path="/rental" element={<ComingSoon />} />
-            <Route path="/intercity" element={<ComingSoon />} />
+            {/* New Service Routes — Real pages replacing ComingSoon */}
+            <Route path="/rental" element={<BikeRentalHome />} />
+            <Route path="/intercity" element={<IntercityHome />} />
+            <Route path="/cab-sharing" element={<CabSharing />} />
             <Route path="/tours" element={<ComingSoon />} />
-            <Route path="/cab-sharing" element={<ComingSoon />} />
 
             <Route path="/activity" element={<Activity />} />
             <Route path="/profile" element={<Profile />} />
@@ -194,19 +212,43 @@ function App() {
               <Route index element={<Navigate to="/admin/dashboard" />} />
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="users" element={<AdminUserList />} />
+              <Route path="users/:id" element={<AdminUserDetails />} />
               <Route path="users/delete-requests" element={<AdminDeleteRequestUsers />} />
               <Route path="users/bulk-upload" element={<AdminUserBulkUpload />} />
               
               <Route path="drivers" element={<AdminDriverList />} />
+              <Route path="drivers/:id" element={<AdminDriverDetails />} />
               <Route path="drivers/pending" element={<AdminPendingDrivers />} />
               <Route path="drivers/subscription" element={<AdminDriverSubscriptions />} />
               <Route path="drivers/ratings" element={<AdminDriverRatings />} />
+              <Route path="drivers/ratings/:id" element={<AdminDriverRatingDetail />} />
               <Route path="drivers/wallet" element={<AdminDriverWallet />} />
+              <Route path="drivers/wallet/negative" element={<AdminNegativeBalanceDrivers />} />
+              <Route path="drivers/wallet/withdrawals" element={<AdminWithdrawalRequestDrivers />} />
+              <Route path="drivers/wallet/withdrawals/:id" element={<AdminWithdrawalRequestDetail />} />
               <Route path="drivers/delete-requests" element={<AdminDriverDeleteRequests />} />
               <Route path="drivers/documents" element={<AdminGlobalDocuments />} />
               <Route path="drivers/bulk-upload" element={<AdminDriverBulkUpload />} />
               <Route path="drivers/payment-methods" element={<AdminPaymentMethods />} />
-              <Route path="drivers/audit/:id" element={<AdminDriverAudit />} />
+              <Route path="drivers/service-config" element={<AdminServiceConfig />} />
+               <Route path="drivers/audit/:id" element={<AdminDriverAudit />} />
+              <Route path="referrals/dashboard" element={<AdminReferralDashboard />} />
+              <Route path="referrals/settings" element={<AdminReferralSettings />} />
+              
+              {/* Owner Management */}
+              <Route path="owners/dashboard" element={<AdminOwnerDashboard />} />
+              <Route path="owners" element={<AdminManageOwners />} />
+              <Route path="owners/wallet" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Owner Wallet Ledger - Under Development</div>} />
+              
+              {/* Fleet Management Sub-routes */}
+              <Route path="fleet/drivers" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Fleet Active Drivers - Under Development</div>} />
+              <Route path="fleet/blocked" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Blocked Fleet Drivers List - Under Development</div>} />
+              <Route path="fleet/documents" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Fleet Required Documents - Under Development</div>} />
+              <Route path="fleet/manage" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Master Fleet Management - Under Development</div>} />
+              
+              <Route path="owners/documents" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Global Owner Documents - Under Development</div>} />
+              <Route path="owners/deleted" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Archived Owners - Under Development</div>} />
+              <Route path="owners/bookings" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Fleet Bookings - Under Development</div>} />
               <Route path="referrals/config" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Referral Configuration - Under Setup</div>} />
               <Route path="referrals/active" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Active Referrals Logs - Under Setup</div>} />
               <Route path="geo" element={<AdminGeoFencing />} />

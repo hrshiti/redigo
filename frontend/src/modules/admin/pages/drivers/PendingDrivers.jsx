@@ -1,162 +1,292 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
-  Clock, 
   Search, 
   ChevronRight, 
-  ShieldAlert, 
-  FileCheck, 
-  UserPlus, 
-  Mail, 
-  Phone, 
-  Car, 
+  Eye, 
   CheckCircle2, 
   XCircle, 
-  Eye, 
+  MoreHorizontal,
+  Download,
+  Filter,
+  ArrowLeft,
   ArrowRight,
-  AlertCircle,
+  UserCheck,
   FileText,
-  BadgeAlert,
-  ShieldCheck
+  AlertCircle,
+  Star
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const PendingDrivers = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  
-  const [pendingDrivers] = useState([
-    { id: 'REG001', name: 'Vikram Mehta', email: 'vikram@example.com', phone: '+91 9988776655', vehicle: 'Toyota Innova', progress: 80, date: 'Mar 28, 2024', missingDocs: ['Aadhar Card Back'] },
-    { id: 'REG002', name: 'Suhail Khan', email: 'suhail@example.com', phone: '+91 8877665544', vehicle: 'Maruti Ertiga', progress: 40, date: 'Mar 29, 2024', missingDocs: ['Driving License', 'RC Copy', 'Vehicle Insurance'] },
-    { id: 'REG003', name: 'Deepak Rao', email: 'deepak@example.com', phone: '+91 7766554433', vehicle: 'Hyundai Aura', progress: 100, date: 'Mar 30, 2024', missingDocs: [] },
-    { id: 'REG004', name: 'Rahul Varma', email: 'rahul.v@example.com', phone: '+91 6655443322', vehicle: 'Maruti Dzire', progress: 60, date: 'Mar 31, 2024', missingDocs: ['Profile Photo', 'Bank Cheque'] },
-  ]);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [isLoading, setIsLoading] = useState(true);
+  const [pendingDrivers, setPendingDrivers] = useState([]);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchPendingDrivers = async () => {
+      setIsLoading(true);
+      try {
+        // Valid token provided by user
+        const providedToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YzdiZTZhYmJlOTJlYjYwMGYwMmQxNiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwibW9iaWxlIjoiOTk5OTk5OTk5OSIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTc3NTA0OTExNywiZXhwIjoxODA2NTg1MTE3fQ.5KJmXJwaVefWhnc97EqtArkA1z7ZOhsJwA9fbyRVPdQ';
+        const storedToken = localStorage.getItem('adminToken');
+        
+        // Use provided token if stored is missing or invalid
+        const token = (storedToken && storedToken !== 'undefined' && storedToken !== 'null') ? storedToken : providedToken;
+        
+        const response = await fetch('https://taxi-a276.onrender.com/api/v1/admin/drivers?page=1&limit=50', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const responseData = await response.json();
+        if (response.ok && responseData.success) {
+          const driversList = responseData.data?.results || [];
+          
+          // Filter for pending status (Adjusting based on approve status)
+          const pending = driversList.filter(d => 
+            d.approve === false || d.status === 'Pending' || d.status === 'In-Review'
+          ).map(d => ({
+            id: d._id,
+            name: d.name || d.user_id?.name || 'Unknown',
+            location: d.city || d.service_location?.name || (d.service_location_id ? `ID: ${d.service_location_id.substring(0, 8)}...` : 'All City'),
+            phone: d.mobile || d.user_id?.mobile || 'N/A',
+            transport: d.transport_type || 'N/A',
+            docs: d.approve === false ? 'Pending Review' : 'Verified',
+            status: d.approve ? 'Approved' : 'Pending', 
+            reason: d.rejectionReason || '-',
+            rating: d.rating || '0.0',
+            registeredAt: d.createdAt ? new Date(d.createdAt).toLocaleString() : 'N/A'
+          }));
+          
+          setPendingDrivers(pending);
+        } else {
+          setError(responseData.message || 'Failed to fetch pending drivers');
+        }
+      } catch (err) {
+        console.error('Error fetching pending drivers:', err);
+        setError('Network error occurred.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPendingDrivers();
+  }, []);
+
+  const filteredDrivers = pendingDrivers.filter(driver => 
+    (driver.name && driver.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (driver.phone && driver.phone.includes(searchTerm)) ||
+    (driver.location && driver.location.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   return (
     <div className="space-y-8 p-1 animate-in fade-in duration-700 font-sans text-gray-950">
       {/* HEADER */}
       <div className="flex items-start justify-between">
          <div>
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 mb-2">Onboarding Queue</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-gray-900 mb-2">Pending Drivers</h1>
             <div className="flex items-center gap-2 text-[13px] font-bold text-gray-400">
-               <span className="text-gray-950">Fleet Control</span>
+               <span className="text-gray-950 uppercase tracking-widest">Driver Mgmt</span>
                <ChevronRight size={14} />
-               <span>Pending Verifications</span>
+               <span className="uppercase tracking-widest">Pending Drivers</span>
             </div>
          </div>
-         <div className="bg-amber-50 border border-amber-100 px-6 py-3 rounded-2xl flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-amber-500 shadow-sm border border-amber-50">
-               <Clock size={20} className="animate-pulse" />
-            </div>
-            <div>
-               <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest leading-none">Awaiting Approval</p>
-               <p className="text-xl font-black text-amber-700 mt-1">{pendingDrivers.filter(d => d.progress === 100).length} Ready for Review</p>
-            </div>
+         <div className="flex items-center gap-3">
+            <button className="bg-white border border-gray-200 text-gray-950 px-5 py-2.5 rounded-xl text-[13px] font-bold flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm">
+               <Download size={16} className="text-gray-400" /> Export List
+            </button>
          </div>
       </div>
 
-      {/* FILTER & SEARCH */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-         <div className="flex flex-wrap items-center gap-2">
-            <div className="px-4 py-2 bg-black text-white text-[12px] font-black rounded-xl">All Pending</div>
-            <div className="px-4 py-2 bg-white text-gray-500 text-[12px] font-black rounded-xl border border-gray-100 hover:bg-gray-50 transition-all flex items-center gap-2 cursor-pointer">
-               100% Completed Only
-            </div>
-            <div className="px-4 py-2 bg-white text-gray-500 text-[12px] font-black rounded-xl border border-gray-100 hover:bg-gray-50 transition-all flex items-center gap-2 cursor-pointer">
-               Priority Queue
-            </div>
-         </div>
-         <div className="relative w-full md:w-80">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+      {/* CONTROLS */}
+      <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-6">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          
+          <div className="flex items-center gap-3 text-[13px] font-black uppercase tracking-widest text-gray-400">
+            Show 
+            <select 
+              value={itemsPerPage}
+              onChange={(e) => setItemsPerPage(e.target.value)}
+              className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-2 text-gray-950 focus:outline-none focus:border-indigo-200 transition-all cursor-pointer shadow-inner"
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+            entries
+          </div>
+
+          <div className="relative w-full md:w-96 group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-500 transition-colors" size={18} />
             <input 
                type="text" 
-               placeholder="Search application ID or name..." 
+               placeholder="Search by name, location or phone..." 
                value={searchTerm}
                onChange={(e) => setSearchTerm(e.target.value)}
-               className="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-[13px] font-bold focus:ring-2 focus:ring-gray-100 outline-none transition-all"
+               className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-transparent rounded-[20px] text-[13px] font-bold focus:bg-white focus:border-indigo-100 focus:ring-4 focus:ring-indigo-50/50 outline-none transition-all shadow-inner"
             />
-         </div>
+          </div>
+
+        </div>
       </div>
 
-      {/* DRIVER GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-         {pendingDrivers.map((driver) => (
-            <div key={driver.id} className="bg-white rounded-[40px] border border-gray-50 shadow-sm hover:shadow-xl transition-all p-8 flex flex-col group relative overflow-hidden">
-               {driver.progress === 100 && (
-                  <div className="absolute top-0 right-0 py-2 px-6 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-bl-2xl">
-                     Ready to Approve
-                  </div>
-               )}
-               
-               <div className="flex items-start justify-between mb-8">
-                  <div className="flex items-center gap-5">
-                     <div className="w-16 h-16 rounded-[24px] bg-gray-50 border border-gray-100 text-gray-900 font-black text-lg flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform">
-                        {driver.name.split(' ').map(n => n[0]).join('')}
-                     </div>
-                     <div className="text-left">
-                        <p className="text-[17px] font-black text-gray-950 tracking-tight leading-none mb-2">{driver.name}</p>
-                        <div className="flex items-center gap-4 text-[11px] font-black text-gray-400">
-                           <span className="flex items-center gap-1.5"><Car size={13} /> {driver.vehicle}</span>
-                           <span className="flex items-center gap-1.5 uppercase tracking-widest"><Clock size={13} /> {driver.date}</span>
+      {/* TABLE */}
+      <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto no-scrollbar">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-gray-50/50 border-b border-gray-50 text-[11px] font-black text-gray-400 uppercase tracking-[0.1em]">
+                <th className="px-6 py-6 min-w-[200px]">Name</th>
+                <th className="px-4 py-6">Service Location</th>
+                <th className="px-4 py-6">Mobile Number</th>
+                <th className="px-4 py-6">Transport Type</th>
+                <th className="px-4 py-6">Document View</th>
+                <th className="px-4 py-6 text-center">Approved Status</th>
+                <th className="px-4 py-6 text-center">Declined Reason</th>
+                <th className="px-4 py-6 text-center">Rating</th>
+                <th className="px-4 py-6">Registered at</th>
+                <th className="px-6 py-6 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {isLoading ? (
+                <tr>
+                  <td colSpan="10" className="px-6 py-20 text-center">
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="w-10 h-10 border-4 border-indigo-50 border-t-indigo-500 rounded-full animate-spin"></div>
+                      <p className="text-[14px] font-black text-gray-400 uppercase tracking-widest">Loading...</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : filteredDrivers.length === 0 ? (
+                <tr>
+                  <td colSpan="10" className="px-6 py-24 text-center">
+                    <div className="flex flex-col items-center gap-4 opacity-30">
+                      <AlertCircle size={48} strokeWidth={1.5} />
+                      <p className="text-[16px] font-black uppercase tracking-widest text-gray-950">No Data Found</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredDrivers.map((driver) => (
+                  <tr key={driver.id} className="group hover:bg-indigo-50/20 transition-all duration-300">
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-50 to-indigo-100 flex items-center justify-center font-black text-indigo-600 text-[13px] border border-indigo-200/50 shadow-sm group-hover:scale-110 transition-transform">
+                          {driver.name.split(' ').map(n => n[0]).join('')}
                         </div>
-                     </div>
-                  </div>
-                  <div className="text-right">
-                     <p className="text-3xl font-black text-gray-950 leading-none">{driver.progress}%</p>
-                     <p className="text-[9px] font-black text-gray-400 mt-2 uppercase tracking-widest">Profile Completion</p>
-                  </div>
-               </div>
-
-               <div className="flex-1 space-y-4 mb-8">
-                   <div className="w-full h-2 bg-gray-50 rounded-full overflow-hidden">
-                      <div 
-                         className={`h-full transition-all duration-1000 origin-left ${driver.progress === 100 ? 'bg-emerald-500' : 'bg-gray-900'}`} 
-                         style={{ width: `${driver.progress}%` }}
-                      ></div>
-                   </div>
-                   
-                   {driver.missingDocs.length > 0 ? (
-                      <div className="p-5 bg-rose-50/50 rounded-2xl border border-rose-100/50">
-                         <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest mb-3 flex items-center gap-2">
-                            <BadgeAlert size={14} /> Outstanding Documents
-                         </p>
-                         <div className="flex flex-wrap gap-2">
-                            {driver.missingDocs.map((doc, i) => (
-                               <span key={i} className="px-3 py-1 bg-white border border-rose-100 rounded-lg text-[10px] font-bold text-rose-500">{doc}</span>
-                            ))}
-                         </div>
+                        <div>
+                          <p className="text-[14px] font-black text-gray-950 leading-none">{driver.name}</p>
+                          <p className="text-[10px] font-black text-indigo-500 mt-1.5 uppercase tracking-widest opacity-50">{driver.id}</p>
+                        </div>
                       </div>
-                   ) : (
-                      <div className="p-5 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center gap-3">
-                         <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center text-emerald-500"><FileCheck size={18} /></div>
-                         <p className="text-[11px] font-black text-emerald-700 uppercase tracking-widest">All critical documentation uploaded</p>
+                    </td>
+                    <td className="px-4 py-5">
+                      <div className="flex items-center gap-2 text-[13px] font-bold text-gray-600">
+                         <span className="text-gray-950 font-black tracking-tight">{driver.location.includes(',') ? driver.location.split(',')[0] : driver.location}</span>
+                         {driver.location.includes(',') && (
+                           <>
+                             <span className="text-gray-300">·</span>
+                             <span className="text-[11px] uppercase">{driver.location.split(',')[1]}</span>
+                           </>
+                         )}
                       </div>
-                   )}
-               </div>
-
-               <div className="pt-6 border-t border-gray-50 flex items-center justify-between">
-                  <div className="flex gap-2">
-                     <button className="p-3 bg-gray-50 hover:bg-gray-100 text-gray-500 rounded-xl transition-all border border-gray-100"><Mail size={18} /></button>
-                     <button className="p-3 bg-gray-50 hover:bg-gray-100 text-gray-500 rounded-xl transition-all border border-gray-100"><Phone size={18} /></button>
-                  </div>
-                  <div className="flex gap-3">
-                     <button className="px-6 py-3 bg-white border border-gray-100 text-gray-950 text-[11px] font-black uppercase tracking-widest rounded-xl hover:bg-gray-50 transition-all flex items-center gap-2">
-                        <Eye size={16} /> Audit Docs
-                     </button>
-                     <button className={`px-6 py-3 text-white text-[11px] font-black uppercase tracking-widest rounded-xl hover:opacity-90 active:scale-95 transition-all shadow-lg flex items-center gap-2 ${driver.progress === 100 ? 'bg-black shadow-gray-200' : 'bg-gray-300 cursor-not-allowed shadow-none'}`}>
-                        {driver.progress === 100 ? 'Final Approve' : 'Pre-Approve'} <ArrowRight size={16} />
-                     </button>
-                  </div>
-               </div>
-            </div>
-         ))}
+                    </td>
+                    <td className="px-4 py-5 text-[13px] font-black text-gray-950">
+                      {driver.phone}
+                    </td>
+                    <td className="px-4 py-5">
+                      <span className="px-3 py-1 bg-gray-50 border border-gray-100 rounded-lg text-[10px] font-black text-gray-600 uppercase tracking-widest">
+                        {driver.transport}
+                      </span>
+                    </td>
+                    <td className="px-4 py-5">
+                      <button className="flex items-center gap-2 text-[11px] font-black text-indigo-600 uppercase tracking-widest hover:underline decoration-2 underline-offset-4">
+                        <FileText size={14} /> {driver.docs}
+                      </button>
+                    </td>
+                    <td className="px-4 py-5 text-center">
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                        driver.status === 'Pending' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-blue-50 text-blue-600 border-blue-100'
+                      }`}>
+                        {driver.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-5 text-center text-[12px] font-bold text-gray-400 italic">
+                      {driver.reason}
+                    </td>
+                    <td className="px-4 py-5 text-center">
+                      <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-gray-50 rounded-lg border border-gray-100">
+                         <Star size={12} className={driver.rating > 0 ? "fill-amber-400 text-amber-400" : "text-gray-300"} />
+                         <span className="text-[12px] font-black text-gray-950">{driver.rating}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-5 whitespace-nowrap">
+                       <p className="text-[12px] font-black text-gray-950 leading-none">{driver.registeredAt.split(',')[0]}</p>
+                       <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase leading-none">{driver.registeredAt.split(',')[1]}</p>
+                    </td>
+                    <td className="px-6 py-5 text-right">
+                       <div className="flex items-center justify-end gap-1">
+                          <button 
+                            onClick={() => navigate(`/admin/drivers/audit/${driver.id}`)}
+                            className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all" 
+                            title="Audit Documents"
+                          >
+                            <Eye size={16} />
+                          </button>
+                          <button className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all" title="Approve">
+                            <CheckCircle2 size={16} />
+                          </button>
+                          <button className="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all" title="Reject">
+                            <XCircle size={16} />
+                          </button>
+                       </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {/* FOOTER NOTE */}
-      <div className="p-8 bg-white rounded-[40px] border border-gray-50 shadow-sm flex items-start gap-5">
-         <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-500 flex items-center justify-center border border-indigo-100 shrink-0"><ShieldCheck size={26} /></div>
-         <div>
-            <h4 className="text-[14px] font-black text-gray-950 uppercase tracking-widest mb-1.5">Background Verification Policy</h4>
-            <p className="text-[12px] font-bold text-gray-400 leading-relaxed max-w-3xl">Drivers marked as 'Ready to Approve' have passed the initial document OCR check. Final manual inspection is still recommended for driving license authenticity. Verification logs are permanently stored in the audit trail.</p>
+      {/* PAGINATION / FOOTER */}
+      <div className="flex items-center justify-between p-2">
+         <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">
+            Showing <span className="text-gray-950">1</span> to <span className="text-gray-950">{filteredDrivers.length}</span> of <span className="text-gray-950">{filteredDrivers.length}</span> entries
+         </p>
+         <div className="flex items-center gap-2">
+            <button className="px-4 py-2 bg-white border border-gray-100 rounded-xl text-[11px] font-black text-gray-400 hover:text-gray-950 transition-all uppercase tracking-widest disabled:opacity-30" disabled>
+               Prev
+            </button>
+            <div className="flex items-center gap-1">
+               <button className="w-10 h-10 bg-indigo-600 text-white rounded-xl text-[13px] font-black shadow-lg shadow-indigo-200">1</button>
+            </div>
+            <button className="px-4 py-2 bg-white border border-gray-100 rounded-xl text-[11px] font-black text-gray-400 hover:text-gray-950 transition-all uppercase tracking-widest disabled:opacity-30" disabled>
+               Next
+            </button>
          </div>
       </div>
+
+      {/* POLICY BOX */}
+      <div className="bg-indigo-950 rounded-[40px] p-8 text-white relative overflow-hidden shadow-2xl">
+         <div className="absolute top-0 right-0 p-8 opacity-10 -rotate-12 translate-x-4">
+            <UserCheck size={120} strokeWidth={1} />
+         </div>
+         <div className="relative z-10 max-w-2xl">
+            <h4 className="text-[16px] font-black uppercase tracking-[0.15em] mb-3">Verification Compliance</h4>
+            <p className="text-[13px] font-bold text-indigo-200/80 leading-relaxed italic">
+               "Drivers appearing in this list have submitted their basic profile and selected locations. System automated checks for document clarity are in progress. Manual audit is mandatory for Final Approval."
+            </p>
+         </div>
+      </div>
+
     </div>
   );
 };

@@ -26,6 +26,8 @@ const DriverHome = () => {
     const [isOnline, setIsOnline] = useState(false);
     const [showRequest, setShowRequest] = useState(false);
     const [currentRequest, setCurrentRequest] = useState(null);
+    const [completedRides, setCompletedRides] = useState(0);
+    const [dutySeconds, setDutySeconds] = useState(0);
 
     // High-End Mock Request Generator
     const generateMockRequest = () => {
@@ -64,9 +66,23 @@ const DriverHome = () => {
         { id: 5, x: '70%', y: '10%', rot: 60 }
     ]);
 
+    // Duty timer — counts up when online
+    useEffect(() => {
+        let interval;
+        if (isOnline) {
+            interval = setInterval(() => setDutySeconds(s => s + 1), 1000);
+        } else {
+            clearInterval(interval);
+        }
+        return () => clearInterval(interval);
+    }, [isOnline]);
+
+    const dutyHours = Math.floor(dutySeconds / 3600);
+    const dutyMins = Math.floor((dutySeconds % 3600) / 60);
+
     const handleAccept = () => {
         setShowRequest(false);
-        // Pass the request type to the next screen for proper UI rendering
+        setCompletedRides(prev => prev + 1);
         navigate('/taxi/driver/active-trip', { 
             state: { type: currentRequest?.type || 'ride' } 
         });
@@ -96,7 +112,10 @@ const DriverHome = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <button className="w-9 h-9 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center text-slate-900 active:scale-90 transition-transform relative">
+                    <button
+                        onClick={() => navigate('/taxi/driver/notifications')}
+                        className="w-9 h-9 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center text-slate-900 active:scale-90 transition-transform relative"
+                    >
                         <Bell size={18} />
                         <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-rose-500 rounded-full border border-white" />
                     </button>
@@ -183,20 +202,22 @@ const DriverHome = () => {
                 </div>
             </div>
 
-            {/* Test Simulation Action */}
-            <AnimatePresence>
-                {isOnline && !showRequest && (
-                    <motion.button 
-                        initial={{ scale: 0, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 0, opacity: 0 }}
-                        onClick={() => setShowRequest(true)}
-                        className="absolute top-24 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-1.5 rounded-full text-[8.5px] font-black uppercase tracking-widest shadow-2xl border-2 border-white transition-all active:scale-95 z-20 ring-4 ring-slate-900/5 group"
-                    >
-                        Test Ride Flow <span className="group-hover:translate-x-1 transition-transform inline-block">🚀</span>
-                    </motion.button>
-                )}
-            </AnimatePresence>
+            {/* Test Simulation Action — DEV only */}
+            {import.meta.env.DEV && (
+                <AnimatePresence>
+                    {isOnline && !showRequest && (
+                        <motion.button 
+                            initial={{ scale: 0, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0, opacity: 0 }}
+                            onClick={() => { setCurrentRequest(generateMockRequest()); setShowRequest(true); }}
+                            className="absolute top-24 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-4 py-1.5 rounded-full text-[8.5px] font-black uppercase tracking-widest shadow-2xl border-2 border-white transition-all active:scale-95 z-20 ring-4 ring-slate-900/5 group"
+                        >
+                            Test Ride Flow <span className="group-hover:translate-x-1 transition-transform inline-block">🚀</span>
+                        </motion.button>
+                    )}
+                </AnimatePresence>
+            )}
 
             {/* Central Stats Card Compact Overlay */}
             <div className="absolute bottom-[7.5rem] left-0 right-0 px-5 z-30">
@@ -227,14 +248,16 @@ const DriverHome = () => {
                                  <Clock size={12} className="text-slate-400 group-hover:text-blue-500 transition-colors" />
                                  <span className="text-[8.5px] font-black text-slate-400 uppercase tracking-widest">Active Duty</span>
                              </div>
-                             <p className="text-[15px] font-black text-slate-900 leading-none">0h 0m</p>
+                             <p className="text-[15px] font-black text-slate-900 leading-none">
+                                 {dutyHours}h {dutyMins}m
+                             </p>
                          </div>
                          <div className="bg-slate-50/50 p-3.5 py-4 rounded-3xl flex flex-col gap-1.5 group hover:bg-white transition-all border border-transparent hover:border-slate-100 shadow-sm active:scale-95">
                              <div className="flex items-center gap-1.5">
                                  <Bike size={14} className="text-slate-400 group-hover:text-taxi-secondary transition-colors" />
                                  <span className="text-[8.5px] font-black text-slate-400 uppercase tracking-widest">Completed</span>
                              </div>
-                             <p className="text-[15px] font-black text-slate-900 leading-none">0</p>
+                             <p className="text-[15px] font-black text-slate-900 leading-none">{completedRides}</p>
                          </div>
                     </div>
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Users, 
   Car, 
@@ -13,219 +13,394 @@ import {
   CircleAlert,
   ChevronRight,
   TrendingDown,
-  LayoutGrid,
   Zap,
+  MoreHorizontal,
+  Bell,
+  Search,
   ShieldCheck,
-  MoreHorizontal
+  CreditCard,
+  UserCheck,
+  UserPlus,
+  SearchIcon,
+  ShieldAlert
 } from 'lucide-react';
 
-const StatCard = ({ icon: Icon, label, value, trend, color }) => (
-  <div className="bg-white p-8 rounded-[32px] border border-gray-50 shadow-sm hover:shadow-md transition-all group relative overflow-hidden group">
-    <div className={`absolute top-0 right-0 p-4 opacity-5 text-${color}-500 transform translate-x-4 -translate-y-4 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700`}>
-       <Icon size={120} strokeWidth={1} />
-    </div>
-    <div className="relative z-10">
-      <div className="flex items-center justify-between mb-8">
-        <div className={`w-12 h-12 rounded-2xl bg-${color}-50 text-${color}-600 border border-${color}-100 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform`}>
-          <Icon size={24} />
-        </div>
-        <div className="flex flex-col items-end">
-           <div className={`flex items-center gap-1 text-[11px] font-black uppercase tracking-widest ${trend > 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
-             {trend > 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />} {Math.abs(trend)}%
+const TopStatCard = ({ label, value, trend, icon: Icon, color, isLoading }) => (
+  <div className="bg-white p-5 rounded-[24px] border border-gray-100 shadow-sm relative overflow-hidden group min-h-[140px]">
+    {isLoading ? (
+      <div className="animate-pulse space-y-4">
+        <div className="h-4 bg-gray-100 rounded w-1/2"></div>
+        <div className="h-8 bg-gray-100 rounded w-3/4"></div>
+      </div>
+    ) : (
+      <>
+        <div className="flex justify-between items-start mb-3">
+           <div>
+             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1.5">{label}</p>
+             <h4 className="text-2xl font-black text-gray-950 tracking-tight leading-none">{value}</h4>
            </div>
-           <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase">vs last month</p>
-        </div>
-      </div>
-      <div>
-        <h4 className="text-[12px] font-bold text-gray-400 uppercase tracking-widest mb-1">{label}</h4>
-        <p className="text-4xl font-black text-gray-950 tracking-tight">{value}</p>
-      </div>
-    </div>
-  </div>
-);
-
-const SectionTitle = ({ title, subtitle }) => (
-  <div className="mb-8">
-    <h2 className="text-2xl font-bold tracking-tight text-gray-950 mb-1">{title}</h2>
-    {subtitle && <p className="text-[13px] font-bold text-gray-400 uppercase tracking-widest leading-none">{subtitle}</p>}
-  </div>
-);
-
-const MainDashboard = () => {
-  const stats = {
-    registrations: [
-      { icon: Users, label: 'Total Drivers', value: '14,248', trend: 12, color: 'indigo' },
-      { icon: CheckCircle2, label: 'Approved Drivers', value: '12,890', trend: 8, color: 'emerald' },
-      { icon: Clock, label: 'Pending Drivers', value: '1,358', trend: -4, color: 'amber' },
-      { icon: Users, label: 'Registered Users', value: '89.4k', trend: 24, color: 'blue' },
-    ],
-    financials: [
-      { label: 'Total Trips Completed', value: '45,210', icon: Car, color: 'emerald' },
-      { 
-        label: 'System Revenue Breakdown', 
-        primary: { label: 'Admin Commission', value: '₹12,45,000' },
-        secondary: [
-          { label: 'By Cash', value: '₹4.2k' },
-          { label: 'By Wallet', value: '₹8.9k' },
-          { label: 'Online Pay', value: '₹12.4k' },
-          { label: 'Drivers Payout', value: '₹45k' },
-        ],
-        icon: IndianRupee,
-        color: 'rose'
-      }
-    ],
-    cancellations: [
-      { icon: CircleAlert, label: 'Total Requests Cancel', value: '2,428', trend: -12, color: 'rose' },
-      { icon: UserIcon, label: 'By Users', value: '1,120', trend: -8, color: 'rose' },
-      { icon: Car, label: 'By Drivers', value: '942', trend: -15, color: 'rose' },
-      { icon: Zap, label: 'By Dispatcher', value: '366', trend: -24, color: 'rose' },
-    ],
-  };
-
-  return (
-    <div className="space-y-12 pb-20 animate-in fade-in duration-700 font-sans text-gray-950">
-      {/* HEADER SECTION - MATE STYLE */}
-      <div className="flex items-start justify-between">
-         <div>
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 mb-2">Overview</h1>
-            <div className="flex items-center gap-2 text-[13px] font-bold text-gray-400">
-               <span className="text-gray-950">Analytics</span>
-               <ChevronRight size={14} />
-               <span>Performance Metrices</span>
-            </div>
-         </div>
-         <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100 animate-pulse transition-all">
-               <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-               <span className="text-[11px] font-black uppercase tracking-widest">System Health: Optimal</span>
-            </div>
-            <button className="bg-black text-white px-5 py-2.5 rounded-xl text-[13px] font-bold flex items-center gap-2 hover:opacity-90 transition-all shadow-xl">
-               <ArrowUpRight size={16} /> Reports
-            </button>
-         </div>
-      </div>
-
-      {/* REGISTRY SECTION */}
-      <section>
-        <SectionTitle title="User Base Migration" subtitle="Real-time registration tracking" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {stats.registrations.map((stat, i) => (
-            <StatCard key={i} {...stat} />
-          ))}
-        </div>
-      </section>
-
-      {/* FINANCIAL INSIGHTS SECTION */}
-      <section className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-stretch">
-        <div className="lg:col-span-1">
-          <SectionTitle title="Operational" subtitle="Trip Velocity" />
-          <div className="h-[calc(100%-80px)]">
-             <StatCard 
-               icon={Car} 
-               label="Completed Success" 
-               value="45,210" 
-               trend={15} 
-               color="emerald" 
-             />
-          </div>
-        </div>
-        
-        <div className="lg:col-span-3">
-          <SectionTitle title="Revenue Stream Mapping" subtitle="Global financial breakdown" />
-          <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm relative overflow-hidden h-[calc(100%-80px)]">
-             <div className="absolute top-0 right-0 p-10 opacity-5 text-indigo-500 scale-150"><IndianRupee size={200} strokeWidth={1} /></div>
-             <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-12">
-                <div className="flex flex-col gap-2 border-r border-gray-50 pr-12">
-                   <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">Admin Commission</p>
-                   <p className="text-5xl font-black text-gray-950 tracking-tighter">₹12,45,000</p>
-                   <p className="text-[12px] font-bold text-emerald-500 flex items-center gap-1.5 mt-2">
-                      <ArrowUpRight size={14} /> +24% <span className="text-gray-400">from prev pool</span>
-                   </p>
-                </div>
-                
-                <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-8">
-                   {[
-                      { l: 'BY CASH', v: '₹4.2k', c: 'indigo' },
-                      { l: 'BY WALLET', v: '₹8.9k', c: 'blue' },
-                      { l: 'ONLINE', v: '₹12.4k', c: 'emerald' },
-                      { l: 'PAYOUTS', v: '₹45k', c: 'rose' }
-                   ].map((item, id) => (
-                      <div key={id}>
-                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{item.l}</p>
-                         <p className="text-xl font-black text-gray-950 tracking-tight">{item.v}</p>
-                         <div className="w-full h-1.5 bg-gray-50 rounded-full mt-3 overflow-hidden">
-                            <div className={`h-full bg-${item.c}-500/60 w-2/3`}></div>
-                         </div>
-                      </div>
-                   ))}
-                </div>
+           {trend !== undefined && (
+             <div className={`flex items-center gap-1 text-[10px] font-black ${trend > 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                {trend > 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />} {Math.abs(trend)}%
              </div>
-          </div>
+           )}
         </div>
-      </section>
-
-      {/* CANCELLATIONS SECTION */}
-      <section>
-        <SectionTitle title="Churn & Cancellations" subtitle="Failure point analysis" />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {stats.cancellations.map((stat, i) => (
-            <StatCard key={i} {...stat} />
-          ))}
+        <div className="flex justify-end">
+           <div className={`w-10 h-10 rounded-xl bg-${color}-50 text-${color}-500 border border-${color}-100 flex items-center justify-center shadow-sm`}>
+              <Icon size={18} strokeWidth={2.5} />
+           </div>
         </div>
-      </section>
+      </>
+    )}
+  </div>
+);
 
-      {/* MAP & TABLES SECTION (Mockups) */}
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-         <div className="lg:col-span-2">
-            <SectionTitle title="Real-time Fleet" subtitle="Live tracking console" />
-            <div className="bg-gray-100 rounded-[48px] h-[500px] border border-gray-200 overflow-hidden relative shadow-lg group">
-                <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=1000" className="w-full h-full object-cover grayscale brightness-50 opacity-80 group-hover:scale-105 transition-transform duration-[10s]" />
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-transparent to-transparent"></div>
-                <div className="absolute top-6 left-6 flex items-center gap-3">
-                   <div className="bg-white/90 backdrop-blur-md border border-white/20 p-4 rounded-3xl shadow-2xl flex items-center gap-4">
-                      <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
-                      <div>
-                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">Live Units</p>
-                         <p className="text-[14px] font-black text-gray-950 mt-1 uppercase tracking-tight">42 Active Drivers</p>
-                      </div>
-                   </div>
-                </div>
-                <div className="absolute bottom-10 right-10 flex flex-col gap-3">
-                   <button className="bg-white text-gray-950 p-4 rounded-2xl shadow-2xl hover:scale-110 active:scale-95 transition-all outline-none border border-gray-100"><LayoutGrid size={20} /></button>
-                   <button className="bg-black text-white p-4 rounded-2xl shadow-2xl hover:scale-110 active:scale-95 transition-all outline-none"><ShieldCheck size={20} /></button>
-                </div>
-            </div>
-         </div>
-         
-         <div>
-            <SectionTitle title="Live Booking Queue" subtitle="Processing logs" />
-            <div className="bg-white rounded-[40px] border border-gray-50 shadow-sm p-6 space-y-4">
-               {[1, 2, 3, 4, 5].map(i => (
-                 <div key={i} className="p-4 bg-gray-50/50 rounded-2xl border border-gray-50 flex items-center justify-between group hover:bg-white transition-all hover:shadow-md cursor-pointer border-transparent hover:border-gray-100">
-                    <div className="flex items-center gap-4">
-                       <div className="w-10 h-10 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-gray-900 font-bold group-hover:scale-110 transition-transform">
-                          0{i}
-                       </div>
-                       <div className="text-left">
-                          <p className="text-[13px] font-bold text-gray-950 leading-none">Booking #45{i}2</p>
-                          <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">{i * 2} minutes ago</p>
-                       </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                       <div className={`w-1.5 h-1.5 rounded-full ${i % 2 === 0 ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
-                       <ChevronRight size={16} className="text-gray-200 group-hover:text-gray-400 group-hover:translate-x-1 transition-all" />
-                    </div>
-                 </div>
-               ))}
-               <button className="w-full py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-gray-950 transition-all">View full transaction audit</button>
-            </div>
-         </div>
-      </section>
+const MiniStat = ({ label, value, icon: Icon, color, isLoading }) => (
+  <div className="bg-gray-50/50 p-4 rounded-[20px] border border-gray-100 flex items-center justify-between group hover:bg-white transition-all cursor-default min-h-[64px]">
+    {isLoading ? (
+      <div className="animate-pulse flex-1 h-4 bg-gray-100 rounded w-full"></div>
+    ) : (
+      <>
+        <div>
+          <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 leading-none">{label}</p>
+          <p className="text-[15px] font-black text-gray-950 tracking-tight leading-none">₹ {value}</p>
+        </div>
+        <div className={`w-8 h-8 rounded-lg bg-${color}-200/20 text-${color}-600 border border-${color}-200/50 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform`}>
+           <Icon size={14} strokeWidth={2.5} />
+        </div>
+      </>
+    )}
+  </div>
+);
+
+const SimpleDonut = ({ data, colors }) => {
+  const total = data.reduce((a, b) => a + b, 0);
+  let cumulative = 0;
+  
+  return (
+    <div className="relative w-48 h-48 flex items-center justify-center mx-auto">
+      <svg viewBox="0 0 36 36" className="w-full h-full transform -rotate-90">
+        {data.map((val, i) => {
+          const percent = (val / total) * 100;
+          const offset = (cumulative / total) * 100;
+          cumulative += val;
+          return (
+            <circle
+              key={i}
+              cx="18" cy="18" r="15.915"
+              fill="transparent"
+              stroke={colors[i]}
+              strokeWidth="4"
+              strokeDasharray={`${percent} ${100 - percent}`}
+              strokeDashoffset={-offset}
+              className="transition-all duration-1000 ease-out"
+            />
+          );
+        })}
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Total</p>
+        <p className="text-xl font-black text-gray-950 tracking-tighter leading-none">{total}</p>
+      </div>
     </div>
   );
 };
 
-// Generic UserIcon backup if lucide context fails
-const UserIcon = ({ size, className }) => <Users size={size} className={className} />;
+const SimpleBarChart = ({ data, colors }) => (
+  <div className="flex items-end gap-3 h-48 px-4 justify-between w-full">
+     {data.map((val, i) => (
+       <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
+          <div className="relative w-full overflow-hidden rounded-lg bg-gray-50 h-full flex items-end">
+            <div 
+              style={{ height: `${(val / Math.max(...data)) * 100}%` }}
+              className={`w-full bg-${colors[i]}-500/80 group-hover:bg-${colors[i]}-500 transition-all duration-500 rounded-t-sm`}
+            />
+          </div>
+          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+            {['Jan','Feb','Mar','Apr'][i]}
+          </span>
+       </div>
+     ))}
+  </div>
+);
+
+const MainDashboard = () => {
+  const [stats, setStats] = useState({
+    total_users: 0,
+    total_drivers: 0,
+    approved_drivers: 0,
+    pending_drivers: 0,
+    isLoading: true
+  });
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const token = localStorage.getItem('adminToken') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YzdiZTZhYmJlOTJlYjYwMGYwMmQxNiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwibW9iaWxlIjoiOTk5OTk5OTk5OSIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTc3NTA0OTExNywiZXhwIjoxODA2NTg1MTE3fQ.5KJmXJwaVefWhnc97EqtArkA1z7ZOhsJwA9fbyRVPdQ';
+        const headers = { 'Authorization': `Bearer ${token}` };
+
+        // Fetch User Total
+        const userRes = await fetch('https://taxi-a276.onrender.com/api/v1/admin/users?limit=1', { headers });
+        const userData = await userRes.json();
+        
+        // Fetch Driver Total
+        const driverRes = await fetch('https://taxi-a276.onrender.com/api/v1/admin/drivers?limit=1', { headers });
+        const driverData = await driverRes.json();
+
+        // Estimate Pending (this is a rough estimate since we only have list pagination)
+        const pendingCount = driverData.data?.results?.filter(d => !d.approve).length || 0;
+
+        setStats({
+          total_users: userData.data?.paginator?.total || 0,
+          total_drivers: driverData.data?.paginator?.total || 0,
+          approved_drivers: driverData.data?.paginator?.total || 0, 
+          pending_drivers: pendingCount,
+          isLoading: false
+        });
+
+      } catch (err) {
+        console.error('Dashboard Fetch Error:', err);
+        setStats(prev => ({ ...prev, isLoading: false }));
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  const { isLoading } = stats;
+
+  return (
+    <div className="space-y-8 animate-in fade-in duration-700 font-sans text-gray-950 bg-[#f8fbff] -m-8 p-8 min-h-screen">
+      
+      {/* ── HEADER (Compact) ── */}
+      <div className="flex items-center justify-between">
+         <div>
+            <h1 className="text-xl font-black tracking-tight text-gray-950 leading-none">DASHBOARD</h1>
+         </div>
+         <div className="flex items-center gap-2 text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+            Dashboard <ChevronRight size={12} className="mt-0.5" /> Dashboard
+         </div>
+      </div>
+
+      {/* ── TOP STATS ROW ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+         <TopStatCard 
+            label="DRIVERS REGISTERED" 
+            value={stats?.total_drivers || "0"} 
+            trend={100} 
+            icon={UserPlus} 
+            color="emerald" 
+            isLoading={isLoading}
+         />
+         <TopStatCard 
+            label="APPROVED DRIVERS" 
+            value={stats?.approved_drivers || "0"} 
+            trend={100} 
+            icon={ShieldCheck} 
+            color="blue" 
+            isLoading={isLoading}
+         />
+         <TopStatCard 
+            label="WAITING APPROVAL" 
+            value={stats?.pending_drivers || "0"} 
+            trend={0} 
+            icon={Clock} 
+            color="amber" 
+            isLoading={isLoading}
+         />
+         <TopStatCard 
+            label="USERS REGISTERED" 
+            value={stats?.total_users || "0"} 
+            trend={100} 
+            icon={Users} 
+            color="indigo" 
+            isLoading={isLoading}
+         />
+      </div>
+
+      {/* ── SOS SECTION ── */}
+      <div className="bg-white border border-gray-100 rounded-[28px] overflow-hidden shadow-sm p-8 text-center space-y-4">
+         <h3 className="text-left text-[14px] font-black text-gray-400 uppercase tracking-widest mb-4">Notified SOS</h3>
+         <div className="py-10 flex flex-col items-center">
+            <div className="w-24 h-24 bg-blue-50/50 rounded-full flex items-center justify-center relative mb-4">
+               <div className="absolute inset-0 border-2 border-dashed border-blue-200 rounded-full animate-[spin_10s_linear_infinite]"></div>
+               <div className="bg-white p-4 rounded-2xl shadow-xl border border-blue-50 relative z-10">
+                  <div className="relative">
+                     <History size={32} className="text-blue-500" />
+                     <Search size={16} className="absolute -bottom-1 -right-1 text-gray-950 font-black p-0.5 bg-white rounded-full border border-gray-100" />
+                  </div>
+               </div>
+            </div>
+            <p className="text-[16px] font-black text-gray-950 uppercase tracking-tight">No Data Found</p>
+         </div>
+      </div>
+
+      {/* ── TODAY PROGRESS GRID ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 ring-0">
+         
+         {/* Today Trips Chart Section */}
+         <div className="bg-white border border-gray-100 rounded-[32px] p-8 shadow-sm flex flex-col">
+            <h3 className="text-[14px] font-black text-gray-400 uppercase tracking-widest mb-10">Today Trips</h3>
+            <div className="flex-1 flex flex-col md:flex-row items-center gap-10">
+               <div className="flex-1">
+                  <SimpleDonut data={[1, 0, 0]} colors={['#3B4687', '#EB5757', '#2D9CDB']} />
+               </div>
+               <div className="space-y-4 min-w-[160px]">
+                  {[
+                    { l: 'Completed Rides', c: '#3B4687' },
+                    { l: 'Cancelled Rides', c: '#EB5757' },
+                    { l: 'Scheduled Rides', c: '#2D9CDB' }
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-3">
+                       <div className="w-3 h-3 rounded-sm" style={{backgroundColor: item.c}} />
+                       <span className="text-[12px] font-black text-gray-600 uppercase tracking-tight leading-none">{item.l}</span>
+                    </div>
+                  ))}
+               </div>
+            </div>
+         </div>
+
+         {/* Today Stats Section */}
+         <div className="grid grid-cols-2 gap-4 h-full">
+            <MiniStat label="Today Earnings" value="145.00" icon={IndianRupee} color="blue" />
+            <MiniStat label="By Cash" value="145.00" icon={Wallet} color="emerald" />
+            <MiniStat label="By Wallet" value="0.00" icon={Wallet} color="amber" />
+            <MiniStat label="By Card/Online" value="0.00" icon={CreditCard} color="rose" />
+            <MiniStat label="Admin Commission" value="19.45" icon={ShieldCheck} color="indigo" />
+            <MiniStat label="Drivers Earnings" value="125.55" icon={UserCheck} color="gray" />
+         </div>
+
+      </div>
+
+      {/* ── OVERALL PROGRESS GRID ── */}
+      <div className="bg-white border border-gray-100 rounded-[32px] p-8 shadow-sm w-full">
+          <h3 className="text-[14px] font-black text-gray-400 uppercase tracking-widest mb-10">Overall Trips</h3>
+          <div className="flex flex-col md:flex-row items-center gap-10">
+             <div className="flex justify-center w-full md:w-auto md:flex-1">
+                <SimpleDonut data={[1, 0, 0]} colors={['#2D9CDB', '#EB5757', '#27AE60']} />
+             </div>
+             <div className="space-y-4 min-w-[160px] md:pr-10">
+                {[
+                  { l: 'Completed Rides', c: '#2D9CDB' },
+                  { l: 'Cancelled Rides', c: '#EB5757' },
+                  { l: 'Scheduled Rides', c: '#27AE60' }
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                     <div className="w-3 h-3 rounded-sm" style={{backgroundColor: item.c}} />
+                     <span className="text-[12px] font-black text-gray-600 uppercase tracking-tight leading-none">{item.l}</span>
+                  </div>
+                ))}
+             </div>
+          </div>
+      </div>
+
+      {/* ── OVERALL EARNINGS GRID ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+         {/* Overall Earnings chart */}
+         <div className="bg-white border border-gray-100 rounded-[32px] p-8 shadow-sm flex flex-col">
+            <h3 className="text-[14px] font-black text-gray-400 uppercase tracking-widest mb-10">Overall Earnings</h3>
+            <div className="relative h-48 w-full mt-auto">
+               <svg viewBox="0 0 400 100" className="w-full h-full">
+                  <path 
+                    d="M 0 90 L 100 88 L 200 89 L 300 85 L 400 60" 
+                    fill="transparent" 
+                    stroke="#27AE60" 
+                    strokeWidth="3" 
+                    className="animate-[draw_2s_ease-out_forwards]"
+                  />
+                  <linearGradient id="lineFill" x1="0" y1="0" x2="0" y2="1">
+                     <stop offset="0%" stopColor="#27AE60" stopOpacity="0.2"/>
+                     <stop offset="100%" stopColor="#27AE60" stopOpacity="0"/>
+                  </linearGradient>
+                  <path 
+                    d="M 0 90 L 100 88 L 200 89 L 300 85 L 400 60 L 400 100 L 0 100 Z" 
+                    fill="url(#lineFill)"
+                  />
+               </svg>
+               <div className="flex justify-between items-center px-2 mt-4">
+                  {['Jan','Feb','Mar','Apr'].map((m,i) => (
+                     <span key={i} className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{m}</span>
+                  ))}
+               </div>
+            </div>
+         </div>
+         
+         {/* Overall Stats grid */}
+         <div className="grid grid-cols-2 gap-4 h-full">
+            <MiniStat label="Overall Earnings" value="145.00" icon={IndianRupee} color="rose" />
+            <MiniStat label="By Cash" value="145.00" icon={Wallet} color="amber" />
+            <MiniStat label="By Wallet" value="0.00" icon={Wallet} color="emerald" />
+            <MiniStat label="By Card/Online" value="0.00" icon={CreditCard} color="blue" />
+            <MiniStat label="Admin Commission" value="19.45" icon={ShieldCheck} color="indigo" />
+            <MiniStat label="Drivers Earnings" value="125.55" icon={UserCheck} color="gray" />
+         </div>
+      </div>
+
+      {/* ── CANCELLATION SUMMARY GRID ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+         {/* Cancellation Bar Chart */}
+         <div className="bg-white border border-gray-100 rounded-[32px] p-8 shadow-sm flex flex-col">
+            <h3 className="text-[14px] font-black text-gray-400 uppercase tracking-widest mb-10">Cancellation Chart</h3>
+            <div className="h-48 w-full mt-auto">
+               <SimpleBarChart data={[0, 0, 0, 1]} colors={['emerald', 'amber', 'rose', 'emerald']} />
+            </div>
+            <div className="flex justify-center flex-wrap gap-4 mt-8">
+                {[
+                  { l: 'Cancelled Due to No Drivers', c: '#3F51B5' },
+                  { l: 'Cancelled By Users', c: '#FFB300' },
+                  { l: 'Cancelled By Drivers', c: '#009688' }
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                     <div className="w-2.5 h-2.5 rounded-full" style={{backgroundColor: item.c}} />
+                     <span className="text-[9px] font-black text-gray-400 uppercase tracking-tight">{item.l}</span>
+                  </div>
+                ))}
+            </div>
+         </div>
+         
+         {/* Cancel Stats grid */}
+         <div className="grid grid-cols-2 gap-4 h-full">
+            <div className="bg-white p-6 rounded-[28px] border border-gray-50 shadow-sm flex items-center justify-between">
+               <div>
+                  <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 leading-none">Total Request Cancelled</p>
+                  <p className="text-2xl font-black text-gray-950 tracking-tight leading-none">1</p>
+               </div>
+               <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center">
+                  <UserPlus size={18} />
+               </div>
+            </div>
+            <div className="bg-white p-6 rounded-[28px] border border-gray-50 shadow-sm flex items-center justify-between">
+               <div>
+                  <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 leading-none">Cancelled By Users</p>
+                  <p className="text-2xl font-black text-gray-950 tracking-tight leading-none">0</p>
+               </div>
+               <div className="w-10 h-10 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center">
+                  <CircleAlert size={18} />
+               </div>
+            </div>
+            <div className="bg-white p-6 rounded-[28px] border border-gray-50 shadow-sm flex items-center justify-between">
+               <div>
+                  <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 leading-none">Cancelled By Drivers</p>
+                  <p className="text-2xl font-black text-gray-950 tracking-tight leading-none">1</p>
+               </div>
+               <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center">
+                  <Car size={18} />
+               </div>
+            </div>
+            <div className="bg-white p-6 rounded-[28px] border border-gray-50 shadow-sm flex items-center justify-between">
+               <div>
+                  <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1 leading-none">Dispatcher Cancelled</p>
+                  <p className="text-2xl font-black text-gray-950 tracking-tight leading-none">0</p>
+               </div>
+               <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center">
+                  <Zap size={18} />
+               </div>
+            </div>
+         </div>
+      </div>
+
+    </div>
+  );
+};
 
 export default MainDashboard;

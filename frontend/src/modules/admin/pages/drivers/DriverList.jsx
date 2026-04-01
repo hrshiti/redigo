@@ -42,15 +42,65 @@ const DriverList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeMenu, setActiveMenu] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
-  
-  const [drivers] = useState([
-    { id: 'DRV001', name: 'Rajesh Kumar', email: 'rajesh@example.com', phone: '+91 9876543210', vehicle: 'Toyota Etios', plate: 'MP 09 AB 1234', rides: 142, rating: 4.8, wallet: '₹4,240', status: 'Active', joined: 'Jan 12, 2024' },
-    { id: 'DRV002', name: 'Suresh Singh', email: 'suresh@example.com', phone: '+91 8765432109', vehicle: 'Maruti Dzire', plate: 'MP 09 CD 5678', rides: 85, rating: 4.5, wallet: '₹1,120', status: 'OnTrip', joined: 'Feb 05, 2024' },
-    { id: 'DRV003', name: 'Vijay Pratap', email: 'vijay@example.com', phone: '+91 7654321098', vehicle: 'Hyundai Xcent', plate: 'MP 09 EF 9012', rides: 210, rating: 4.9, wallet: '₹8,320', status: 'Active', joined: 'Dec 15, 2023' },
-    { id: 'DRV004', name: 'Anil Deshmukh', email: 'anil@example.com', phone: '+91 6543210987', vehicle: 'Tata Tigor', plate: 'MP 09 GH 3456', rides: 12, rating: 3.8, wallet: '₹0', status: 'Suspended', joined: 'Mar 10, 2024' },
-    { id: 'DRV005', name: 'Pankaj Sharma', email: 'pankaj@example.com', phone: '+91 5432109876', vehicle: 'Honda Amaze', plate: 'MP 09 IJ 7890', rides: 64, rating: 4.7, wallet: '₹2,150', status: 'Active', joined: 'Nov 30, 2023' },
-    { id: 'DRV006', name: 'Amit Jha', email: 'amit@example.com', phone: '+91 4321098765', vehicle: 'Maruti WagonR', plate: 'MP 09 KL 1234', rides: 312, rating: 4.9, wallet: '₹12,400', status: 'Active', joined: 'Oct 12, 2023' },
-  ]);
+  const [drivers, setDrivers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchDrivers = async () => {
+      setIsLoading(true);
+      try {
+        // Force use the valid token provided by user to fix 401
+        const providedToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YzdiZTZhYmJlOTJlYjYwMGYwMmQxNiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwibW9iaWxlIjoiOTk5OTk5OTk5OSIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTc3NTA0OTExNywiZXhwIjoxODA2NTg1MTE3fQ.5KJmXJwaVefWhnc97EqtArkA1z7ZOhsJwA9fbyRVPdQ';
+        const storedToken = localStorage.getItem('adminToken');
+        
+        // Priority: storedToken if valid, otherwise providedToken
+        const token = (storedToken && storedToken !== 'undefined' && storedToken !== 'null') ? storedToken : providedToken;
+        
+        const response = await fetch('https://taxi-a276.onrender.com/api/v1/admin/drivers?page=1&limit=50', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const responseData = await response.json();
+        if (response.ok && responseData.success) {
+          // Mapping data.data.results based on actual API response
+          const driversList = responseData.data?.results || [];
+          
+          // Filter for Approved drivers only
+          const approved = driversList.filter(d => 
+            d.approve === true || d.status === 'Active' || d.status === 'Approved'
+          ).map(d => ({
+            id: d._id,
+            name: d.name || `${d.user_id?.name || 'Unknown'}`,
+            email: d.user_id?.email || 'N/A',
+            phone: d.mobile || d.user_id?.mobile || 'N/A',
+            vehicle: d.transport_type || 'Not Assigned',
+            plate: d.car_number || 'No Plate',
+            rides: d.total_rides || 0,
+            rating: d.rating || 0,
+            wallet: d.wallet_balance !== undefined ? `₹${d.wallet_balance}` : '₹0',
+            status: d.active ? 'Active' : 'Offline',
+            joined: d.createdAt ? new Date(d.createdAt).toLocaleDateString() : 'N/A',
+            serviceLocation: d.city || d.service_location?.name || 'Global'
+          }));
+          
+          setDrivers(approved);
+        } else {
+          setError(responseData.message || 'Failed to fetch drivers');
+        }
+      } catch (err) {
+        console.error('Error fetching drivers:', err);
+        setError('Network error occurred while fetching drivers.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDrivers();
+  }, []);
 
   const toggleSelectAll = () => {
     if (selectedRows.length === drivers.length) {
@@ -76,9 +126,9 @@ const DriverList = () => {
   }, []);
 
   const filteredDrivers = drivers.filter(d => 
-    d.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    d.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    d.plate.toLowerCase().includes(searchTerm.toLowerCase())
+    (d.name && d.name.toLowerCase().includes(searchTerm.toLowerCase())) || 
+    (d.email && d.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (d.plate && d.plate.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
@@ -144,13 +194,45 @@ const DriverList = () => {
                            </th>
                            <th className="px-4 py-5">Operator Detail</th>
                            <th className="px-4 py-5 text-center">Work Summary</th>
+                           <th className="px-4 py-5">Service Location</th>
                            <th className="px-4 py-5">Status</th>
                            <th className="px-4 py-5 text-center">Wallet</th>
                            <th className="px-6 py-5 text-right w-10"></th>
                         </tr>
                      </thead>
                      <tbody className="divide-y divide-gray-50">
-                        {filteredDrivers.map((driver) => (
+                        {isLoading && (
+                          <tr>
+                            <td colSpan="7" className="px-6 py-20 text-center">
+                               <div className="flex flex-col items-center gap-3">
+                                  <div className="w-10 h-10 border-4 border-gray-100 border-t-black rounded-full animate-spin"></div>
+                                  <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Fetching Fleet Data...</p>
+                               </div>
+                            </td>
+                          </tr>
+                        )}
+                        {!isLoading && error && (
+                          <tr>
+                            <td colSpan="6" className="px-6 py-20 text-center">
+                               <div className="flex flex-col items-center gap-3 text-rose-500">
+                                  <Ban size={40} strokeWidth={1.5} />
+                                  <p className="text-[13px] font-bold">{error}</p>
+                                  <button onClick={() => window.location.reload()} className="mt-2 px-4 py-2 bg-gray-950 text-white text-[11px] font-black rounded-lg">Try Again</button>
+                               </div>
+                            </td>
+                          </tr>
+                        )}
+                        {!isLoading && !error && filteredDrivers.length === 0 && (
+                          <tr>
+                            <td colSpan="6" className="px-6 py-20 text-center">
+                               <div className="flex flex-col items-center gap-3 text-gray-400">
+                                  <Search size={40} strokeWidth={1.5} />
+                                  <p className="text-[13px] font-bold">No drivers found matching your criteria</p>
+                               </div>
+                            </td>
+                          </tr>
+                        )}
+                        {!isLoading && !error && filteredDrivers.map((driver) => (
                            <tr key={driver.id} className={`group hover:bg-gray-50/50 transition-all ${selectedRows.includes(driver.id) ? 'bg-indigo-50/30' : ''}`}>
                               <td className="px-6 py-4">
                                  <div 
@@ -182,6 +264,12 @@ const DriverList = () => {
                                        {driver.rating} <Star size={12} className="fill-orange-400 text-orange-400" />
                                     </div>
                                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1.5">Rides & Rating</p>
+                                 </div>
+                              </td>
+                              <td className="px-4 py-6">
+                                 <div className="flex flex-col">
+                                    <p className="text-[13px] font-black text-gray-950 truncate max-w-[120px]">{driver.serviceLocation}</p>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Region</p>
                                  </div>
                               </td>
                               <td className="px-4 py-6">

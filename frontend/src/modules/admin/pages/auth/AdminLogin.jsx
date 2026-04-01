@@ -1,102 +1,188 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShieldCheck, Mail, Lock, ArrowRight, Car } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ShieldCheck, Mail, Lock, ArrowRight, Car, Loader2, AlertCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('admin@admin.com'); // Pre-fill as per requirement
+  const [password, setPassword] = useState('123456789'); // Pre-fill as per requirement
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // For demo/mock, any input works
-    navigate('/admin/dashboard');
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('https://taxi-a276.onrender.com/api/v1/admin/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+      console.log("Login Full Response:", data);
+
+      if (response.ok || data.success) {
+        const token = data.access_token || data.token || data.data?.token;
+        const admin = data.user || data.admin || data.data?.admin || data.data?.user;
+
+        if (token) {
+          // Store the token and admin info
+          localStorage.setItem('adminToken', token);
+          if (admin) localStorage.setItem('adminInfo', JSON.stringify(admin));
+          
+          // Navigation with a slight delay for better UX feel
+          setTimeout(() => {
+            navigate('/admin/dashboard');
+          }, 500);
+        } else {
+          setError('Authentication succeeded but no security token was received from server.');
+        }
+      } else {
+        setError(data.message || 'Authentication failed. Please check your credentials.');
+      }
+    } catch (err) {
+      setError('Network error. Please try again later or check your internet connection.');
+      console.error('Login error:', err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6 font-sans overflow-hidden relative">
-      {/* Background Decorative Elements */}
-      <div className="absolute top-20 left-20 w-80 h-80 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl animate-pulse delay-500"></div>
+    <div className="min-h-screen bg-[#F8F9FA] flex items-center justify-center p-4 md:p-6 font-sans overflow-hidden relative">
+      {/* Dynamic Background Elements */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse"></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px] animate-pulse delay-700"></div>
 
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-lg bg-white rounded-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.05)] border border-gray-100 p-12 relative z-10"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4 }}
+        className="w-full max-w-lg bg-white rounded-[48px] shadow-[0_40px_100px_rgba(0,0,0,0.08)] border border-gray-100 p-8 md:p-14 relative z-10 overflow-hidden"
       >
+        {/* Progress Bar for Loading */}
+        {isLoading && (
+          <motion.div 
+            initial={{ width: 0 }}
+            animate={{ width: "100%" }}
+            className="absolute top-0 left-0 h-1.5 bg-primary z-20"
+          />
+        )}
+
         <div className="flex flex-col items-center mb-10">
-          <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white shadow-xl shadow-primary/30 mb-6 group cursor-pointer hover:scale-110 transition-transform">
-             <Car size={32} strokeWidth={3} />
+          <motion.div 
+            whileHover={{ rotate: [0, -10, 10, 0] }}
+            className="w-20 h-20 bg-primary rounded-3xl flex items-center justify-center text-white shadow-2xl shadow-primary/30 mb-8 cursor-pointer group"
+          >
+             <Car size={40} strokeWidth={2.5} className="group-hover:scale-110 transition-transform" />
+          </motion.div>
+          <h1 className="text-4xl font-black text-gray-900 tracking-tight text-center mb-2">Admin Portal</h1>
+          <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-full border border-gray-100">
+            <ShieldCheck size={16} className="text-primary" />
+            <span className="text-gray-500 font-bold text-[11px] uppercase tracking-[2px]">Secure Access Terminal</span>
           </div>
-          <h1 className="text-[32px] font-black text-gray-900 tracking-tight text-center">Admin Console</h1>
-          <p className="text-gray-400 font-bold text-[14px] mt-2 uppercase tracking-widest flex items-center gap-2">
-            <ShieldCheck size={16} /> Restricted Access Control
-          </p>
         </div>
+
+        <AnimatePresence mode="wait">
+          {error && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mb-8 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-3 text-red-600"
+            >
+              <AlertCircle size={20} className="shrink-0 mt-0.5" />
+              <p className="text-[13px] font-bold leading-relaxed">{error}</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-4">
             <div className="relative group">
-               <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" size={20} />
+               <div className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-all">
+                  <Mail size={22} strokeWidth={2} />
+               </div>
                <input 
                   type="email" 
-                  placeholder="Email Address" 
+                  placeholder="Official Email Address" 
                   required
+                  disabled={isLoading}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-14 pr-6 py-4 bg-gray-50 border-none rounded-2xl text-[15px] focus:ring-2 focus:ring-primary/20 transition-all font-medium placeholder:text-gray-300"
+                  className="w-full pl-16 pr-6 py-5 bg-gray-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-3xl text-[16px] transition-all font-semibold placeholder:text-gray-300 outline-none"
                />
             </div>
             <div className="relative group">
-               <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" size={20} />
+               <div className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-all">
+                  <Lock size={22} strokeWidth={2} />
+               </div>
                <input 
                   type="password" 
-                  placeholder="Password" 
+                  placeholder="Security Access Token" 
                   required
+                  disabled={isLoading}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-14 pr-6 py-4 bg-gray-50 border-none rounded-2xl text-[15px] focus:ring-2 focus:ring-primary/20 transition-all font-medium placeholder:text-gray-300"
+                  className="w-full pl-16 pr-6 py-5 bg-gray-50 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-3xl text-[16px] transition-all font-semibold placeholder:text-gray-300 outline-none"
                />
             </div>
           </div>
 
-          <div className="flex items-center justify-between px-2">
-            <label className="flex items-center gap-2 cursor-pointer group">
-              <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary/20" />
-              <span className="text-[13px] font-bold text-gray-400 group-hover:text-gray-600 transition-colors">Keep me signed in</span>
+          <div className="flex items-center justify-between px-2 mb-4">
+            <label className="flex items-center gap-3 cursor-pointer group">
+              <input 
+                type="checkbox" 
+                className="w-5 h-5 rounded-lg border-gray-200 text-primary focus:ring-primary/20 transition-all"
+              />
+              <span className="text-[13px] font-bold text-gray-400 group-hover:text-gray-700 transition-colors">Trust this device</span>
             </label>
-            <button type="button" className="text-[13px] font-black text-primary hover:underline">Forgot Access Key?</button>
+            <button type="button" className="text-[13px] font-black text-primary hover:text-primary/80 transition-colors uppercase tracking-wider">Need Help?</button>
           </div>
 
           <button 
             type="submit"
-            className="w-full bg-primary py-4 rounded-2xl text-white font-black text-lg shadow-xl shadow-primary/20 hover:bg-primary/95 active:scale-[0.98] transition-all flex items-center justify-center gap-3 mt-4"
+            disabled={isLoading}
+            className={`w-full ${isLoading ? 'bg-primary/80' : 'bg-primary'} py-5 rounded-[24px] text-white font-black text-[18px] shadow-2xl shadow-primary/30 hover:translate-y-[-2px] hover:shadow-primary/40 active:translate-y-[1px] transition-all flex items-center justify-center gap-3 mt-6`}
           >
-            Authenticate <ArrowRight size={20} />
+            {isLoading ? (
+              <Loader2 className="animate-spin" size={24} />
+            ) : (
+              <>
+                Initialize Login <ArrowRight size={22} />
+              </>
+            )}
           </button>
         </form>
 
-        <div className="mt-12 pt-8 border-t border-gray-50 flex items-center justify-center gap-8">
-           <div className="text-center">
-              <p className="text-[20px] font-black text-gray-900 leading-none">2.4k</p>
-              <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-wider">Active Rides</p>
+        <div className="mt-14 pt-10 border-t border-gray-100 grid grid-cols-3 gap-4">
+           <div className="text-center group cursor-default">
+              <p className="text-[22px] font-black text-gray-900 leading-none group-hover:text-primary transition-colors">12.8k</p>
+              <p className="text-[10px] font-bold text-gray-400 mt-2 uppercase tracking-[1.5px]">Global Users</p>
            </div>
-           <div className="text-center border-l border-gray-100 pl-8 pr-8 border-r">
-              <p className="text-[20px] font-black text-gray-900 leading-none">842</p>
-              <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-wider">Online Drivers</p>
+           <div className="text-center border-x border-gray-100 px-4 group cursor-default">
+              <p className="text-[22px] font-black text-gray-900 leading-none group-hover:text-primary transition-colors">94%</p>
+              <p className="text-[10px] font-bold text-gray-400 mt-2 uppercase tracking-[1.5px]">Efficiency</p>
            </div>
-           <div className="text-center">
-              <p className="text-[20px] font-black text-gray-900 leading-none">12</p>
-              <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-wider">Open Cities</p>
+           <div className="text-center group cursor-default">
+              <p className="text-[22px] font-black text-gray-900 leading-none group-hover:text-primary transition-colors">24/7</p>
+              <p className="text-[10px] font-bold text-gray-400 mt-2 uppercase tracking-[1.5px]">Uptime</p>
            </div>
         </div>
       </motion.div>
 
       {/* Footer Branding */}
-      <div className="absolute bottom-10 left-0 right-0 text-center">
-         <p className="text-[12px] font-bold text-gray-300 tracking-widest uppercase mb-1">Redigo Enterprise © 2026</p>
-         <p className="text-[10px] font-bold text-gray-200 tracking-tight px-10 max-w-xl mx-auto">This system is strictly for authorized personnel. All access is monitored and logged in compliance with operational security standards.</p>
+      <div className="absolute bottom-8 left-0 right-0 text-center pointer-events-none px-6">
+         <p className="text-[11px] font-bold text-gray-400 tracking-[3px] uppercase mb-2">Redigo Systems Enterprise © 2026</p>
+         <p className="text-[10px] font-bold text-gray-300 max-w-xl mx-auto leading-relaxed">
+           This terminal is strictly for authorized administrative use. Unauthorized access attempts are monitored and recorded.
+         </p>
       </div>
     </div>
   );
