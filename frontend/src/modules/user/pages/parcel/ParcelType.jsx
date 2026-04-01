@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Box, Gift, FileText, ShoppingBag, Smartphone, LayoutGrid } from 'lucide-react';
+import { ArrowLeft, Box, Gift, FileText, ShoppingBag, Smartphone, LayoutGrid, ChevronRight } from 'lucide-react';
 
 const ParcelType = () => {
   const [selectedType, setSelectedType] = useState('Documents');
@@ -63,10 +63,11 @@ const ParcelType = () => {
       <div className="p-4 bg-white border-t border-gray-50 shrink-0">
          <motion.button 
             whileTap={{ scale: 0.98 }}
-            onClick={() => navigate('/parcel/details')}
-            className="w-full bg-[#1C2833] py-4 rounded-2xl text-[16px] font-black text-white shadow-xl shadow-gray-200 active:bg-black transition-all"
+            onClick={() => navigate('/parcel/details', { state: { parcelType: selectedType } })}
+            className="w-full bg-[#1C2833] py-4 rounded-2xl text-[16px] font-black text-white shadow-xl shadow-gray-200 active:bg-black transition-all flex items-center justify-center gap-2"
          >
-            Next: Item Details
+            <span>Next: Item Details</span>
+            <ChevronRight size={18} className="opacity-40" />
          </motion.button>
       </div>
     </div>

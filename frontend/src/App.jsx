@@ -28,6 +28,9 @@ const Activity = lazy(() => import('./modules/user/pages/Activity'));
 const Profile = lazy(() => import('./modules/user/pages/Profile'));
 const Wallet = lazy(() => import('./modules/user/pages/Wallet'));
 
+// Coming Soon placeholder
+const ComingSoon = lazy(() => import('./modules/shared/pages/ComingSoon'));
+
 // Profile Settings Sub-pages
 const ProfileSettings = lazy(() => import('./modules/user/pages/profile/ProfileSettings'));
 const PaymentSettings = lazy(() => import('./modules/user/pages/profile/PaymentSettings'));
@@ -138,6 +141,13 @@ function App() {
             <Route path="/parcel/type" element={<ParcelType />} />
             <Route path="/parcel/details" element={<ParcelDetails />} />
             <Route path="/parcel/contacts" element={<SenderReceiverDetails />} />
+            <Route path="/parcel/detail/:id" element={<RideDetail />} />
+
+            {/* New Service Routes — Coming Soon pages */}
+            <Route path="/rental" element={<ComingSoon />} />
+            <Route path="/intercity" element={<ComingSoon />} />
+            <Route path="/tours" element={<ComingSoon />} />
+            <Route path="/cab-sharing" element={<ComingSoon />} />
 
             <Route path="/activity" element={<Activity />} />
             <Route path="/profile" element={<Profile />} />

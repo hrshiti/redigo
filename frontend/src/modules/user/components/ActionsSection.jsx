@@ -5,9 +5,9 @@ const ActionCard = ({ title, subtitle, image, bgColor, textColor, buttonColor, b
   const navigate = useNavigate();
   
   return (
-    <div className={`relative flex-1 rounded-[32px] p-5 md:p-6 overflow-hidden ${bgColor} group transition-all active:scale-[0.98] shadow-sm`}>
+    <div className={`relative flex-1 rounded-[32px] p-4 md:p-5 overflow-hidden ${bgColor} group transition-all active:scale-[0.98] shadow-sm`}>
       <div className="relative z-10 flex flex-col h-full justify-between pr-8">
-        <div className="max-w-[130px] mb-8">
+        <div className="max-w-[130px] mb-4">
           <h3 className={`text-[19px] font-black leading-tight tracking-tight ${textColor}`}>{title}</h3>
           <p className={`text-[11px] font-bold mt-1 opacity-70 leading-tight ${textColor}`}>{subtitle}</p>
         </div>
@@ -35,8 +35,8 @@ const ActionsSection = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="px-5 mb-8">
-      <h2 className="text-[19px] font-black text-gray-900 mb-5 ml-1 tracking-tight">What do you need today?</h2>
+    <div className="px-5 mb-4">
+      <h2 className="text-[19px] font-black text-gray-900 mb-2 ml-1 tracking-tight">What do you need today?</h2>
 
       <div className="flex gap-4">
         {/* Ride Now Section */}

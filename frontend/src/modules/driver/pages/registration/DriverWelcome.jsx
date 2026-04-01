@@ -18,7 +18,7 @@ const DriverWelcome = () => {
     return (
         <div className="min-h-screen bg-taxi-bg font-sans select-none overflow-x-hidden">
             {/* Hero Section */}
-            <div className="relative h-[45vh] bg-taxi-secondary overflow-hidden rounded-b-[4rem] shadow-2xl">
+            <div className="relative h-[35vh] bg-taxi-secondary overflow-hidden rounded-b-[2.5rem] shadow-2xl">
                 <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent z-10" />
                 <img 
                     src={DriverHero} 
@@ -49,7 +49,7 @@ const DriverWelcome = () => {
             </div>
 
             {/* Content Section */}
-            <main className="px-8 pt-10 pb-32 space-y-10">
+            <main className="px-6 pt-6 pb-28 space-y-8">
                 <div className="space-y-6">
                     <h3 className="text-[14px] font-black text-slate-400 tracking-widest uppercase opacity-60 px-1">
                         Why partner with us?
@@ -57,19 +57,19 @@ const DriverWelcome = () => {
                     
                     <div className="grid grid-cols-1 gap-5">
                         {perks.map((perk, index) => (
-                            <motion.div 
+                            <motion.div
                                 key={index}
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: 0.1 * index }}
-                                className="flex items-center gap-5 bg-white p-5 rounded-3xl shadow-[0_4px_25px_rgba(0,0,0,0.02)] border border-slate-50 transition-transform active:scale-98"
+                                className="flex items-center gap-5 bg-white p-4 rounded-2xl shadow-[0_4px_25px_rgba(0,0,0,0.02)] border border-slate-50 transition-transform active:scale-98"
                             >
-                                <div className="w-12 h-12 rounded-2xl bg-taxi-primary/10 text-taxi-secondary flex items-center justify-center shadow-sm">
+                                <div className="w-11 h-11 rounded-xl bg-taxi-primary/10 text-taxi-secondary flex items-center justify-center shadow-sm">
                                     {perk.icon}
                                 </div>
                                 <div className="space-y-0.5">
-                                    <h4 className="text-[16px] font-black text-taxi-text tracking-tight">{perk.title}</h4>
-                                    <p className="text-[12px] font-bold text-slate-400 leading-none">{perk.sub}</p>
+                                    <h4 className="text-[15px] font-black text-taxi-text tracking-tight">{perk.title}</h4>
+                                    <p className="text-[11px] font-bold text-slate-400 leading-none">{perk.sub}</p>
                                 </div>
                             </motion.div>
                         ))}
@@ -77,7 +77,7 @@ const DriverWelcome = () => {
                 </div>
 
                 {/* Testimonial Placeholder */}
-                <div className="bg-taxi-primary/5 rounded-[2.5rem] p-6 border border-taxi-primary/10">
+                <div className="bg-taxi-primary/5 rounded-2xl p-4 border border-taxi-primary/10">
                     <div className="flex items-center gap-3 mb-3">
                         <div className="w-10 h-10 rounded-full bg-slate-200 border-2 border-white shadow-sm overflow-hidden text-2xl flex items-center justify-center text-slate-900 shadow-xl border border-white">
                             👨🏽‍✈️
@@ -100,13 +100,13 @@ const DriverWelcome = () => {
             </main>
 
             {/* Sticky Action Footer */}
-            <div className="fixed bottom-0 left-0 right-0 p-8 pt-4 pb-12 bg-white/80 backdrop-blur-xl border-t border-slate-50 z-50">
+            <div className="fixed bottom-0 left-0 right-0 p-6 pt-3 pb-8 bg-white/80 backdrop-blur-xl border-t border-slate-50 z-50">
                 <motion.button 
                     whileTap={{ scale: 0.96 }}
                     onClick={() => navigate('/taxi/driver/auth')}
-                    className="w-full bg-taxi-primary h-16 rounded-3xl flex items-center justify-center gap-3 text-[18px] font-black text-taxi-text shadow-xl border border-taxi-primary/80 active:scale-95 transition-all tracking-tight uppercase"
+                    className="w-full bg-taxi-primary h-14 rounded-2xl flex items-center justify-center gap-3 text-[17px] font-black text-taxi-text shadow-xl border border-taxi-primary/80 active:scale-95 transition-all tracking-tight uppercase"
                 >
-                    Become a Partner <ChevronRight size={20} strokeWidth={3} />
+                    Become a Partner <ChevronRight size={18} strokeWidth={3} />
                 </motion.button>
             </div>
         </div>

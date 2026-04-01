@@ -71,44 +71,44 @@ const IncomingRideRequest = ({ visible, onAccept, onDecline, requestData }) => {
                     animate={{ y: 0 }}
                     exit={{ y: '100%' }}
                     transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                    className="w-full max-w-md bg-white rounded-[3.5rem] overflow-hidden shadow-[0_-10px_80px_rgba(0,0,0,0.5)] border-t border-white/20 relative"
+                    className="w-full max-w-md bg-white rounded-[3rem] overflow-hidden shadow-[0_-10px_80px_rgba(0,0,0,0.5)] border-t border-white/20 relative"
                 >
                     {/* Dark Header with Countdown */}
-                    <div className={`px-8 py-10 relative flex flex-col items-center transition-colors duration-500 ${isParcel ? 'bg-[#0f172a]' : 'bg-slate-900'}`}>
+                    <div className={`px-8 py-6 relative flex flex-col items-center transition-colors duration-500 ${isParcel ? 'bg-[#0f172a]' : 'bg-slate-900'}`}>
                         {/* Countdown Visualizer */}
-                        <div className="relative w-24 h-24 mb-6">
+                        <div className="relative w-16 h-16 mb-4">
                             <svg className="w-full h-full -rotate-90">
                                 <circle
-                                    cx="48"
-                                    cy="48"
-                                    r="40"
+                                    cx="32"
+                                    cy="32"
+                                    r="28"
                                     fill="none"
                                     stroke="currentColor"
-                                    strokeWidth="6"
+                                    strokeWidth="4"
                                     className="text-white/5"
                                 />
                                 <motion.circle
-                                    cx="48"
-                                    cy="48"
-                                    r="40"
+                                    cx="32"
+                                    cy="32"
+                                    r="28"
                                     fill="none"
                                     stroke="currentColor"
-                                    strokeWidth="6"
-                                    strokeDasharray={strokeDasharray}
-                                    animate={{ strokeDashoffset: strokeDasharray * (1 - timer / 15) }}
+                                    strokeWidth="4"
+                                    strokeDasharray={2 * Math.PI * 28}
+                                    animate={{ strokeDashoffset: (2 * Math.PI * 28) * (1 - timer / 15) }}
                                     className={`${isParcel ? 'text-orange-500' : 'text-emerald-500'} transition-all duration-1000`}
                                     strokeLinecap="round"
                                 />
                             </svg>
-                            <span className="absolute inset-0 flex items-center justify-center text-white text-3xl font-black tracking-tighter">{timer}</span>
+                            <span className="absolute inset-0 flex items-center justify-center text-white text-xl font-black tracking-tighter">{timer}</span>
                         </div>
 
                         {/* Request Identity */}
                         <div className="flex flex-col items-center gap-3 w-full">
-                            <div className={`w-20 h-20 rounded-[2rem] flex items-center justify-center text-taxi-text shadow-2xl relative animate-pulse-gentle transition-colors ${isParcel ? 'bg-orange-500' : 'bg-taxi-primary'}`}>
-                                {isParcel ? <Package size={34} strokeWidth={2.5} /> : <Bike size={34} strokeWidth={2.5} />}
-                                <div className="absolute -top-1 -right-1 w-6 h-6 bg-white rounded-lg flex items-center justify-center text-slate-900 shadow-lg">
-                                    <TrendingUp size={12} strokeWidth={3} />
+                            <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center text-taxi-text shadow-xl relative animate-pulse-gentle transition-colors ${isParcel ? 'bg-orange-500' : 'bg-taxi-primary'}`}>
+                                {isParcel ? <Package size={28} strokeWidth={2.5} /> : <Bike size={28} strokeWidth={2.5} />}
+                                <div className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-lg flex items-center justify-center text-slate-900 shadow-lg">
+                                    <TrendingUp size={10} strokeWidth={3} />
                                 </div>
                             </div>
                             
@@ -119,22 +119,22 @@ const IncomingRideRequest = ({ visible, onAccept, onDecline, requestData }) => {
                                 </p>
                             </div>
 
-                            <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md px-5 py-2.5 rounded-2xl border border-white/10 mt-2">
+                            <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10 mt-2">
                                 <div className="flex flex-col items-start leading-none gap-0.5">
-                                    <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">{data.payment}</span>
-                                    <p className="text-lg font-black text-white">{data.fare}</p>
+                                    <span className="text-[8px] font-black text-white/40 uppercase tracking-widest">{data.payment}</span>
+                                    <p className="text-base font-black text-white">{data.fare}</p>
                                 </div>
-                                <div className="w-px h-8 bg-white/10 mx-1" />
+                                <div className="w-px h-6 bg-white/10 mx-1" />
                                 <div className="flex flex-col items-end leading-none gap-0.5">
-                                    <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">Est. Earnings</span>
-                                    <p className={`text-lg font-black ${isParcel ? 'text-orange-500' : 'text-emerald-500'}`}>₹96</p>
+                                    <span className="text-[8px] font-black text-white/40 uppercase tracking-widest">Earnings</span>
+                                    <p className={`text-base font-black ${isParcel ? 'text-orange-500' : 'text-emerald-500'}`}>₹96</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Trip / Parcel Details */}
-                    <div className="p-8 space-y-8 bg-white relative">
+                    <div className="p-6 space-y-6 bg-white relative">
                         <div className="space-y-6">
                             {/* Pickup */}
                             <div className="flex items-start gap-4">
@@ -174,7 +174,7 @@ const IncomingRideRequest = ({ visible, onAccept, onDecline, requestData }) => {
                         <motion.button 
                             whileTap={{ scale: 0.96 }}
                             onClick={() => onAccept(data)}
-                            className={`w-full h-20 rounded-[2.2rem] flex items-center justify-center gap-4 text-[20px] font-black text-taxi-text shadow-2xl transition-all border-b-4 active:border-b-0 active:translate-y-1 ${
+                            className={`w-full h-16 rounded-[1.8rem] flex items-center justify-center gap-4 text-[18px] font-black text-taxi-text shadow-2xl transition-all border-b-4 active:border-b-0 active:translate-y-1 ${
                                 isParcel 
                                 ? 'bg-[#fdd835] border-[#cbb31b] shadow-orange-500/10' 
                                 : 'bg-taxi-primary border-[#d4ac14] shadow-taxi-primary/20'
@@ -186,9 +186,9 @@ const IncomingRideRequest = ({ visible, onAccept, onDecline, requestData }) => {
 
                     {/* Quick Badge */}
                     {isParcel && (
-                        <div className="absolute top-4 left-1/2 -translate-x-1/2">
-                             <div className="bg-orange-500 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-xl border-2 border-[#0f172a]">
-                                 <ScanLine size={12} /> Priority Parcel
+                        <div className="absolute top-4 right-8 z-10">
+                             <div className="bg-orange-500 text-white px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-xl border-2 border-[#0f172a] transform rotate-3">
+                                 <ScanLine size={12} /> Priority
                              </div>
                         </div>
                     )}

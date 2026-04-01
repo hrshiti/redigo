@@ -29,6 +29,13 @@ const DriverWallet = () => {
     const [isProcessing, setIsProcessing] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
 
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
+    const handleRefresh = () => {
+        setIsRefreshing(true);
+        setTimeout(() => setIsRefreshing(false), 1500);
+    };
+
     const handleWithdraw = () => {
         setIsProcessing(true);
         setTimeout(() => {
@@ -119,9 +126,13 @@ const DriverWallet = () => {
                 <div className="text-center">
                     <h1 className="text-lg font-black text-slate-900 tracking-tight uppercase">Earnings Portfolio</h1>
                 </div>
-                <div className="w-10 h-10 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center text-slate-900 active:scale-95 transition-transform">
-                    <RefreshCw size={18} strokeWidth={2.5} />
-                </div>
+                <button 
+                    onClick={handleRefresh}
+                    disabled={isRefreshing}
+                    className="w-10 h-10 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center text-slate-900 active:scale-95 transition-transform"
+                >
+                    <RefreshCw size={18} strokeWidth={2.5} className={isRefreshing ? 'animate-spin text-taxi-primary' : ''} />
+                </button>
             </header>
 
             <main className="flex-1 space-y-8 flex flex-col">

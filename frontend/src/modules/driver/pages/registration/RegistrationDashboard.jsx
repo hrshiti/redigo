@@ -26,18 +26,17 @@ const RegistrationDashboard = () => {
         { id: 'personal', title: 'Personal Information', sub: 'ID & Profile', icon: <User size={18} /> },
         { id: 'vehicle', title: 'Vehicle Information', sub: 'Fleet & RC', icon: <Car size={18} /> },
         { id: 'docs', title: 'KYC Documents', sub: 'Legal Verification', icon: <FileText size={18} /> },
-        { id: 'selfie', title: 'Selfie Verification', sub: 'Identity Check', icon: <Camera size={18} /> },
         { id: 'bank', title: 'Payout Details', sub: 'Earnings Account', icon: <CreditCard size={18} /> }
     ];
 
     return (
-        <div className="min-h-screen bg-taxi-bg font-sans select-none overflow-x-hidden p-8 pb-32 flex flex-col pt-10">
+        <div className="min-h-screen bg-taxi-bg font-sans select-none overflow-x-hidden p-6 pb-28 flex flex-col pt-6">
             {/* Premium Welcome Header */}
-            <header className="mb-10 space-y-6">
+            <header className="mb-6 space-y-4">
                 <motion.div 
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="w-20 h-20 bg-white rounded-[2.5rem] flex items-center justify-center text-taxi-text shadow-2xl overflow-hidden p-3"
+                    className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-taxi-text shadow-2xl overflow-hidden p-2"
                 >
                     <img src={RedigoLogo} alt="Redigo" className="w-full h-full object-contain" />
                 </motion.div>
@@ -53,10 +52,10 @@ const RegistrationDashboard = () => {
                             <ShieldCheck size={12} strokeWidth={3} /> Verified Partner Program
                         </span>
                     </div>
-                    <h1 className="text-4xl font-black text-taxi-text tracking-tighter leading-none uppercase">
+                    <h1 className="text-3xl font-black text-taxi-text tracking-tighter leading-none uppercase">
                         Start Your <br/> <span className="text-orange-500">Journey</span>
                     </h1>
-                    <p className="text-[14px] font-bold text-slate-400">Complete these 5 simple steps to join the Elite Driver network and start earning today.</p>
+                    <p className="text-[14px] font-bold text-slate-400">Complete these 4 simple steps to join the Elite Driver network and start earning today.</p>
                 </motion.div>
             </header>
 
@@ -69,7 +68,7 @@ const RegistrationDashboard = () => {
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.1 * index + 0.3 }}
-                            className="bg-white p-5 rounded-[2.2rem] shadow-sm border border-slate-50 flex items-center justify-between group"
+                            className="bg-white p-4 rounded-2xl shadow-sm border border-slate-50 flex items-center justify-between group"
                         >
                             <div className="flex items-center gap-5">
                                 <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 shadow-inner group-hover:bg-taxi-primary group-hover:text-taxi-text transition-colors">
@@ -91,7 +90,7 @@ const RegistrationDashboard = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 1 }}
-                    className="p-6 bg-slate-900 rounded-[2.5rem] text-white flex items-center justify-between relative overflow-hidden group active:scale-95 transition-all cursor-pointer shadow-xl"
+                    className="p-4 bg-slate-900 rounded-2xl text-white flex items-center justify-between relative overflow-hidden group active:scale-95 transition-all cursor-pointer shadow-xl"
                 >
                     <div className="relative z-10 space-y-1">
                         <div className="flex items-center gap-2">
@@ -106,16 +105,16 @@ const RegistrationDashboard = () => {
             </main>
 
             {/* CTA Panel */}
-            <div className="fixed bottom-0 left-0 right-0 p-8 pt-4 pb-12 bg-white/50 backdrop-blur-xl z-50">
+            <div className="fixed bottom-0 left-0 right-0 p-6 pt-3 pb-8 bg-white/80 backdrop-blur-xl z-50 border-t border-slate-50">
                 <motion.button 
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.8, type: "spring" }}
                     whileTap={{ scale: 0.96 }}
                     onClick={() => navigate('/taxi/driver/step-personal')}
-                    className="w-full h-18 bg-taxi-primary text-taxi-text py-4 rounded-3xl flex items-center justify-center gap-4 text-[20px] font-black shadow-2xl shadow-taxi-primary/20 border border-taxi-primary/80 active:scale-95 transition-all tracking-tight uppercase"
+                    className="w-full h-14 bg-taxi-primary text-taxi-text py-4 rounded-2xl flex items-center justify-center gap-4 text-[18px] font-black shadow-2xl shadow-taxi-primary/20 border border-taxi-primary/80 active:scale-95 transition-all tracking-tight uppercase"
                 >
-                    Start Registration <ChevronRight size={24} strokeWidth={3} />
+                    Start Registration <ChevronRight size={22} strokeWidth={3} />
                 </motion.button>
             </div>
         </div>

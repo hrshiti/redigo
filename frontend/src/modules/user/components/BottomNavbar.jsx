@@ -30,7 +30,7 @@ const BottomNavbar = () => {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-white/95 backdrop-blur-md border-t border-gray-100 px-4 py-3 pb-8 flex justify-between z-50 shadow-[0_-10px_30px_rgba(0,0,0,0.03)]">
+    <div className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-white/95 backdrop-blur-md border-t border-gray-100 px-4 py-2 pb-5 flex justify-between z-50 shadow-[0_-10px_30px_rgba(0,0,0,0.03)]">
       {navItems.map((item) => (
         <NavItem 
           key={item.label}

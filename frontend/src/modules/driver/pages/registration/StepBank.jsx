@@ -22,21 +22,23 @@ const StepBank = () => {
     };
 
     return (
-        <div className="min-h-screen bg-taxi-bg font-sans select-none overflow-x-hidden p-8 pb-32 flex flex-col pt-6">
-            <header className="flex items-center justify-between mb-2">
-                <button 
-                    onClick={() => navigate(-1)}
-                    className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center text-taxi-text active:scale-90 transition-transform"
-                >
-                    <ArrowLeft size={20} strokeWidth={2.5} />
-                </button>
-                <div className="text-center">
-                    <h1 className="text-xl font-black text-taxi-text tracking-tight uppercase">Registration</h1>
-                </div>
-                <div className="w-12" />
-            </header>
+        <div className="min-h-screen bg-taxi-bg font-sans select-none overflow-x-hidden p-6 pb-28 flex flex-col pt-4">
+            <div className="sticky top-0 z-50 bg-taxi-bg/95 backdrop-blur-md -mx-6 px-6 pt-4 border-b border-slate-100/50 mb-2">
+                <header className="flex items-center justify-between mb-2">
+                    <button 
+                        onClick={() => navigate(-1)}
+                        className="w-10 h-10 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center text-taxi-text active:scale-90 transition-transform"
+                    >
+                        <ArrowLeft size={18} strokeWidth={2.5} />
+                    </button>
+                    <div className="text-center">
+                        <h1 className="text-lg font-black text-taxi-text tracking-tight uppercase">Registration</h1>
+                    </div>
+                    <div className="w-10" />
+                </header>
 
-            <RegistrationProgress currentStep={5} />
+                <RegistrationProgress currentStep={4} totalSteps={4} />
+            </div>
 
             <main className="flex-1 space-y-8 flex flex-col pt-4">
                 <motion.div 
@@ -44,7 +46,7 @@ const StepBank = () => {
                     animate={{ opacity: 1, y: 0 }}
                     className="space-y-3"
                 >
-                    <h2 className="text-3xl font-black text-taxi-text leading-tight tracking-tight">
+                    <h2 className="text-2xl font-black text-taxi-text leading-tight tracking-tight">
                         Payout Account
                     </h2>
                     <p className="text-[14px] font-bold text-slate-400">
@@ -71,7 +73,7 @@ const StepBank = () => {
                                     placeholder="Name as per Bank Passbook"
                                     value={formData.holderName}
                                     onChange={(e) => setFormData({...formData, holderName: e.target.value})}
-                                    className="w-full h-18 bg-white border-2 border-slate-100 rounded-[2.2rem] pl-16 pr-6 text-[15px] font-black text-taxi-text focus:outline-none focus:border-taxi-primary transition-all shadow-sm focus:shadow-xl focus:shadow-taxi-primary/10"
+                                    className="w-full h-14 bg-white border-2 border-slate-100 rounded-2xl pl-16 pr-6 text-[15px] font-black text-taxi-text focus:outline-none focus:border-taxi-primary transition-all shadow-sm focus:shadow-xl focus:shadow-taxi-primary/10"
                                 />
                             </div>
                         </div>
@@ -88,7 +90,7 @@ const StepBank = () => {
                                     placeholder="e.g. State Bank of India"
                                     value={formData.bankName}
                                     onChange={(e) => setFormData({...formData, bankName: e.target.value})}
-                                    className="w-full h-18 bg-white border-2 border-slate-100 rounded-[2.2rem] pl-16 pr-6 text-[15px] font-black text-taxi-text focus:outline-none focus:border-taxi-primary transition-all shadow-sm focus:shadow-xl focus:shadow-taxi-primary/10"
+                                    className="w-full h-14 bg-white border-2 border-slate-100 rounded-2xl pl-16 pr-6 text-[15px] font-black text-taxi-text focus:outline-none focus:border-taxi-primary transition-all shadow-sm focus:shadow-xl focus:shadow-taxi-primary/10"
                                 />
                             </div>
                         </div>
@@ -106,7 +108,7 @@ const StepBank = () => {
                                         placeholder="Enter Account Number"
                                         value={formData.accountNumber}
                                         onChange={(e) => setFormData({...formData, accountNumber: e.target.value})}
-                                        className="w-full h-18 bg-white border-2 border-slate-100 rounded-[2.2rem] pl-16 pr-6 text-xl font-black text-taxi-text focus:outline-none focus:border-taxi-primary transition-all shadow-sm font-mono tracking-widest focus:shadow-xl focus:shadow-taxi-primary/10"
+                                        className="w-full h-14 bg-white border-2 border-slate-100 rounded-2xl pl-16 pr-6 text-xl font-black text-taxi-text focus:outline-none focus:border-taxi-primary transition-all shadow-sm font-mono tracking-widest focus:shadow-xl focus:shadow-taxi-primary/10"
                                     />
                                 </div>
                             </div>
@@ -122,15 +124,15 @@ const StepBank = () => {
                                         placeholder="SBIN0001234"
                                         value={formData.ifsc}
                                         onChange={(e) => setFormData({...formData, ifsc: e.target.value})}
-                                        className="w-full h-18 bg-white border-2 border-slate-100 rounded-[2.2rem] pl-16 pr-6 text-[15px] font-black text-taxi-text focus:outline-none focus:border-taxi-primary transition-all shadow-sm uppercase font-mono tracking-widest focus:shadow-xl focus:shadow-taxi-primary/10"
+                                        className="w-full h-14 bg-white border-2 border-slate-100 rounded-2xl pl-16 pr-6 text-[15px] font-black text-taxi-text focus:outline-none focus:border-taxi-primary transition-all shadow-sm uppercase font-mono tracking-widest focus:shadow-xl focus:shadow-taxi-primary/10"
                                     />
                                 </div>
                             </div>
                         </div>
 
                         {/* Info */}
-                        <div className="p-6 bg-taxi-primary/5 rounded-[2.2rem] border border-taxi-primary/10 flex items-start gap-4 mx-1">
-                            <Info size={20} className="text-taxi-secondary flex-shrink-0 mt-1" />
+                        <div className="p-4 bg-taxi-primary/5 rounded-2xl border border-taxi-primary/10 flex items-start gap-4 mx-1">
+                            <Info size={18} className="text-taxi-secondary flex-shrink-0 mt-0.5" />
                             <p className="text-[11px] font-bold text-slate-500/80 leading-relaxed">
                                 Payments are processed every Monday. Please ensure your account number is correct to avoid payment delays.
                             </p>
@@ -139,14 +141,14 @@ const StepBank = () => {
                 </div>
             </main>
 
-            <div className="fixed bottom-0 left-0 right-0 p-8 pt-4 pb-12 bg-white/50 backdrop-blur-xl z-50">
+            <div className="fixed bottom-0 left-0 right-0 p-6 pt-3 pb-8 bg-white/80 backdrop-blur-xl z-50 border-t border-slate-50">
                 <motion.button 
                     whileTap={{ scale: 0.96 }}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     onClick={handleSave}
                     disabled={isFinishing}
-                    className={`w-full h-18 py-4 rounded-3xl flex items-center justify-center gap-3 text-[18px] font-black shadow-xl shadow-taxi-primary/10 border border-taxi-primary/80 active:scale-95 transition-all tracking-tight uppercase ${
+                    className={`w-full h-14 py-4 rounded-2xl flex items-center justify-center gap-3 text-[17px] font-black shadow-xl shadow-taxi-primary/10 border border-taxi-primary/80 active:scale-95 transition-all tracking-tight uppercase ${
                         isFinishing ? 'bg-emerald-500 text-white border-emerald-400' : 'bg-taxi-primary text-taxi-text'
                     }`}
                 >

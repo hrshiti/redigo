@@ -22,21 +22,23 @@ const StepSelfie = () => {
     };
 
     return (
-        <div className="min-h-screen bg-taxi-bg font-sans select-none overflow-x-hidden p-8 pb-32 flex flex-col pt-6">
-            <header className="flex items-center justify-between mb-2">
-                <button 
-                    onClick={() => navigate(-1)}
-                    className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center text-taxi-text active:scale-90 transition-transform"
-                >
-                    <ArrowLeft size={20} strokeWidth={2.5} />
-                </button>
-                <div className="text-center">
-                    <h1 className="text-xl font-black text-taxi-text tracking-tight uppercase">Registration</h1>
-                </div>
-                <div className="w-12" />
-            </header>
+        <div className="min-h-screen bg-taxi-bg font-sans select-none overflow-x-hidden p-6 pb-28 flex flex-col pt-4">
+            <div className="sticky top-0 z-50 bg-taxi-bg/95 backdrop-blur-md -mx-6 px-6 pt-4 border-b border-slate-100/50 mb-2">
+                <header className="flex items-center justify-between mb-2">
+                    <button 
+                        onClick={() => navigate(-1)}
+                        className="w-10 h-10 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center text-taxi-text active:scale-90 transition-transform"
+                    >
+                        <ArrowLeft size={18} strokeWidth={2.5} />
+                    </button>
+                    <div className="text-center">
+                        <h1 className="text-lg font-black text-taxi-text tracking-tight uppercase">Registration</h1>
+                    </div>
+                    <div className="w-10" />
+                </header>
 
-            <RegistrationProgress currentStep={4} />
+                <RegistrationProgress currentStep={4} />
+            </div>
 
             <main className="flex-1 space-y-8 flex flex-col pt-4">
                 <motion.div 
@@ -44,7 +46,7 @@ const StepSelfie = () => {
                     animate={{ opacity: 1, y: 0 }}
                     className="space-y-3"
                 >
-                    <h2 className="text-3xl font-black text-taxi-text leading-tight tracking-tight">
+                    <h2 className="text-2xl font-black text-taxi-text leading-tight tracking-tight">
                         Selfie Time
                     </h2>
                     <p className="text-[14px] font-bold text-slate-400">
@@ -53,7 +55,7 @@ const StepSelfie = () => {
                 </motion.div>
 
                 {/* Camera Viewport / Preview */}
-                <div className="relative aspect-[3/4] bg-slate-900 rounded-[3.5rem] overflow-hidden shadow-2xl border-4 border-white mx-2">
+                <div className="relative aspect-[3/4] bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl border-2 border-white mx-2">
                     {!captured ? (
                         <div className="absolute inset-0 flex flex-col items-center justify-center space-y-6">
                             {/* Visual Frame */}
@@ -103,7 +105,7 @@ const StepSelfie = () => {
 
                 {/* Instruction List / Notice */}
                 <div className="space-y-4 px-2 pb-10">
-                    <div className="p-6 bg-blue-50/50 rounded-[2.2rem] border border-blue-100 flex items-start gap-4 shadow-sm">
+                    <div className="p-4 bg-blue-50/50 rounded-2xl border border-blue-100 flex items-start gap-4 shadow-sm">
                         <ShieldCheck size={20} className="text-blue-500 flex-shrink-0 mt-1" />
                         <div className="space-y-1">
                             <h4 className="text-[12px] font-black text-blue-900 leading-none">Photo Guidelines</h4>
@@ -116,14 +118,14 @@ const StepSelfie = () => {
             </main>
 
             {/* Bottom Actions */}
-            <div className="fixed bottom-0 left-0 right-0 p-8 pt-4 pb-12 bg-white/50 backdrop-blur-xl z-50">
+            <div className="fixed bottom-0 left-0 right-0 p-6 pt-3 pb-8 bg-white/80 backdrop-blur-xl z-50 border-t border-slate-50">
                 <motion.button 
                     whileTap={{ scale: 0.96 }}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     disabled={!captured}
                     onClick={handleAction}
-                    className={`w-full h-18 py-4 rounded-3xl flex items-center justify-center gap-3 text-[18px] font-black shadow-xl border transition-all tracking-tight uppercase ${
+                    className={`w-full h-14 py-4 rounded-2xl flex items-center justify-center gap-3 text-[17px] font-black shadow-xl border transition-all tracking-tight uppercase ${
                         captured 
                         ? 'bg-taxi-primary text-taxi-text border-taxi-primary/80 shadow-taxi-primary/10 active:scale-95' 
                         : 'bg-slate-100 text-slate-300 border-slate-200 grayscale cursor-not-allowed opacity-50'

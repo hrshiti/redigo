@@ -1,31 +1,60 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, MapPin, Share2, HelpCircle, Star, Repeat, Bike, Clock, Calendar } from 'lucide-react';
 
 const RideDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [shareToast, setShareToast] = useState(false);
+
+  const handleShare = () => {
+    const text = `My Redigo Trip #RDG${id || '8231'} — Pipaliyahana → Vijay Nagar Square | ₹22.00`;
+    if (navigator.share) {
+      navigator.share({ title: 'Redigo Trip', text }).catch(() => {});
+    } else {
+      navigator.clipboard?.writeText(text).then(() => {
+        setShareToast(true);
+        setTimeout(() => setShareToast(false), 2500);
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#FDFDFD] max-w-lg mx-auto flex flex-col font-sans relative">
+
+      {/* Share Toast */}
+      <AnimatePresence>
+        {shareToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white px-5 py-3 rounded-2xl text-sm font-black shadow-2xl whitespace-nowrap"
+          >
+            ✅ Trip details copied!
+          </motion.div>
+        )}
+      </AnimatePresence>
       <header className="bg-white p-5 flex items-center justify-between border-b border-gray-50 shadow-sm sticky top-0 z-20">
-         <div className="flex items-center gap-4">
-            <button onClick={() => navigate(-1)} className="p-2 -ml-2 active:scale-95 transition-all">
-               <ArrowLeft size={24} className="text-gray-900" strokeWidth={3} />
-            </button>
-            <div>
-               <h1 className="text-[17px] font-black text-gray-900 leading-none">Trip ID: #RDG{id || '8231'}</h1>
-               <p className="text-[11px] font-bold text-gray-400 mt-1 uppercase tracking-widest">Completed: 29 Mar 2026</p>
-            </div>
-         </div>
+       <div className="flex items-center gap-4">
+          <button onClick={() => navigate(-1)} className="p-2 -ml-2 active:scale-95 transition-all">
+             <ArrowLeft size={24} className="text-gray-900" strokeWidth={3} />
+          </button>
+          <div>
+             <h1 className="text-[17px] font-black text-gray-900 leading-none">Trip ID: #RDG{id || '8231'}</h1>
+             <p className="text-[11px] font-bold text-gray-400 mt-1 uppercase tracking-widest">Completed: 29 Mar 2026</p>
+          </div>
+       </div>
+       <button onClick={handleShare} className="active:scale-90 transition-all">
          <Share2 size={20} className="text-gray-400 hover:text-gray-900 transition-colors" />
+       </button>
       </header>
 
       <div className="flex-1 p-5 space-y-8 overflow-y-auto no-scrollbar">
          {/* Map Snippet */}
          <div className="h-40 bg-gray-100 rounded-[32px] overflow-hidden relative shadow-sm">
-            <img src="/map image.avif" className="w-(full h-full object-cover opacity-60" alt="Map View" />
+         <img src="/map image.avif" className="w-full h-full object-cover opacity-60" alt="Map View" />
             <div className="absolute inset-0 bg-gradient-to-t from-white/80 to-transparent"></div>
          </div>
 
@@ -99,12 +128,18 @@ const RideDetail = () => {
       </div>
 
       {/* FOOTER ACTIONS - FIXED */}
-      <div className="p- 6 border-t border-gray-50 flex gap-4 bg-white pb-10">
-         <button className="flex-[2] bg-[#1C2833] text-white py-5 rounded-[24px] text-[14px] font-black uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-all">
+      <div className="p-6 border-t border-gray-50 flex gap-4 bg-white pb-10">
+         <button
+           onClick={() => navigate('/ride/select-location')}
+           className="flex-[2] bg-[#1C2833] text-white py-5 rounded-[24px] text-[14px] font-black uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-all"
+         >
             <Repeat size={18} />
             <span>Rebook Ride</span>
          </button>
-         <button className="flex-1 bg-gray-50 text-gray-900 py-5 rounded-[24px] text-[14px] font-black uppercase tracking-widest border border-gray-100 flex items-center justify-center gap-2 active:scale-95 transition-all">
+         <button
+           onClick={() => navigate('/support')}
+           className="flex-1 bg-gray-50 text-gray-900 py-5 rounded-[24px] text-[14px] font-black uppercase tracking-widest border border-gray-100 flex items-center justify-center gap-2 active:scale-95 transition-all"
+         >
             <HelpCircle size={18} />
             <span>Help</span>
          </button>

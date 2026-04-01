@@ -8,13 +8,13 @@ const ExplorerSection = () => {
   ];
 
   return (
-    <div className="px-5 mb-10">
-      <h2 className="text-[19px] font-black text-gray-900 mb-5 ml-1 tracking-tight">Explore Indore</h2>
+    <div className="px-5 mb-4">
+      <h2 className="text-[19px] font-black text-gray-900 mb-2 ml-1 tracking-tight">Explore Indore</h2>
       
       <div className="flex gap-5 overflow-x-auto no-scrollbar scroll-smooth pb-6 px-1">
         {cities.map((city, idx) => (
           <div key={idx} className="flex-shrink-0 w-[210px] group transition-all active:scale-[0.98] cursor-pointer">
-            <div className="rounded-[32px] bg-white border border-gray-50 shadow-[0_12px_40px_rgba(0,0,0,0.04)] overflow-hidden h-[150px] transition-all relative group-hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)]">
+            <div className="rounded-[32px] bg-white border border-gray-50 shadow-[0_12px_40px_rgba(0,0,0,0.04)] overflow-hidden h-[130px] transition-all relative group-hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)]">
                <img 
                  src={city.image} 
                  alt={city.title} 
@@ -25,7 +25,7 @@ const ExplorerSection = () => {
                   <p className="text-[9px] font-black text-primary tracking-widest uppercase">{city.code}</p>
                </div>
             </div>
-            <div className="mt-4 px-2 translate-y-0 group-hover:-translate-y-1 transition-transform">
+            <div className="mt-2 px-2 translate-y-0 group-hover:-translate-y-1 transition-transform">
                <h4 className="text-[15px] font-black text-gray-900 leading-tight tracking-tight group-hover:text-primary transition-colors flex items-center justify-between">
                   {city.title}
                   <div className="w-6 h-6 rounded-full bg-gray-50 flex items-center justify-center -rotate-45 group-hover:bg-primary/10 transition-all">
@@ -42,7 +42,7 @@ const ExplorerSection = () => {
         ))}
         
         {/* Skeleton View All Card */}
-        <div className="flex-shrink-0 w-[160px] flex flex-col justify-center items-center gap-3 bg-gray-50/50 border-2 border-dashed border-gray-200 rounded-[32px] active:scale-95 transition-all text-gray-400 font-black group hover:border-primary/30 hover:bg-white transition-all h-[150px] self-start">
+        <div className="flex-shrink-0 w-[160px] flex flex-col justify-center items-center gap-3 bg-gray-50/50 border-2 border-dashed border-gray-200 rounded-[32px] active:scale-95 transition-all text-gray-400 font-black group hover:border-primary/30 hover:bg-white transition-all h-[130px] self-start">
            <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-gray-300">
                  <path d="M5 12h14M12 5l7 7-7 7"/>

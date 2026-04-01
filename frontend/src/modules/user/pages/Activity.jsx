@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Bike, Box, ChevronRight, Calendar, Clock } from 'lucide-react';
+import { ArrowLeft, Bike, Box, ChevronRight, Calendar, Clock, Headset } from 'lucide-react';
+import BottomNavbar from '../components/BottomNavbar';
 
 const ActivityItem = ({ id, type, title, address, date, time, status, price, onClick }) => (
   <motion.div 
@@ -50,6 +51,25 @@ const Activity = () => {
     { id: '1105', type: 'ride', title: 'Ride with Rajesh', address: 'LIG Colony, Indore', date: '28 Mar', time: '09:12 AM', status: 'Cancelled', price: '0' },
   ];
 
+  // Filter based on active tab
+  const filtered = activities.filter((a) => {
+    if (activeTab === 'All') return true;
+    if (activeTab === 'Rides') return a.type === 'ride';
+    if (activeTab === 'Parcels') return a.type === 'parcel';
+    return false; // Support tab shows empty state
+  });
+
+  const handleItemClick = (item) => {
+    if (item.type === 'parcel') {
+      navigate(`/parcel/detail/${item.id}`);
+    } else {
+      navigate(`/ride/detail/${item.id}`);
+    }
+  };
+
+
+
+
   return (
     <div className="min-h-screen bg-[#FDFDFD] max-w-lg mx-auto flex flex-col font-sans pb-32">
       <header className="bg-white px-5 py-8 flex items-center gap-6 sticky top-0 z-20 border-b border-gray-50/50 shadow-sm">
@@ -77,16 +97,50 @@ const Activity = () => {
       </div>
 
       <div className="flex-1 px-5 pt-2">
-         {activities.map((a, idx) => (
-            <ActivityItem 
-               key={idx} 
-               {...a} 
-               onClick={(id) => navigate(`/ride/detail/${id}`)}
-            />
-         ))}
+         {activeTab === 'Support' ? (
+           <motion.div
+             initial={{ opacity: 0, y: 10 }}
+             animate={{ opacity: 1, y: 0 }}
+             className="flex flex-col items-center justify-center py-20 text-center gap-5"
+           >
+             <div className="w-20 h-20 bg-orange-50 rounded-3xl flex items-center justify-center">
+               <Headset size={36} className="text-primary" />
+             </div>
+             <div className="space-y-1">
+               <h3 className="text-[17px] font-black text-gray-900">No support tickets</h3>
+               <p className="text-[13px] font-bold text-gray-400">You haven't raised any support tickets yet.</p>
+             </div>
+             <button
+               onClick={() => navigate('/support')}
+               className="mt-2 bg-primary text-white px-8 py-3.5 rounded-full text-sm font-black uppercase tracking-widest shadow-lg shadow-orange-100 active:scale-95 transition-all"
+             >
+               Contact Us
+             </button>
+           </motion.div>
+         ) : filtered.length === 0 ? (
+           <motion.div
+             initial={{ opacity: 0 }}
+             animate={{ opacity: 1 }}
+             className="flex flex-col items-center justify-center py-20 text-center gap-3"
+           >
+             <div className="text-5xl">📭</div>
+             <p className="text-[15px] font-black text-gray-400">No {activeTab.toLowerCase()} found</p>
+           </motion.div>
+         ) : (
+           filtered.map((a, idx) => (
+             <ActivityItem
+               key={idx}
+               {...a}
+               onClick={() => handleItemClick(a)}
+             />
+           ))
+         )}
       </div>
+
+      <BottomNavbar />
     </div>
   );
 };
 
 export default Activity;
+

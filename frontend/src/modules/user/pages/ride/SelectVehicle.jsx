@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, User, ChevronRight, X, Plus, Banknote, CreditCard, ChevronDown } from 'lucide-react';
+import { ArrowLeft, User, ChevronRight, X, Banknote, CreditCard, ChevronDown } from 'lucide-react';
 
 const VehicleItem = ({ icon, name, capacity, badge, sublabel, eta, dropTime, price, isSelected, onClick }) => (
   <motion.div 
@@ -44,7 +44,13 @@ const SelectVehicle = () => {
   const [selected, setSelected] = useState('bike');
   const [paymentMethod, setPaymentMethod] = useState('Cash');
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showPromo, setShowPromo] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
+  const routeState = location.state || {};
+  const pickup = routeState.pickup || 'Pipaliyahana, Indore';
+  const drop = routeState.drop || 'Vijay Nagar, Indore';
+  const stop = routeState.stop || null;
 
   const vehicles = [
     { id: 'bike', icon: '/1_Bike.png', name: 'Bike', capacity: 1, badge: 'FASTEST', sublabel: 'Quick Bike rides', eta: 2, dropTime: '12:24', price: 22 },
@@ -72,19 +78,23 @@ const SelectVehicle = () => {
             </div>
         </div>
 
-        {/* PROMO BANNER */}
-        <div className="absolute bottom-6 left-5 right-5 bg-white/90 backdrop-blur-md border border-white rounded-[24px] overflow-hidden flex items-center pr-3 z-30 shadow-[0_12px_45px_rgba(0,0,0,0.08)]">
-           <div className="p-4 py-3 flex-1">
-              <h5 className="text-[13px] font-black leading-tight text-blue-950">Going a few kms away? <br/>Cab is meters away.</h5>
-              <p className="text-[9px] font-extrabold text-blue-700 mt-1 uppercase tracking-wider">Use code GOFREE on 1st Cab ride.</p>
-           </div>
-           <div className="w-[85px] h-[65px] relative">
-              <img src="/ride_now_banner.png" className="w-full h-full object-cover rounded-xl" alt="Promo Car" />
-           </div>
-           <div className="ml-3 pl-1 border-l border-gray-100 h-6 flex items-center">
-              <X size={14} className="text-gray-400 cursor-pointer" />
-           </div>
-        </div>
+        {/* PROMO BANNER — dismissable */}
+        {showPromo && (
+          <div className="absolute bottom-6 left-5 right-5 bg-white/90 backdrop-blur-md border border-white rounded-[24px] overflow-hidden flex items-center pr-3 z-30 shadow-[0_12px_45px_rgba(0,0,0,0.08)]">
+             <div className="p-4 py-3 flex-1">
+                <h5 className="text-[13px] font-black leading-tight text-blue-950">Going a few kms away? <br/>Cab is meters away.</h5>
+                <p className="text-[9px] font-extrabold text-blue-700 mt-1 uppercase tracking-wider">Use code GOFREE on 1st Cab ride.</p>
+             </div>
+             <div className="w-[85px] h-[65px] relative">
+                <img src="/ride_now_banner.png" className="w-full h-full object-cover rounded-xl" alt="Promo Car" />
+             </div>
+             <div className="ml-3 pl-1 border-l border-gray-100 h-6 flex items-center">
+                <button onClick={() => setShowPromo(false)} className="active:scale-90 transition-all">
+                  <X size={14} className="text-gray-400 hover:text-gray-800 transition-colors" />
+                </button>
+             </div>
+          </div>
+        )}
       </div>
 
       {/* Vehicle Selection Sheet */}
@@ -118,10 +128,22 @@ const SelectVehicle = () => {
 
             <motion.button
               whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/ride/searching')}
+              onClick={() => {
+                const selectedVehicleData = vehicles.find(v => v.id === selected);
+                navigate('/ride/searching', {
+                  state: {
+                    pickup,
+                    drop,
+                    stop,
+                    vehicle: selectedVehicleData,
+                    paymentMethod,
+                    fare: selectedVehicleData?.price || 22,
+                  },
+                });
+              }}
               className="w-full bg-[#f8e001] py-5 rounded-[24px] text-[18px] font-black text-[#1C2833] shadow-lg shadow-yellow-500/10 transition-all uppercase tracking-tight active:bg-yellow-400"
             >
-              Book {selected === 'bike' ? 'Bike' : 'Cab'}
+              Book {selected === 'bike' ? 'Bike' : selected === 'auto' ? 'Auto' : 'Cab'}
             </motion.button>
          </div>
       </div>

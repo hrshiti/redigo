@@ -7,7 +7,7 @@ const DriverAuth = () => {
     const navigate = useNavigate();
     const [step, setStep] = useState('phone'); // 'phone' or 'otp'
     const [phoneNumber, setPhoneNumber] = useState('');
-    const [otp, setOtp] = useState(['', '', '', '']);
+    const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const [timer, setTimer] = useState(30);
 
     useEffect(() => {
@@ -23,7 +23,7 @@ const DriverAuth = () => {
         const newOtp = [...otp];
         newOtp[index] = value.substring(value.length - 1);
         setOtp(newOtp);
-        if (value && index < 3) {
+        if (value && index < 5) {
             document.getElementById(`otp-${index + 1}`).focus();
         }
     };
@@ -34,9 +34,9 @@ const DriverAuth = () => {
     };
 
     return (
-        <div className="min-h-screen bg-taxi-bg font-sans select-none overflow-x-hidden p-8 flex flex-col">
+        <div className="min-h-screen bg-taxi-bg font-sans select-none overflow-x-hidden p-6 flex flex-col">
             {/* Simple Header */}
-            <header className="flex items-center justify-between mb-12">
+            <header className="flex items-center justify-between mb-8">
                 <button 
                     onClick={handleBack}
                     className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center text-taxi-text active:scale-90 transition-transform"
@@ -58,8 +58,8 @@ const DriverAuth = () => {
                         exit={{ opacity: 0, x: -20 }}
                         className="flex-1 space-y-10 flex flex-col pt-10"
                     >
-                        <div className="space-y-3">
-                            <h2 className="text-3xl font-black text-taxi-text leading-tight tracking-tight">
+                        <div className="space-y-2">
+                            <h2 className="text-2xl font-black text-taxi-text leading-tight tracking-tight">
                                 Enter your<br />mobile number
                             </h2>
                             <p className="text-[14px] font-bold text-slate-400">
@@ -78,7 +78,7 @@ const DriverAuth = () => {
                                     value={phoneNumber}
                                     onChange={(e) => setPhoneNumber(e.target.value)}
                                     placeholder="00000 00000"
-                                    className="w-full h-18 bg-white border-2 border-slate-100 rounded-3xl pl-20 pr-6 text-xl font-black text-taxi-text focus:outline-none focus:border-taxi-primary transition-all font-mono placeholder:text-slate-200 shadow-sm"
+                                    className="w-full h-14 bg-white border-2 border-slate-100 rounded-2xl pl-16 pr-6 text-xl font-black text-taxi-text focus:outline-none focus:border-taxi-primary transition-all font-mono placeholder:text-slate-200 shadow-sm"
                                  />
                              </div>
                              <div className="flex items-center gap-2 pl-4 pt-2">
@@ -93,7 +93,7 @@ const DriverAuth = () => {
                             whileTap={{ scale: 0.96 }}
                             disabled={phoneNumber.length !== 10}
                             onClick={() => setStep('otp')}
-                            className={`w-full h-16 rounded-3xl flex items-center justify-center gap-3 text-[18px] font-black shadow-xl transition-all tracking-tight uppercase ${
+                            className={`w-full h-14 rounded-2xl flex items-center justify-center gap-3 text-[17px] font-black shadow-xl transition-all tracking-tight uppercase ${
                                 phoneNumber.length === 10 
                                 ? 'bg-taxi-primary text-taxi-text border border-taxi-primary/80' 
                                 : 'bg-slate-100 text-slate-400 border border-slate-200 grayscale cursor-not-allowed'
@@ -110,17 +110,17 @@ const DriverAuth = () => {
                         exit={{ opacity: 0, x: -20 }}
                         className="flex-1 space-y-10 flex flex-col pt-10"
                     >
-                        <div className="space-y-3">
-                            <h2 className="text-3xl font-black text-taxi-text leading-tight tracking-tight">
+                        <div className="space-y-2">
+                            <h2 className="text-2xl font-black text-taxi-text leading-tight tracking-tight">
                                 Verify your<br />identity
                             </h2>
                             <p className="text-[14px] font-bold text-slate-400">
-                                Enter the 4-digit code sent to<br />
+                                Enter the 6-digit code sent to<br />
                                 <span className="text-taxi-text">+91 {phoneNumber}</span>
                             </p>
                         </div>
 
-                        <div className="flex gap-4 justify-center">
+                        <div className="flex gap-2.5 justify-center">
                             {otp.map((digit, index) => (
                                 <input 
                                     key={index}
@@ -129,7 +129,7 @@ const DriverAuth = () => {
                                     maxLength={1}
                                     value={digit}
                                     onChange={(e) => handleOtpChange(index, e.target.value)}
-                                    className="w-15 h-18 bg-white border-2 border-slate-100 rounded-2xl text-center text-2xl font-black text-taxi-text focus:outline-none focus:border-taxi-primary transition-all shadow-sm"
+                                    className="w-11 h-14 bg-white border-2 border-slate-100 rounded-xl text-center text-xl font-black text-taxi-text focus:outline-none focus:border-taxi-primary transition-all shadow-sm"
                                 />
                             ))}
                         </div>
@@ -151,7 +151,7 @@ const DriverAuth = () => {
                         <motion.button 
                             whileTap={{ scale: 0.96 }}
                             onClick={() => navigate('/taxi/driver/dashboard-reg')}
-                            className="w-full h-16 bg-taxi-primary text-taxi-text py-4 rounded-3xl flex items-center justify-center gap-3 text-[18px] font-black shadow-xl border border-taxi-primary/80 active:scale-95 transition-all tracking-tight uppercase"
+                            className="w-full h-14 bg-taxi-primary text-taxi-text py-4 rounded-2xl flex items-center justify-center gap-3 text-[17px] font-black shadow-xl border border-taxi-primary/80 active:scale-95 transition-all tracking-tight uppercase"
                         >
                             Confirm Identity <Check size={20} strokeWidth={3} />
                         </motion.button>

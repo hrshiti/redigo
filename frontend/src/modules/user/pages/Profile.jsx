@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { User, Wallet, Bell, Shield, LogOut, ChevronRight, HelpCircle, MapPin } from 'lucide-react';
+import BottomNavbar from '../components/BottomNavbar';
 
 const SettingRow = ({ icon: Icon, title, sub, color, onClick }) => (
   <motion.div 
@@ -97,8 +98,11 @@ const Profile = () => {
              <span>Sign Out</span>
           </button>
        </div>
+
+       <BottomNavbar />
     </div>
   );
 };
 
 export default Profile;
+

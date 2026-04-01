@@ -22,13 +22,13 @@ const ServiceGrid = () => {
   const services = [
     { icon: '/1_Bike.png', label: 'Ride', path: '/ride/select-location' },
     { icon: '/5_Parcel.png', label: 'Delivery', path: '/parcel/type' },
-    { icon: '/2_AutoRickshaw.png', label: 'Rental', path: '/ride/select-location' },
-    { icon: '/4_Taxi.png', label: 'Outstation', path: '/ride/select-location' },
+    { icon: '/2_AutoRickshaw.png', label: 'Rental', path: '/rental' },
+    { icon: '/4_Taxi.png', label: 'Outstation', path: '/intercity' },
   ];
 
   return (
-    <div className="px-5 mb-8">
-      <h2 className="text-[19px] font-black text-gray-900 mb-5 ml-1 tracking-tight">Services</h2>
+    <div className="px-5 mb-4">
+      <h2 className="text-[19px] font-black text-gray-900 mb-2 ml-1 tracking-tight">Services</h2>
       <div className="flex justify-between items-center gap-2">
         {services.map((service, index) => (
           <ServiceItem key={index} {...service} />

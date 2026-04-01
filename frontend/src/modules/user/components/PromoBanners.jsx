@@ -6,13 +6,13 @@ const PromoBanners = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="px-5 mb-8 space-y-6">
+    <div className="px-5 mb-4 space-y-3">
       <div className="flex gap-4">
         {/* Banner 1: In a hurry? */}
         <motion.div 
             whileTap={{ scale: 0.97 }} 
             onClick={() => navigate('/ride/select-location')}
-            className="flex-1 bg-white rounded-[32px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.02)] border border-gray-50 flex flex-col justify-center h-[160px] group cursor-pointer relative overflow-hidden"
+            className="flex-1 bg-white rounded-[32px] p-4 shadow-[0_8px_30px_rgba(0,0,0,0.02)] border border-gray-50 flex flex-col justify-center h-[130px] group cursor-pointer relative overflow-hidden"
         >
           <div className="absolute inset-0 z-0">
              <img src="/2_AutoRickshaw.png" className="w-full h-full object-contain opacity-10 group-hover:scale-110 transition-transform duration-700" alt="Auto" />
@@ -32,7 +32,7 @@ const PromoBanners = () => {
         <motion.div 
             whileTap={{ scale: 0.97 }} 
             onClick={() => navigate('/ride/select-location')}
-            className="flex-1 bg-white rounded-[32px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.02)] border border-gray-50 flex flex-col justify-center h-[160px] group cursor-pointer relative overflow-hidden"
+            className="flex-1 bg-white rounded-[32px] p-4 shadow-[0_8px_30px_rgba(0,0,0,0.02)] border border-gray-50 flex flex-col justify-center h-[130px] group cursor-pointer relative overflow-hidden"
         >
           <div className="absolute inset-0 z-0">
              <img src="/4_Taxi.png" className="w-full h-full object-contain opacity-10 group-hover:scale-110 transition-transform duration-700" alt="Car" />
@@ -51,7 +51,7 @@ const PromoBanners = () => {
 
 
       {/* Main Promo Banner */}
-      <div className="bg-gradient-to-br from-[#EAF5FC] to-[#F0F7FF] rounded-[40px] p-6 pr-4 relative overflow-hidden flex items-center shadow-[0_12px_40px_rgba(0,0,0,0.03)] border border-white">
+      <div className="bg-gradient-to-br from-[#EAF5FC] to-[#F0F7FF] rounded-[40px] p-4 pr-4 relative overflow-hidden flex items-center shadow-[0_12px_40px_rgba(0,0,0,0.03)] border border-white">
         <div className="relative z-10 flex-1 space-y-5">
           <div>
             <h3 className="text-[21px] font-black text-blue-950 leading-tight">Going a few kms away?</h3>

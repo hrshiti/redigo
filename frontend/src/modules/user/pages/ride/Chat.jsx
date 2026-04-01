@@ -1,18 +1,24 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Send, Phone, User, Smile } from 'lucide-react';
+import { ArrowLeft, Send, Phone, User, Smile, Headset } from 'lucide-react';
 
 const Chat = () => {
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+  const isAdminChat = new URLSearchParams(location.search).get('admin') === 'true';
 
-  const messages = [
+  const messages = isAdminChat ? [
+    { sender: 'driver', text: "Hello! How can we help you today?", time: '12:45' },
+  ] : [
     { sender: 'driver', text: "I've arrived at your location.", time: '12:45' },
     { sender: 'user', text: "Okay, coming in 2 minutes.", time: '12:46' },
   ];
 
-  const quickReplies = ["Wait for me", "I'm coming", "Where exactly?", "Okay"];
+  const quickReplies = isAdminChat 
+    ? ["Payment Issue", "Ride Cancelled", "Lost Item", "Safety"]
+    : ["Wait for me", "I'm coming", "Where exactly?", "Okay"];
 
   return (
     <div className="min-h-screen bg-[#FDFDFD] max-w-lg mx-auto flex flex-col font-sans relative">
@@ -24,20 +30,24 @@ const Chat = () => {
             </button>
             <div className="flex items-center gap-3">
                <div className="relative">
-                  <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden">
-                     <img src="https://ui-avatars.com/api/?name=Kishan+Kumawat&background=f0f0f0&color=000" alt="Driver" />
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isAdminChat ? 'bg-orange-100 text-primary' : 'bg-gray-100 overflow-hidden'}`}>
+                     {isAdminChat ? <Headset size={20} /> : <img src="https://ui-avatars.com/api/?name=Kishan+Kumawat&background=f0f0f0&color=000" alt="Driver" />}
                   </div>
                   <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
                </div>
                <div>
-                  <h3 className="text-[16px] font-black text-gray-900 leading-none">Kishan Kumawat</h3>
-                  <p className="text-[11px] font-bold text-green-600 mt-1 uppercase tracking-widest">Active Now</p>
+                  <h3 className="text-[16px] font-black text-gray-900 leading-none">
+                    {isAdminChat ? 'Redigo Support' : 'Kishan Kumawat'}
+                  </h3>
+                  <p className="text-[11px] font-bold text-green-600 mt-1 uppercase tracking-widest ">Active Now</p>
                </div>
             </div>
          </div>
-         <button className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center active:scale-95 transition-all">
-            <Phone size={18} className="text-gray-900" strokeWidth={3} />
-         </button>
+         {!isAdminChat && (
+            <button className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center active:scale-95 transition-all">
+               <Phone size={18} className="text-gray-900" strokeWidth={3} />
+            </button>
+         )}
       </div>
 
       {/* Message Area */}
@@ -102,3 +112,4 @@ const Chat = () => {
 };
 
 export default Chat;
+

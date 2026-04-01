@@ -38,10 +38,10 @@ const RegistrationStatus = () => {
     };
 
     return (
-        <div className="min-h-screen bg-taxi-bg font-sans select-none overflow-x-hidden flex flex-col pt-12 pb-8">
+        <div className="min-h-screen bg-taxi-bg font-sans select-none overflow-x-hidden flex flex-col pt-8 pb-6">
             {/* Branded Header */}
-            <div className="px-8 mb-10 flex items-center justify-center">
-                 <img src={RedigoLogo} alt="Redigo" className="h-10 object-contain drop-shadow-sm" />
+            <div className="px-8 mb-6 flex items-center justify-center">
+                 <img src={RedigoLogo} alt="Redigo" className="h-8 object-contain drop-shadow-sm" />
             </div>
 
             <main className="flex-1 px-8 flex flex-col items-center justify-center text-center">
@@ -55,16 +55,16 @@ const RegistrationStatus = () => {
                         className="space-y-8 flex flex-col items-center max-w-sm"
                     >
                         <div className="relative">
-                            <div className="w-32 h-32 bg-amber-50 rounded-[3rem] flex items-center justify-center text-amber-500 shadow-xl shadow-amber-500/10">
-                                <Clock size={48} strokeWidth={2.5} className="animate-spin-slow" />
+                            <div className="w-24 h-24 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500 shadow-xl shadow-amber-500/10">
+                                <Clock size={36} strokeWidth={2.5} className="animate-spin-slow" />
                             </div>
-                            <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-white rounded-2xl shadow-lg flex items-center justify-center text-amber-400 border-2 border-amber-50">
-                                <span className="text-[14px] font-black">{countdown}s</span>
+                            <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-white rounded-xl shadow-lg flex items-center justify-center text-amber-400 border-2 border-amber-50">
+                                <span className="text-[12px] font-black">{countdown}s</span>
                             </div>
                         </div>
 
                         <div className="space-y-3">
-                            <h2 className="text-3xl font-black text-taxi-text tracking-tighter uppercase leading-none">
+                            <h2 className="text-2xl font-black text-taxi-text tracking-tighter uppercase leading-none">
                                 Verifying your <br/> <span className="text-amber-500">Documents</span>
                             </h2>
                             <p className="text-[14px] font-bold text-slate-400">
@@ -72,7 +72,7 @@ const RegistrationStatus = () => {
                             </p>
                         </div>
 
-                        <div className="w-full bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-50 space-y-4">
+                        <div className="w-full bg-white p-4 rounded-2xl shadow-sm border border-slate-50 space-y-4">
                             <div className="flex items-center gap-4 text-left">
                                 <div className="w-10 h-10 bg-emerald-50 text-emerald-500 rounded-xl flex items-center justify-center shadow-sm">
                                     <CheckCircle2 size={20} />
@@ -106,9 +106,9 @@ const RegistrationStatus = () => {
                                 initial={{ scale: 0 }}
                                 animate={{ scale: [0, 1.2, 1] }}
                                 transition={{ type: "spring", duration: 0.8 }}
-                                className="w-36 h-36 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-[3.5rem] flex items-center justify-center text-white shadow-2xl shadow-emerald-500/30"
+                                className="w-28 h-28 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-[2rem] flex items-center justify-center text-white shadow-2xl shadow-emerald-500/30"
                             >
-                                <CheckCircle2 size={64} strokeWidth={2.5} />
+                                <CheckCircle2 size={48} strokeWidth={2.5} />
                             </motion.div>
                             <motion.div 
                                 animate={{ rotate: 360 }}
@@ -123,7 +123,7 @@ const RegistrationStatus = () => {
                                     <Stars size={14} fill="currentColor" /> Welcome Aboard
                                 </span>
                             </div>
-                            <h2 className="text-4xl font-black text-taxi-text tracking-tighter uppercase leading-none">
+                            <h2 className="text-3xl font-black text-taxi-text tracking-tighter uppercase leading-none">
                                 You're <span className="text-emerald-500">Approved!</span>
                             </h2>
                             <p className="text-[15px] font-bold text-slate-400">
@@ -134,9 +134,9 @@ const RegistrationStatus = () => {
                         <motion.button 
                             whileTap={{ scale: 0.96 }}
                             onClick={handleProceed}
-                            className="w-full h-20 bg-taxi-primary text-taxi-text py-4 rounded-[2.5rem] flex items-center justify-center gap-4 text-[22px] font-black shadow-xl shadow-taxi-primary/20 border border-taxi-primary/80 active:scale-95 transition-all tracking-tight uppercase"
+                            className="w-full h-14 bg-taxi-primary text-taxi-text py-4 rounded-2xl flex items-center justify-center gap-4 text-[18px] font-black shadow-xl shadow-taxi-primary/20 border border-taxi-primary/80 active:scale-95 transition-all tracking-tight uppercase"
                         >
-                            Go to Dashboard <ArrowRight size={24} strokeWidth={3} />
+                            Go to Dashboard <ArrowRight size={22} strokeWidth={3} />
                         </motion.button>
                     </motion.div>
                 )}
