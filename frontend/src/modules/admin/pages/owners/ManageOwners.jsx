@@ -120,7 +120,7 @@ const ManageOwners = () => {
 
     setSubmitting(true);
     const url = isEditing
-      ? `https://taxi-a276.onrender.com/api/v1/admin/owner-management/manage-owners/update/${editingId}`
+      ? `https://taxi-a276.onrender.com/api/v1/admin/owner-management/manage-owners/${editingId}`
       : 'https://taxi-a276.onrender.com/api/v1/admin/owner-management/manage-owners';
 
     try {
@@ -149,7 +149,7 @@ const ManageOwners = () => {
 
   const handleToggleStatus = async (id, currentStatus) => {
     try {
-      const res = await fetch(`https://taxi-a276.onrender.com/api/v1/admin/owners/${id}`, {
+      const res = await fetch(`https://taxi-a276.onrender.com/api/v1/admin/owner-management/manage-owners/${id}`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -166,18 +166,31 @@ const ManageOwners = () => {
     }
   };
 
+  const handleApprove = async (id) => {
+    if (!window.confirm('Approve this owner?')) return;
+    try {
+      const res = await fetch(`https://taxi-a276.onrender.com/api/v1/admin/owner-management/manage-owners/${id}/approve`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ approve: true })
+      });
+      const json = await res.json();
+      if (json.success) fetchInitialData();
+      else alert(json.message || 'Approval failed');
+    } catch (err) { console.error(err); }
+  };
+
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this owner?")) return;
+    if (!window.confirm('Are you sure you want to delete this owner?')) return;
     try {
       const res = await fetch(`https://taxi-a276.onrender.com/api/v1/admin/owner-management/manage-owners/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const json = await res.json();
-      if (json.success) {
-        fetchInitialData();
-      }
-    } catch (err) { alert("Delete failed"); }
+      if (json.success) fetchInitialData();
+      else alert(json.message || 'Delete failed');
+    } catch (err) { alert('Delete failed'); }
   };
 
   return (

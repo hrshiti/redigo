@@ -1,60 +1,122 @@
-import React, { useState } from 'react';
-import { 
-  Plus, 
-  Search, 
-  ChevronRight, 
-  Edit2, 
-  Trash2, 
+import React, { useState, useEffect } from 'react';
+import {
+  Plus,
+  Search,
+  ChevronRight,
+  Edit2,
+  Trash2,
   FileText,
   Save,
   X,
   Check,
   ChevronDown,
   Info,
-  ShieldCheck,
+  Loader2,
   AlertCircle
 } from 'lucide-react';
 
 const GlobalDocuments = () => {
   const [view, setView] = useState('list'); // 'list' or 'edit' or 'add'
+  const [editingId, setEditingId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  
-  const [documents, setDocuments] = useState([
-    { id: 1, name: 'Aadhar Card', accountType: 'individual', status: true },
-    { id: 2, name: 'pan card', accountType: 'individual', status: true },
-    { id: 3, name: 'Driving Licence', accountType: 'individual', status: true },
-    { id: 4, name: 'Registration Certificate', accountType: 'individual', status: true },
-    { id: 5, name: 'Insurance', accountType: 'individual', status: true },
-  ]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
+  const [documents, setDocuments] = useState([]);
+
+  const token = localStorage.getItem('adminToken') || '';
+  const BASE = 'https://taxi-a276.onrender.com/api/v1/admin/owner-management/driver-needed-document';
+
+  const fetchDocuments = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(BASE, { headers: { 'Authorization': `Bearer ${token}` } });
+      const data = await res.json();
+      if (data.success) {
+        const list = Array.isArray(data.data) ? data.data : (data.data?.results || []);
+        setDocuments(list);
+      }
+    } catch (err) {
+      console.error('Failed to fetch driver documents:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchDocuments(); }, []);
 
   const [formData, setFormData] = useState({
     name: '',
-    description: '',
-    document_for: 'driver',
-    account_type: 'both',
-    has_identify_number: false,
-    has_expiry_date: false,
-    identify_number_locale_key: '',
-    image_type: 'single',
+    image_type: 'image',
+    has_identify_number: '0',
+    has_expiry_date: '0',
     is_editable: true,
     is_required: true,
-    document_name_front: '',
-    document_name_back: '',
     active: true
   });
 
+  const resetForm = () => {
+    setFormData({ name: '', image_type: 'image', has_identify_number: '0', has_expiry_date: '0', is_editable: true, is_required: true, active: true });
+    setEditingId(null);
+  };
+
   const handleEdit = (doc) => {
+    setEditingId(doc._id);
     setFormData({
-      ...formData,
-      name: doc.name,
-      accountType: doc.accountType.charAt(0).toUpperCase() + doc.accountType.slice(1)
+      name: doc.name || '',
+      image_type: doc.image_type || 'image',
+      has_identify_number: doc.has_identify_number?.toString() || '0',
+      has_expiry_date: doc.has_expiry_date?.toString() || '0',
+      is_editable: !!doc.is_editable,
+      is_required: !!doc.is_required,
+      active: !!doc.active
     });
     setView('edit');
   };
 
-  const filteredDocs = documents.filter(doc => 
-    doc.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const handleSaveDoc = async () => {
+    setSubmitting(true);
+    const isEditing = !!editingId;
+    const url = isEditing ? `${BASE}/${editingId}` : BASE;
+    try {
+      const res = await fetch(url, {
+        method: isEditing ? 'PATCH' : 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      const json = await res.json();
+      if (json.success) { setView('list'); fetchDocuments(); resetForm(); }
+      else alert(json.message || 'Operation failed');
+    } catch (err) { alert('Network error'); }
+    finally { setSubmitting(false); }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete this document type?')) return;
+    try {
+      const res = await fetch(`${BASE}/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const json = await res.json();
+      if (json.success) fetchDocuments();
+    } catch (err) { alert('Delete failed'); }
+  };
+
+  const handleToggle = async (id, current) => {
+    try {
+      await fetch(`${BASE}/${id}`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ active: !current })
+      });
+      setDocuments(prev => prev.map(d => d._id === id ? { ...d, active: !current } : d));
+    } catch (err) { console.error(err); }
+  };
+
+  const filteredDocs = documents.filter(doc =>
+    doc.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (view === 'edit' || view === 'add') {
@@ -250,31 +312,13 @@ const GlobalDocuments = () => {
             </div>
 
             <div className="mt-12 pt-10 border-t border-gray-50 flex justify-end gap-4">
-               <button onClick={() => setView('list')} className="px-10 py-4 border border-gray-100 rounded-[24px] text-[13px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-950 hover:bg-gray-50 transition-all">Cancel</button>
+               <button onClick={() => { setView('list'); resetForm(); }} className="px-10 py-4 border border-gray-100 rounded-[24px] text-[13px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-950 hover:bg-gray-50 transition-all">Cancel</button>
                <button 
-                 onClick={async () => {
-                    // Submission logic based on document_for
-                    const token = localStorage.getItem('adminToken') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YzdiZTZhYmJlOTJlYjYwMGYwMmQxNiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwibW9iaWxlIjoiOTk5OTk5OTk5OSIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTc3NTA0OTExNywiZXhwIjoxODA2NTg1MTE3fQ.5KJmXJwaVefWhnc97EqtArkA1z7ZOhsJwA9fbyRVPdQ';
-                    let endpoint = `https://taxi-a276.onrender.com/api/v1/admin/owner-management/${formData.document_for}-needed-document`;
-                    
-                    try {
-                      await fetch(endpoint, {
-                        method: 'POST',
-                        headers: { 
-                          'Authorization': `Bearer ${token}`,
-                          'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(formData)
-                      });
-                      setView('list');
-                    } catch (e) {
-                      console.error('Submission failed');
-                      setView('list');
-                    }
-                 }}
-                 className="px-12 py-4 bg-indigo-600 text-white rounded-[24px] text-[13px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100 flex items-center gap-3"
+                 onClick={handleSaveDoc}
+                 disabled={submitting}
+                 className="px-12 py-4 bg-indigo-600 text-white rounded-[24px] text-[13px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100 flex items-center gap-3 disabled:opacity-50"
                >
-                  <Save size={18} /> Update Document
+                  {submitting ? <Loader2 className="animate-spin" size={18} /> : <><Save size={18} /> {editingId ? 'Update Document' : 'Save Document'}</>}
                </button>
             </div>
         </div>
@@ -305,7 +349,7 @@ const GlobalDocuments = () => {
             </div>
          </div>
          <button 
-            onClick={() => setView('add')}
+            onClick={() => { resetForm(); setView('add'); }}
             className="bg-indigo-600 text-white px-8 py-3.5 rounded-[24px] text-[13px] font-black flex items-center gap-3 hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100 uppercase tracking-widest"
          >
             <Plus size={18} /> Add Driver Needed Documents
@@ -354,8 +398,12 @@ const GlobalDocuments = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {filteredDocs.map((doc) => (
-                <tr key={doc.id} className="group hover:bg-indigo-50/10 transition-all duration-300">
+              {isLoading ? (
+                <tr><td colSpan="4" className="py-20 text-center text-gray-400 italic">Loading documents...</td></tr>
+              ) : filteredDocs.length === 0 ? (
+                <tr><td colSpan="4" className="py-20 text-center text-gray-300 uppercase font-black tracking-widest">No Documents Configured</td></tr>
+              ) : filteredDocs.map((doc) => (
+                <tr key={doc._id || doc.id} className="group hover:bg-indigo-50/10 transition-all duration-300">
                   <td className="px-10 py-6">
                     <div className="flex items-center gap-4">
                        <div className="p-2.5 bg-gray-100 rounded-xl text-indigo-500 shadow-inner group-hover:bg-gray-950 group-hover:text-white transition-all"><FileText size={18} /></div>
@@ -363,25 +411,25 @@ const GlobalDocuments = () => {
                     </div>
                   </td>
                   <td className="px-6 py-6 text-center">
-                    <span className="text-[13px] font-black text-gray-400 uppercase tracking-widest italic">{doc.accountType}</span>
+                    <span className="text-[13px] font-black text-gray-400 uppercase tracking-widest italic">{doc.image_type || 'image'}</span>
                   </td>
                   <td className="px-6 py-6">
                      <div className="flex justify-center items-center">
                         <label className="relative inline-flex items-center cursor-pointer">
-                           <input type="checkbox" className="sr-only peer" checked={doc.status} onChange={() => {}} />
+                           <input type="checkbox" className="sr-only peer" checked={!!doc.active} onChange={() => handleToggle(doc._id, !!doc.active)} />
                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
                         </label>
                      </div>
                   </td>
                   <td className="px-10 py-6 text-right">
                      <div className="flex items-center justify-end gap-2">
-                        <button 
+                        <button
                           onClick={() => handleEdit(doc)}
                           className="p-3 text-amber-500 hover:bg-amber-50 rounded-xl transition-all shadow-sm border border-transparent hover:border-amber-100"
                         >
                            <Edit2 size={18} />
                         </button>
-                        <button className="p-3 text-rose-500 hover:bg-rose-50 rounded-xl transition-all shadow-sm border border-transparent hover:border-rose-100">
+                        <button onClick={() => handleDelete(doc._id)} className="p-3 text-rose-500 hover:bg-rose-50 rounded-xl transition-all shadow-sm border border-transparent hover:border-rose-100">
                            <Trash2 size={18} />
                         </button>
                      </div>

@@ -78,9 +78,9 @@ const OwnerNeededDocuments = () => {
     e.preventDefault();
     setSubmitting(true);
     const isEditing = view === 'edit';
-    const url = isEditing 
-      ? `https://taxi-a276.onrender.com/api/v1/admin/owner-management/owner-needed-document/update/${editingId}`
-      : 'https://taxi-a276.onrender.com/api/v1/admin/owner-management/owner-needed-document/store';
+    const url = isEditing
+      ? `https://taxi-a276.onrender.com/api/v1/admin/owner-management/owner-needed-document/${editingId}`
+      : 'https://taxi-a276.onrender.com/api/v1/admin/owner-management/owner-needed-document';
     
     try {
       const res = await fetch(url, {
@@ -109,7 +109,7 @@ const OwnerNeededDocuments = () => {
   const resetForm = () => {
     setFormData({
       name: '',
-      image_type: 'image',
+      image_type: 'front_back',
       has_expiry_date: '0',
       has_identify_number: '0',
       is_editable: false,
@@ -122,20 +122,21 @@ const OwnerNeededDocuments = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this document requirement?")) return;
     try {
-      const res = await fetch(`https://taxi-a276.onrender.com/api/v1/admin/owner-management/owner-needed-document/delete/${id}`, {
+      const res = await fetch(`https://taxi-a276.onrender.com/api/v1/admin/owner-management/owner-needed-document/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const json = await res.json();
       if (json.success) fetchDocuments();
-    } catch (err) { alert("Delete failed"); }
+      else alert(json.message || 'Delete failed');
+    } catch (err) { alert('Delete failed'); }
   };
 
   const handleToggleStatus = async (id, current) => {
     try {
-      await fetch(`https://taxi-a276.onrender.com/api/v1/admin/owner-management/owner-needed-document/active/${id}`, {
+      await fetch(`https://taxi-a276.onrender.com/api/v1/admin/owner-management/owner-needed-document/${id}`, {
         method: 'PATCH',
-        headers: { 
+        headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
@@ -206,7 +207,9 @@ const OwnerNeededDocuments = () => {
                           <td className="px-8 py-6">
                             <span className="text-[14px] font-black text-gray-950 uppercase">{doc.name}</span>
                           </td>
-                          <td className="px-8 py-6 text-[13px] font-bold text-gray-400 italic lowercase">{doc.image_type || 'image'}</td>
+                          <td className="px-8 py-6 text-[13px] font-bold text-gray-400 italic capitalize">
+                             {doc.image_type?.replace('_', ' ') || 'Front & Back'}
+                          </td>
                           <td className="px-8 py-6 text-[13px] font-bold text-gray-600">{doc.has_expiry_date ? 'Yes' : 'No'}</td>
                           <td className="px-8 py-6 flex justify-center">
                             <label className="relative inline-flex items-center cursor-pointer">
@@ -280,9 +283,10 @@ const OwnerNeededDocuments = () => {
                       onChange={(e) => setFormData({...formData, image_type: e.target.value})}
                       className="w-full h-14 px-6 bg-gray-50 border border-transparent rounded-xl text-[14px] font-black outline-none appearance-none focus:bg-white focus:border-indigo-100 transition-all shadow-inner"
                     >
-                      <option value="image">Select</option>
-                      <option value="image">Image</option>
-                      <option value="file">File (PDF)</option>
+                      <option value="">Select</option>
+                      <option value="front_back">Front & Back</option>
+                      <option value="front">Front Only</option>
+                      <option value="back">Back Only</option>
                     </select>
                     <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 opacity-30 pointer-events-none" size={18} />
                   </div>

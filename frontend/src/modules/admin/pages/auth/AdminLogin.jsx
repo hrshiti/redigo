@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+import namologo from '../../../../assets/namologo.png';
 import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, Mail, Lock, ArrowRight, Car, Loader2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState('admin@admin.com'); // Pre-fill as per requirement
-  const [password, setPassword] = useState('123456789'); // Pre-fill as per requirement
+  const [email, setEmail] = useState(''); 
+  const [password, setPassword] = useState(''); 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -75,14 +76,13 @@ const AdminLogin = () => {
           />
         )}
 
-        <div className="flex flex-col items-center mb-10">
-          <motion.div 
-            whileHover={{ rotate: [0, -10, 10, 0] }}
-            className="w-20 h-20 bg-primary rounded-3xl flex items-center justify-center text-white shadow-2xl shadow-primary/30 mb-8 cursor-pointer group"
-          >
-             <Car size={40} strokeWidth={2.5} className="group-hover:scale-110 transition-transform" />
-          </motion.div>
-          <h1 className="text-4xl font-black text-gray-900 tracking-tight text-center mb-2">Admin Portal</h1>
+        <div className="flex flex-col items-center mb-10 text-center">
+           <img 
+              src={namologo} 
+              alt="Brand Logo" 
+              className="w-56 h-auto mb-8 object-contain drop-shadow-2xl cursor-pointer hover:scale-105 transition-transform"
+              onClick={() => navigate('/')}
+           />
           <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-full border border-gray-100">
             <ShieldCheck size={16} className="text-primary" />
             <span className="text-gray-500 font-bold text-[11px] uppercase tracking-[2px]">Secure Access Terminal</span>

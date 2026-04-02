@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import namologo from '../../../assets/namologo.png';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { 
   BarChart3, 
@@ -182,7 +183,12 @@ const AdminLayout = () => {
        subItems: [
          { label: 'Owner Dashboard', path: '/admin/owners/dashboard' },
          { label: 'Manage Owners', path: '/admin/owners' },
-         { label: 'Owner Wallet', path: '/admin/owners/wallet' },
+         { 
+           label: 'Owner Wallet', 
+           subItems: [
+             { label: 'Withdrawal Requests', path: '/admin/owners/wallet/withdrawals' },
+           ]
+         },
          { 
            label: 'Fleet Management', 
            subItems: [
@@ -208,7 +214,15 @@ const AdminLayout = () => {
          { label: 'Referral Translation', path: '/admin/referrals/translation' },
        ]
     },
-    { icon: TrendingUp, label: 'Promotions Management', path: '/admin/promotions' },
+     { 
+        icon: TrendingUp, 
+        label: 'Promotions Management', 
+        subItems: [
+          { label: 'Promo Code', path: '/admin/promotions/promo-codes' },
+          { label: 'Send Notification', path: '/admin/promotions/send-notification' },
+          { label: 'Banner Image', path: '/admin/promotions/banner-image' },
+        ]
+     },
     { icon: IndianRupee, label: 'Price Management', path: '/admin/pricing' },
     { icon: Layers, label: 'Finance', path: '/admin/finance' },
   ];
@@ -221,14 +235,18 @@ const AdminLayout = () => {
         } ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
       >
         <div className="flex flex-col h-full">
-          <div className="h-20 flex items-center px-6 justify-between border-b border-white/5">
-             <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center text-white cursor-pointer" onClick={() => navigate('/admin/dashboard')}>
-                   <Command size={20} />
-                </div>
-                {!isCollapsed && <span className="text-lg font-bold tracking-tight text-white">Redigo</span>}
+          <div className="h-28 flex items-center px-6 justify-center border-b border-white/5 bg-white/5 backdrop-blur-sm">
+             <div className="flex items-center">
+                <img 
+                  src={namologo} 
+                  alt="Brand Logo" 
+                  className={`cursor-pointer object-contain transition-all duration-500 hover:scale-105 active:scale-95 ${
+                    isCollapsed ? 'w-10 h-10' : 'w-48 h-auto max-h-16'
+                  }`}
+                  onClick={() => navigate('/admin/dashboard')} 
+                />
              </div>
-             <button onClick={() => setCollapsed(!isCollapsed)} className="text-gray-400 hover:text-white p-1 hover:bg-white/10 rounded-md transition-all hidden lg:block">
+             <button onClick={() => setCollapsed(!isCollapsed)} className="text-gray-400 hover:text-white p-1 hover:bg-white/10 rounded-md transition-all hidden lg:block absolute right-4">
                 {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
              </button>
           </div>

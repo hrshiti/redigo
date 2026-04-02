@@ -107,10 +107,20 @@ const AdminDriverReferralSettings = lazy(() => import('./modules/admin/pages/ref
 const AdminJoiningBonusSettings = lazy(() => import('./modules/admin/pages/referrals/JoiningBonusSettings'));
 const AdminReferralTranslation = lazy(() => import('./modules/admin/pages/referrals/ReferralTranslation'));
 
-// OWNER MANAGEMENT IMPORTS
+const AdminPromoCodes = lazy(() => import('./modules/admin/pages/promotions/PromoCodes'));
+const AdminSendNotification = lazy(() => import('./modules/admin/pages/promotions/SendNotification'));
+const AdminBannerImage = lazy(() => import('./modules/admin/pages/promotions/BannerImage'));
+
 const AdminOwnerDashboard = lazy(() => import('./modules/admin/pages/owners/OwnerDashboard'));
 const AdminManageOwners = lazy(() => import('./modules/admin/pages/owners/ManageOwners'));
 const AdminOwnerNeededDocuments = lazy(() => import('./modules/admin/pages/owners/OwnerNeededDocuments'));
+const AdminManageFleet = lazy(() => import('./modules/admin/pages/owners/ManageFleet'));
+const AdminFleetDrivers = lazy(() => import('./modules/admin/pages/owners/FleetDrivers'));
+const AdminBlockedFleetDrivers = lazy(() => import('./modules/admin/pages/owners/BlockedFleetDrivers'));
+const AdminFleetNeededDocuments = lazy(() => import('./modules/admin/pages/owners/FleetNeededDocuments'));
+const AdminWithdrawalRequestOwners = lazy(() => import('./modules/admin/pages/owners/WithdrawalRequestOwners'));
+const AdminWithdrawalRequestOwnerDetail = lazy(() => import('./modules/admin/pages/owners/WithdrawalRequestOwnerDetail'));
+const AdminDeletedOwners = lazy(() => import('./modules/admin/pages/owners/DeletedOwners'));
 
 const AdminGeoFencing = lazy(() => import('./modules/admin/pages/geo/GeoFencing'));
 const AdminFinance = lazy(() => import('./modules/admin/pages/finance/Finance'));
@@ -244,21 +254,25 @@ function App() {
               <Route path="referrals/user-settings" element={<AdminUserReferralSettings />} />
               <Route path="referrals/driver-settings" element={<AdminDriverReferralSettings />} />
               <Route path="referrals/joining-bonus" element={<AdminJoiningBonusSettings />} />
-              <Route path="referrals/translation" element={<AdminReferralTranslation />} />
+               <Route path="referrals/translation" element={<AdminReferralTranslation />} />
+               
+               {/* Promotions Management */}
+               <Route path="promotions/promo-codes" element={<AdminPromoCodes />} />
+               <Route path="promotions/send-notification" element={<AdminSendNotification />} />
+               <Route path="promotions/banner-image" element={<AdminBannerImage />} />
               
               {/* Owner Management */}
               <Route path="owners/dashboard" element={<AdminOwnerDashboard />} />
               <Route path="owners" element={<AdminManageOwners />} />
-              <Route path="owners/wallet" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Owner Wallet Ledger - Under Development</div>} />
-              
-              {/* Fleet Management Sub-routes */}
-              <Route path="fleet/drivers" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Fleet Active Drivers - Under Development</div>} />
-              <Route path="fleet/blocked" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Blocked Fleet Drivers List - Under Development</div>} />
-              <Route path="fleet/documents" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Fleet Required Documents - Under Development</div>} />
-              <Route path="fleet/manage" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Master Fleet Management - Under Development</div>} />
+              <Route path="owners/wallet/withdrawals" element={<AdminWithdrawalRequestOwners />} />
+              <Route path="owners/wallet/withdrawals/:id" element={<AdminWithdrawalRequestOwnerDetail />} />
+              <Route path="fleet/drivers" element={<AdminFleetDrivers />} />
+              <Route path="fleet/blocked" element={<AdminBlockedFleetDrivers />} />
+              <Route path="fleet/documents" element={<AdminFleetNeededDocuments />} />
+              <Route path="fleet/manage" element={<AdminManageFleet />} />
               <Route path="owners/documents" element={<AdminOwnerNeededDocuments />} />
-              <Route path="owners/deleted" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Archived Owners - Under Development</div>} />
-              <Route path="owners/bookings" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Fleet Bookings - Under Development</div>} />
+              <Route path="owners/deleted" element={<AdminDeletedOwners />} />
+              <Route path="owners/bookings" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest italic decoration-indigo-200">Global Fleet Bookings - Indexing</div>} />
               <Route path="referrals/config" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Referral Configuration - Under Setup</div>} />
               <Route path="referrals/active" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Active Referrals Logs - Under Setup</div>} />
               <Route path="geo" element={<AdminGeoFencing />} />

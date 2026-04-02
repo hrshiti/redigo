@@ -128,8 +128,12 @@ const ReferralDashboard = () => {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const json = await res.json();
-        if (json.success) {
-          setData(json.data);
+        console.log("Referral Dashboard raw response:", json);
+        if (json.success || json.component) {
+          // support standard data wrap or Inertia-style props wrap
+          const dashboardData = json.data?.props || json.props || json.data || json;
+          console.log("Mapped Dashboard Data:", dashboardData);
+          setData(dashboardData);
         }
       } catch (err) {
         console.error("Dashboard fetch error:", err);

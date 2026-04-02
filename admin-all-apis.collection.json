@@ -16,7 +16,7 @@
     ]
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:5000/api/v1/admin" },
+    { "key": "baseUrl", "value": "https://taxi-a276.onrender.com/api/v1/admin" },
     { "key": "accessToken", "value": "" },
     { "key": "id", "value": "REPLACE_ID" },
     { "key": "user_id", "value": "REPLACE_USER_ID" },
