@@ -21,30 +21,45 @@ const WithdrawalRequestDrivers = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [activeMenu, setActiveMenu] = useState(null);
+  const [requests, setRequests] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [pagination, setPagination] = useState(null);
 
-  const toggleMenu = (e, id) => {
-    e.stopPropagation();
-    setActiveMenu(activeMenu === id ? null : id);
-  };
+  useEffect(() => {
+    const fetchWithdrawals = async () => {
+      try {
+        setIsLoading(true);
+        const token = localStorage.getItem('adminToken') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YzdiZTZhYmJlOTJlYjYwMGYwMmQxNiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwibW9iaWxlIjoiOTk5OTk5OTk5OSIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTc3NTA0OTExNywiZXhwIjoxODA2NTg1MTE3fQ.5KJmXJwaVefWhnc97EqtArkA1z7ZOhsJwA9fbyRVPdQ';
+        const res = await fetch(`https://taxi-a276.onrender.com/api/v1/admin/wallet/drivers/withdrawals?limit=${itemsPerPage}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          const mapped = (data.data?.results || []).map(r => ({
+            id: r.driver_id,
+            date: new Date(r.last_request_at).toLocaleDateString('en-GB', { day: 'j', month: 'short', hour: '2-digit', minute: '2-digit' }),
+            name: r.driver?.name || 'Unknown',
+            phone: r.driver?.mobile || 'N/A',
+            amount: `${r.pending_count} Pending`,
+            status: r.pending_count > 0 ? 'requested' : 'processed'
+          }));
+          setRequests(mapped);
+          setPagination(data.data?.paginator);
+        }
+      } catch (err) {
+        console.error('Fetch error:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchWithdrawals();
+  }, [itemsPerPage]);
 
   useEffect(() => {
     const handleClose = () => setActiveMenu(null);
     window.addEventListener('click', handleClose);
     return () => window.removeEventListener('click', handleClose);
   }, []);
-
-  const [requests] = useState([
-    { id: 'WDR001', date: '1st Apr 01:55 PM', name: 'suraj Shukla', phone: '9650625953', amount: 'INR150', status: 'requested' },
-    { id: 'WDR002', date: '31st Mar 07:51 AM', name: 'Munesh Kumar', phone: '7428123081', amount: 'INR5300', status: 'requested' },
-    { id: 'WDR003', date: '31st Mar 07:19 AM', name: 'Chandra Singh', phone: '9990971213', amount: 'INR5000', status: 'requested' },
-    { id: 'WDR004', date: '31st Mar 05:59 AM', name: 'sachin', phone: '7900492579', amount: 'INR6000', status: 'Declined' },
-    { id: 'WDR005', date: '30th Mar 02:45 PM', name: 'sanoj yadaw', phone: '8400108321', amount: 'INR5000', status: 'Approved' },
-    { id: 'WDR006', date: '30th Mar 11:56 AM', name: 'manish', phone: '7210027477', amount: 'INR40', status: 'requested' },
-    { id: 'WDR007', date: '30th Mar 10:19 AM', name: 'Abdul kadir', phone: '8368043792', amount: 'INR5000', status: 'Approved' },
-    { id: 'WDR008', date: '29th Mar 07:12 PM', name: 'asif', phone: '8800894663', amount: 'INR150', status: 'requested' },
-    { id: 'WDR009', date: '29th Mar 12:31 PM', name: 'vikas', phone: '9278403389', amount: 'INR1000', status: 'requested' },
-    { id: 'WDR010', date: '28th Mar 01:10 PM', name: 'Shubham Singh', phone: '8700110066', amount: 'INR100', status: 'requested' },
-  ]);
 
   const filteredRequests = requests.filter(req => 
     req.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -137,7 +152,7 @@ const WithdrawalRequestDrivers = () => {
                        <p className="text-[14px] font-black text-gray-950 tracking-tight">{req.phone}</p>
                     </td>
                     <td className="px-4 py-6">
-                       <span className="text-[14px] font-black text-indigo-600 tracking-tight">{req.amount}</span>
+                       <span className="text-[14px] font-black text-indigo-600 tracking-tight">{req.amount} Request</span>
                     </td>
                     <td className="px-4 py-6 text-center">
                        <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border border-current opacity-70 ${

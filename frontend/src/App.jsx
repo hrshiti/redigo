@@ -99,12 +99,18 @@ const AdminDriverBulkUpload = lazy(() => import('./modules/admin/pages/drivers/D
 const AdminDriverAudit = lazy(() => import('./modules/admin/pages/drivers/DriverAudit'));
 const AdminPaymentMethods = lazy(() => import('./modules/admin/pages/drivers/PaymentMethods'));
 const AdminServiceConfig = lazy(() => import('./modules/admin/pages/drivers/ServiceConfig'));
+const AdminDriverCreate = lazy(() => import('./modules/admin/pages/drivers/CreateDriver'));
+const AdminDriverEdit = lazy(() => import('./modules/admin/pages/drivers/EditDriver'));
 const AdminReferralDashboard = lazy(() => import('./modules/admin/pages/referrals/ReferralDashboard'));
-const AdminReferralSettings = lazy(() => import('./modules/admin/pages/referrals/ReferralSettings'));
+const AdminUserReferralSettings = lazy(() => import('./modules/admin/pages/referrals/UserReferralSettings'));
+const AdminDriverReferralSettings = lazy(() => import('./modules/admin/pages/referrals/DriverReferralSettings'));
+const AdminJoiningBonusSettings = lazy(() => import('./modules/admin/pages/referrals/JoiningBonusSettings'));
+const AdminReferralTranslation = lazy(() => import('./modules/admin/pages/referrals/ReferralTranslation'));
 
 // OWNER MANAGEMENT IMPORTS
 const AdminOwnerDashboard = lazy(() => import('./modules/admin/pages/owners/OwnerDashboard'));
 const AdminManageOwners = lazy(() => import('./modules/admin/pages/owners/ManageOwners'));
+const AdminOwnerNeededDocuments = lazy(() => import('./modules/admin/pages/owners/OwnerNeededDocuments'));
 
 const AdminGeoFencing = lazy(() => import('./modules/admin/pages/geo/GeoFencing'));
 const AdminFinance = lazy(() => import('./modules/admin/pages/finance/Finance'));
@@ -217,6 +223,8 @@ function App() {
               <Route path="users/bulk-upload" element={<AdminUserBulkUpload />} />
               
               <Route path="drivers" element={<AdminDriverList />} />
+              <Route path="drivers/create" element={<AdminDriverCreate />} />
+              <Route path="drivers/edit/:id" element={<AdminDriverEdit />} />
               <Route path="drivers/:id" element={<AdminDriverDetails />} />
               <Route path="drivers/pending" element={<AdminPendingDrivers />} />
               <Route path="drivers/subscription" element={<AdminDriverSubscriptions />} />
@@ -233,7 +241,10 @@ function App() {
               <Route path="drivers/service-config" element={<AdminServiceConfig />} />
                <Route path="drivers/audit/:id" element={<AdminDriverAudit />} />
               <Route path="referrals/dashboard" element={<AdminReferralDashboard />} />
-              <Route path="referrals/settings" element={<AdminReferralSettings />} />
+              <Route path="referrals/user-settings" element={<AdminUserReferralSettings />} />
+              <Route path="referrals/driver-settings" element={<AdminDriverReferralSettings />} />
+              <Route path="referrals/joining-bonus" element={<AdminJoiningBonusSettings />} />
+              <Route path="referrals/translation" element={<AdminReferralTranslation />} />
               
               {/* Owner Management */}
               <Route path="owners/dashboard" element={<AdminOwnerDashboard />} />
@@ -245,8 +256,7 @@ function App() {
               <Route path="fleet/blocked" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Blocked Fleet Drivers List - Under Development</div>} />
               <Route path="fleet/documents" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Fleet Required Documents - Under Development</div>} />
               <Route path="fleet/manage" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Master Fleet Management - Under Development</div>} />
-              
-              <Route path="owners/documents" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Global Owner Documents - Under Development</div>} />
+              <Route path="owners/documents" element={<AdminOwnerNeededDocuments />} />
               <Route path="owners/deleted" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Archived Owners - Under Development</div>} />
               <Route path="owners/bookings" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Fleet Bookings - Under Development</div>} />
               <Route path="referrals/config" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Referral Configuration - Under Setup</div>} />

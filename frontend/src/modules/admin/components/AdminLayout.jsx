@@ -202,8 +202,10 @@ const AdminLayout = () => {
        label: 'Referral Management', 
        subItems: [
          { label: 'Referral Dashboard', path: '/admin/referrals/dashboard' },
-         { label: 'Referral Settings', path: '/admin/referrals/settings' },
-         { label: 'Active Referrals', path: '/admin/referrals/active' },
+         { label: 'User Referral Settings', path: '/admin/referrals/user-settings' },
+         { label: 'Driver Referral Settings', path: '/admin/referrals/driver-settings' },
+         { label: 'Joining Bonus Settings', path: '/admin/referrals/joining-bonus' },
+         { label: 'Referral Translation', path: '/admin/referrals/translation' },
        ]
     },
     { icon: TrendingUp, label: 'Promotions Management', path: '/admin/promotions' },

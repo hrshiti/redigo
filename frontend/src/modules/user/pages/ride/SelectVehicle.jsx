@@ -197,6 +197,20 @@ const SelectVehicle = () => {
                     </div>
                     {paymentMethod === 'Online Payment' && <div className="w-6 h-6 rounded-full bg-[#E85D04] flex items-center justify-center text-white"><X size={14} className="rotate-45" strokeWidth={3} /></div>}
                   </div>
+
+                  <div 
+                    className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all cursor-pointer ${paymentMethod === 'Wallet' ? 'border-[#E85D04] bg-orange-50/50' : 'border-gray-50 bg-gray-50/30'}`}
+                    onClick={() => { setPaymentMethod('Wallet'); setShowPaymentModal(false); }}
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600">
+                        <span className="text-2xl font-bold">₹</span>
+                    </div>
+                    <div className="flex-1">
+                        <p className="font-black text-gray-900 text-lg">Redigo Wallet</p>
+                        <p className="text-xs font-bold text-gray-400">Balance: ₹450.00</p>
+                    </div>
+                    {paymentMethod === 'Wallet' && <div className="w-6 h-6 rounded-full bg-[#E85D04] flex items-center justify-center text-white"><X size={14} className="rotate-45" strokeWidth={3} /></div>}
+                  </div>
                </div>
 
                <button 

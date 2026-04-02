@@ -55,10 +55,7 @@ const Field = ({ label, ...props }) => (
 
 // ═══════════════════════════════════════════════════════════════════════════════
 const ServiceConfig = () => {
-  const [services, setServices] = useState([
-    { id: 'taxi', label: 'Taxi', emoji: '🚖', desc: 'City cab & bike rides', active: true },
-    { id: 'delivery', label: 'Delivery', emoji: '📦', desc: 'Parcel & courier drops', active: true },
-  ]);
+  const [services, setServices] = useState([]);
   const [locations, setLocations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [tab, setTab] = useState('services');
@@ -67,17 +64,21 @@ const ServiceConfig = () => {
   const [toast, setToast] = useState(null);
 
   useEffect(() => {
-    const fetchLocations = async () => {
+    const fetchData = async () => {
       setIsLoading(true);
       try {
         const token = localStorage.getItem('adminToken') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YzdiZTZhYmJlOTJlYjYwMGYwMmQxNiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwibW9iaWxlIjoiOTk5OTk5OTk5OSIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTc3NTA0OTExNywiZXhwIjoxODA2NTg1MTE3fQ.5KJmXJwaVefWhnc97EqtArkA1z7ZOhsJwA9fbyRVPdQ';
-        const res = await fetch('https://taxi-a276.onrender.com/api/v1/admin/service-locations', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await res.json();
         
-        if (data.success) {
-          const locs = (data.data || []).map(l => ({
+        const [locRes, rideRes] = await Promise.all([
+          fetch('https://taxi-a276.onrender.com/api/v1/admin/service-locations', { headers: { 'Authorization': `Bearer ${token}` } }),
+          fetch('https://taxi-a276.onrender.com/api/v1/common/ride_modules', { headers: { 'Authorization': `Bearer ${token}` } })
+        ]);
+
+        const locData = await locRes.json();
+        const rideData = await rideRes.json();
+
+        if (locData.success) {
+          const locs = (locData.data || []).map(l => ({
             id: l._id,
             city: l.service_location_name || 'Unknown',
             state: l.country?.name || 'India',
@@ -87,15 +88,50 @@ const ServiceConfig = () => {
           setLocations(locs);
           if (locs.length > 0) setSelLocId(locs[0].id);
         }
+
+        if (rideData.success) {
+          const raw = rideData.data;
+          const rideArray = Array.isArray(raw) ? raw : Object.keys(raw).map(key => ({ 
+            id: key, 
+            label: key.charAt(0).toUpperCase() + key.slice(1), 
+            active: true,
+            desc: `Core ${key} services`
+          }));
+          setServices(rideArray);
+        }
       } catch (err) {
         console.error('Service Config Fetch Error:', err);
       } finally {
         setIsLoading(false);
       }
     };
-
-    fetchLocations();
+    fetchData();
   }, []);
+
+  // Fetch Vehicles when selection changes
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      if (!selLocId) return;
+      try {
+        const token = localStorage.getItem('adminToken') || '';
+        const res = await fetch(`https://taxi-a276.onrender.com/api/v1/types/${selLocId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          const vList = (data.data || []).map(v => ({
+            id: v._id,
+            label: v.name,
+            emoji: v.transport_type === 'bike' ? '🏍️' : '🚗',
+            services: [v.transport_type],
+            active: true
+          }));
+          setLocations(prev => prev.map(l => l.id === selLocId ? { ...l, vehicles: vList } : l));
+        }
+      } catch (err) { console.error("Vehicle fetch error:", err); }
+    };
+    fetchVehicles();
+  }, [selLocId]);
 
   // modal state
   const [modal, setModal] = useState(null); // null | 'service' | 'location' | 'vehicle'

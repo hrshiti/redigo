@@ -10,7 +10,9 @@ import {
     X, 
     Banknote, 
     CreditCard, 
-    ScanLine,
+    Wallet,
+    QrCode,
+    Scan,
     ChevronRight,
     Star,
     CheckCircle2,
@@ -33,6 +35,8 @@ const ActiveTrip = () => {
     const [phase, setPhase] = useState('to_pickup'); // to_pickup, otp_verification, in_trip, payment_confirm, review
     const [otp, setOtp] = useState('');
     const [selectedRating, setSelectedRating] = useState(0);
+    const [driverPaymentStatus, setDriverPaymentStatus] = useState('pending'); // pending, selecting, qr_generated, success
+    const [selectedPaymentMode, setSelectedPaymentMode] = useState('');
 
     const tripData = isParcel ? {
         sender: { name: 'Hritik Raghuwanshi', rating: '5.0', phone: '+91 96913 2XXXX' },
@@ -41,13 +45,13 @@ const ActiveTrip = () => {
         pickup: 'Flat 402, Swamclose Apts, JP Nagar',
         drop: 'Tea Villa Cafe, 12th Main, HSR Layout',
         fare: '₹120',
-        payment: 'Online Payment'
+        payment: location.state?.paymentMethod || 'Online Payment'
     } : {
         user: { name: 'Vinay Kumar', rating: '4.8', phone: '+91 98765 43210' },
         pickup: 'Swamclose Apartments, JP nagar',
         drop: 'Tea Villa Cafe, HSR Layout',
         fare: '₹120',
-        payment: 'Online Payment'
+        payment: location.state?.paymentMethod || 'Online Payment'
     };
 
     const handleOTP = (e) => {
@@ -237,42 +241,113 @@ const ActiveTrip = () => {
                     {phase === 'payment_confirm' && (
                         <motion.div 
                             key="payment_confirm"
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="bg-white rounded-t-[3.5rem] p-10 pb-12 shadow-[0_-15px_60px_rgba(0,0,0,0.2)] border-t border-white"
+                            initial={{ y: '100%' }}
+                            animate={{ y: 0 }}
+                            exit={{ y: '100%' }}
+                            className="bg-white rounded-t-[3.5rem] p-8 pb-12 shadow-[0_-15px_60px_rgba(0,0,0,0.2)] border-t border-white"
                         >
-                            <div className="text-center mb-10 space-y-6">
-                                <div className={`w-24 h-24 rounded-[3rem] flex items-center justify-center mx-auto shadow-2xl border-4 border-white transition-all hover:rotate-12 ${isParcel ? 'bg-orange-500 text-white' : 'bg-emerald-50 text-emerald-500'}`}>
-                                    {isParcel ? <Check size={48} strokeWidth={4} /> : <ScanLine size={48} strokeWidth={3} />}
+                            <div className="text-center mb-8">
+                                <div className={`w-20 h-20 rounded-3xl mx-auto flex items-center justify-center mb-4 shadow-xl transition-all duration-500 ${
+                                    driverPaymentStatus === 'success' ? 'bg-emerald-500 text-white rotate-[360deg]' : 'bg-taxi-primary text-taxi-text'
+                                }`}>
+                                    {driverPaymentStatus === 'success' ? <Check size={40} strokeWidth={4} /> : <QrCode size={40} strokeWidth={2} />}
                                 </div>
-                                <div>
-                                    <h2 className="text-4xl font-black text-taxi-text tracking-tighter uppercase leading-tight">
-                                        {isParcel ? 'Delivered!' : 'Trip Complete'}
-                                    </h2>
-                                    <p className="text-[15px] font-bold text-slate-400 mt-2 px-6">
-                                        {isParcel ? 'The package is safe with the receiver.' : 'Collect the fare from the passenger.'}
-                                    </p>
-                                </div>
-                                <div className="bg-slate-50 p-7 rounded-[3rem] border border-slate-100 flex items-center justify-between shadow-inner">
-                                     <div className="text-left space-y-1">
-                                         <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest opacity-60">Revenue</p>
-                                         <p className="text-3xl font-black text-taxi-text leading-none">{tripData.fare}</p>
-                                     </div>
-                                     <div className="flex flex-col items-end gap-2">
-                                         <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-sm ${tripData.payment === 'Online Payment' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-900 text-white'}`}>
-                                             {tripData.payment}
-                                         </span>
-                                         {tripData.payment === 'Online Payment' ? <CreditCard size={28} className="text-emerald-500" /> : <Banknote size={28} className="text-slate-900" />}
-                                     </div>
-                                </div>
+                                <h2 className="text-3xl font-black text-taxi-text uppercase tracking-tight">
+                                    {driverPaymentStatus === 'success' ? 'Payment Verified!' : 'Collect Payment'}
+                                </h2>
+                                <p className="text-sm font-bold text-slate-400 mt-1">
+                                    Total Fare: <span className="text-taxi-text font-black text-xl ml-2">{tripData.fare}</span>
+                                </p>
                             </div>
+
+                            {driverPaymentStatus === 'pending' && (
+                                <div className="space-y-3 mb-8">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 text-center">Select Payment Mode</p>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        {[
+                                            { id: 'cash', label: 'Cash', icon: Banknote, color: 'emerald' },
+                                            { id: 'online', label: 'Online', icon: Scan, color: 'blue' },
+                                            { id: 'wallet', label: 'Wallet', icon: Wallet, color: 'purple' }
+                                        ].map((mode) => (
+                                            <button
+                                                key={mode.id}
+                                                onClick={() => {
+                                                    setSelectedPaymentMode(mode.id);
+                                                    if (mode.id === 'online') setDriverPaymentStatus('qr_generated');
+                                                    else setDriverPaymentStatus('success');
+                                                }}
+                                                className={`flex flex-col items-center justify-center p-4 rounded-3xl border-2 transition-all active:scale-95 ${
+                                                    selectedPaymentMode === mode.id ? 'border-taxi-primary bg-taxi-primary/5 shadow-inner' : 'border-slate-50 bg-slate-50/50'
+                                                }`}
+                                            >
+                                                <mode.icon size={26} className={mode.id === selectedPaymentMode ? `text-${mode.color}-600` : `text-slate-400`} strokeWidth={2.5} />
+                                                <span className="text-[11px] font-black text-taxi-text uppercase tracking-tight mt-2">{mode.label}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {driverPaymentStatus === 'qr_generated' && (
+                                <motion.div 
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="bg-slate-900 rounded-[2.5rem] p-8 mb-8 text-center relative overflow-hidden group shadow-2xl"
+                                >
+                                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-taxi-primary to-transparent animate-pulse" />
+                                    <div className="bg-white p-5 rounded-[2rem] inline-block mb-4 shadow-2xl relative">
+                                        <div className="w-40 h-40 bg-slate-50 flex items-center justify-center relative overflow-hidden rounded-xl border border-slate-100">
+                                            <QrCode size={120} className="text-slate-900 opacity-90" strokeWidth={1.5} />
+                                            {/* Scanning Line Animation */}
+                                            <motion.div 
+                                                animate={{ top: ['0%', '100%', '0%'] }}
+                                                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                                                className="absolute left-0 w-full h-0.5 bg-taxi-primary shadow-[0_0_10px_#fdd835]"
+                                            />
+                                        </div>
+                                    </div>
+                                    <h3 className="text-white font-black text-xl tracking-tight mb-1">Scan & Pay {tripData.fare}</h3>
+                                    <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] opacity-60">UPI • Cards • Wallets</p>
+                                    
+                                    <button 
+                                        onClick={() => setDriverPaymentStatus('success')}
+                                        className="mt-8 w-full py-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl text-[12px] font-black uppercase tracking-widest transition-all active:scale-[0.98] border border-white/5"
+                                    >
+                                        I've Received Payment
+                                    </button>
+                                </motion.div>
+                            )}
+
+                            {driverPaymentStatus === 'success' && (
+                                <motion.div 
+                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    className="bg-emerald-50 border-2 border-emerald-100 rounded-[2.5rem] p-6 mb-8 flex items-center gap-5 shadow-sm"
+                                >
+                                    <div className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-200">
+                                        <CheckCircle2 size={28} strokeWidth={3} />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-black text-emerald-900 uppercase text-sm tracking-tight">Success!</h4>
+                                        <p className="text-[11px] font-bold text-emerald-600 uppercase tracking-widest opacity-80">
+                                            {selectedPaymentMode === 'cash' ? 'Cash Collected' : selectedPaymentMode === 'wallet' ? 'Settled from Wallet' : 'Online Payment Received'}
+                                        </p>
+                                    </div>
+                                </motion.div>
+                            )}
 
                             <motion.button 
                                 whileTap={{ scale: 0.96 }}
+                                disabled={driverPaymentStatus !== 'success'}
                                 onClick={() => setPhase('review')}
-                                className="w-full h-20 bg-slate-900 rounded-[2.5rem] flex items-center justify-center gap-4 text-[20px] font-black text-white shadow-2xl active:scale-95 transition-all tracking-tight uppercase"
+                                className={`w-full h-20 rounded-[2.5rem] flex items-center justify-center gap-4 text-[20px] font-black transition-all uppercase tracking-tight shadow-2xl ${
+                                    driverPaymentStatus === 'success' 
+                                    ? 'bg-slate-900 text-white active:scale-95' 
+                                    : 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                                }`}
                             >
-                                Complete Earnings <CheckCircle2 size={24} strokeWidth={3} className="text-taxi-primary" />
+                                {driverPaymentStatus === 'success' ? 'Finalize Earnings' : 'Awaiting Payment'} 
+                                <ChevronRight size={24} strokeWidth={3} className={driverPaymentStatus === 'success' ? 'text-taxi-primary' : 'text-slate-200'} />
                             </motion.button>
                         </motion.div>
                     )}

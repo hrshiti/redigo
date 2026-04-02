@@ -2,46 +2,29 @@ import React, { useState, useEffect } from 'react';
 import { 
   Search, 
   Filter, 
-  MoreHorizontal, 
-  Download, 
-  UserPlus, 
-  Mail, 
-  Phone, 
-  Star, 
-  Car, 
+  MoreVertical, 
   FileText, 
-  CheckCircle2, 
-  Ban, 
-  History, 
-  Wallet, 
-  ChevronDown, 
-  ChevronRight, 
-  ArrowUpRight, 
-  ShieldCheck, 
-  CreditCard, 
-  X,
-  Target
+  Star, 
+  User, 
+  Plus,
+  Eye,
+  Edit2,
+  Key,
+  XCircle,
+  Trash2,
+  ChevronDown,
+  ShieldCheck,
+  Lock,
+  Loader2
 } from 'lucide-react';
-
-const DriverStatusBadge = ({ status }) => {
-  const styles = {
-    Active: 'bg-emerald-50 text-emerald-600 border-emerald-100',
-    Offline: 'bg-gray-50 text-gray-400 border-gray-100',
-    OnTrip: 'bg-indigo-50 text-indigo-600 border-indigo-100',
-    Suspended: 'bg-rose-50 text-rose-600 border-rose-100',
-  };
-  return (
-    <span className={`px-2.5 py-1 rounded-lg text-[11px] font-black border flex items-center gap-1.5 w-fit ${styles[status]}`}>
-      <span className={`w-1.5 h-1.5 rounded-full ${status === 'Active' ? 'bg-emerald-500' : status === 'OnTrip' ? 'bg-indigo-500' : status === 'Suspended' ? 'bg-rose-500' : 'bg-gray-400'}`}></span>
-      {status}
-    </span>
-  );
-};
+import { useNavigate } from 'react-router-dom';
 
 const DriverList = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeMenu, setActiveMenu] = useState(null);
-  const [selectedRows, setSelectedRows] = useState([]);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [passwordModal, setPasswordModal] = useState({ isOpen: false, driverId: null, password: '', isSubmitting: false });
   const [drivers, setDrivers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -50,11 +33,8 @@ const DriverList = () => {
     const fetchDrivers = async () => {
       setIsLoading(true);
       try {
-        // Force use the valid token provided by user to fix 401
         const providedToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YzdiZTZhYmJlOTJlYjYwMGYwMmQxNiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwibW9iaWxlIjoiOTk5OTk5OTk5OSIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTc3NTA0OTExNywiZXhwIjoxODA2NTg1MTE3fQ.5KJmXJwaVefWhnc97EqtArkA1z7ZOhsJwA9fbyRVPdQ';
         const storedToken = localStorage.getItem('adminToken');
-        
-        // Priority: storedToken if valid, otherwise providedToken
         const token = (storedToken && storedToken !== 'undefined' && storedToken !== 'null') ? storedToken : providedToken;
         
         const response = await fetch('https://taxi-a276.onrender.com/api/v1/admin/drivers?page=1&limit=50', {
@@ -65,54 +45,36 @@ const DriverList = () => {
         });
         
         const responseData = await response.json();
+        const driversList = responseData.data?.results || [];
+        
         if (response.ok && responseData.success) {
-          // Mapping data.data.results based on actual API response
-          const driversList = responseData.data?.results || [];
-          
-          // Filter for Approved drivers only
-          const approved = driversList.filter(d => 
-            d.approve === true || d.status === 'Active' || d.status === 'Approved'
-          ).map(d => ({
+          const approved = driversList.filter(d => {
+            const isApproved = d.approve === true || 
+                             d.status?.toLowerCase() === 'active' || 
+                             d.status?.toLowerCase() === 'approved';
+            return isApproved;
+          }).map(d => ({
             id: d._id,
-            name: d.name || `${d.user_id?.name || 'Unknown'}`,
-            email: d.user_id?.email || 'N/A',
+            name: d.name || d.user_id?.name || 'Unknown',
+            serviceLocation: d.city || d.service_location?.name || 'India',
             phone: d.mobile || d.user_id?.mobile || 'N/A',
-            vehicle: d.transport_type || 'Not Assigned',
-            plate: d.car_number || 'No Plate',
-            rides: d.total_rides || 0,
-            rating: d.rating || 0,
-            wallet: d.wallet_balance !== undefined ? `₹${d.wallet_balance}` : '₹0',
-            status: d.active ? 'Active' : 'Offline',
-            joined: d.createdAt ? new Date(d.createdAt).toLocaleDateString() : 'N/A',
-            serviceLocation: d.city || d.service_location?.name || 'Global'
+            transportType: d.transport_type || 'All - Bike',
+            rating: d.rating || d.average_rating || d.avg_rating || 0,
+            registeredAt: d.createdAt ? new Date(d.createdAt).toLocaleString() : 'N/A',
+            status: d.approve ? 'APPROVED' : (d.status?.toUpperCase() || 'APPROVED')
           }));
-          
           setDrivers(approved);
         } else {
           setError(responseData.message || 'Failed to fetch drivers');
         }
       } catch (err) {
-        console.error('Error fetching drivers:', err);
-        setError('Network error occurred while fetching drivers.');
+        setError('Network error occurred.');
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchDrivers();
   }, []);
-
-  const toggleSelectAll = () => {
-    if (selectedRows.length === drivers.length) {
-      setSelectedRows([]);
-    } else {
-      setSelectedRows(drivers.map(d => d.id));
-    }
-  };
-
-  const toggleRowSelect = (id) => {
-    setSelectedRows(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-  };
 
   const toggleMenu = (e, userId) => {
     e.stopPropagation();
@@ -125,238 +87,285 @@ const DriverList = () => {
     return () => window.removeEventListener('click', closeMenu);
   }, []);
 
+  const handleAction = async (action, driverId) => {
+    const confirmMsg = action === 'delete' ? 'Are you sure you want to delete this driver?' : 'Are you sure you want to disapprove this driver?';
+    if (action !== 'password' && !window.confirm(confirmMsg)) return;
+
+    try {
+      const providedToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YzdiZTZhYmJlOTJlYjYwMGYwMmQxNiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwibW9iaWxlIjoiOTk5OTk5OTk5OSIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTc3NTA0OTExNywiZXhwIjoxODA2NTg1MTE3fQ.5KJmXJwaVefWhnc97EqtArkA1z7ZOhsJwA9fbyRVPdQ';
+      const storedToken = localStorage.getItem('adminToken');
+      const token = (storedToken && storedToken !== 'undefined' && storedToken !== 'null') ? storedToken : providedToken;
+
+      const url = action === 'delete' 
+        ? `https://taxi-a276.onrender.com/api/v1/admin/drivers/${driverId}`
+        : action === 'password'
+          ? `https://taxi-a276.onrender.com/api/v1/admin/drivers/update-password/${driverId}`
+          : `https://taxi-a276.onrender.com/api/v1/admin/drivers/update-status/${driverId}`;
+      
+      const method = action === 'delete' ? 'DELETE' : 'PATCH';
+      let body = null;
+      
+      if (action === 'disapprove') {
+        body = JSON.stringify({ approve: false, status: 'inactive', active: false });
+      } else if (action === 'password') {
+        setPasswordModal(prev => ({ ...prev, isSubmitting: true }));
+        body = JSON.stringify({ password: passwordModal.password });
+      }
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success) {
+        alert(`${action.charAt(0).toUpperCase() + action.slice(1)} successful`);
+        if (action === 'delete' || action === 'disapprove') {
+          setDrivers(prev => prev.filter(d => d.id !== driverId));
+        }
+        if (action === 'password') {
+          setPasswordModal({ isOpen: false, driverId: null, password: '', isSubmitting: false });
+        }
+      } else {
+        alert(data.message || `Failed to ${action}`);
+        if (action === 'password') setPasswordModal(prev => ({ ...prev, isSubmitting: false }));
+      }
+    } catch (err) {
+      alert(`Network error during ${action}`);
+      if (action === 'password') setPasswordModal(prev => ({ ...prev, isSubmitting: false }));
+    }
+  };
+
   const filteredDrivers = drivers.filter(d => 
-    (d.name && d.name.toLowerCase().includes(searchTerm.toLowerCase())) || 
-    (d.email && d.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (d.plate && d.plate.toLowerCase().includes(searchTerm.toLowerCase()))
+    d.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    d.phone.includes(searchTerm)
   );
 
   return (
-    <div className="space-y-8 p-1 animate-in fade-in duration-700 relative text-gray-950 font-sans">
-      {/* HEADER */}
-      <div className="flex items-start justify-between">
-         <div>
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 mb-2">Approved Drivers</h1>
-            <div className="flex items-center gap-2 text-[13px] font-bold text-gray-400">
-               <span className="text-gray-950">Fleet Management</span>
-               <ChevronRight size={14} />
-               <span>Active Operators</span>
-            </div>
-         </div>
-         <div className="flex items-center gap-3">
-            <button className="bg-white border border-gray-200 text-gray-950 px-5 py-2.5 rounded-xl text-[13px] font-bold flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm">
-               <Download size={16} className="text-gray-400" /> Export List
-            </button>
-            <button className="bg-black text-white px-5 py-2.5 rounded-xl text-[13px] font-bold flex items-center gap-2 hover:opacity-90 transition-all shadow-md">
-               <UserPlus size={16} /> Add New Driver
-            </button>
-         </div>
+    <div className="min-h-screen bg-[#F8F9FB] p-6 font-sans text-[#333]">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-[15px] font-black tracking-wider text-[#4A5568] uppercase">APPROVED DRIVERS</h1>
       </div>
 
-      {/* FILTER BAR */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-         <div className="flex flex-wrap items-center gap-2">
-            <div className="px-4 py-2 bg-black text-white text-[12px] font-black rounded-xl cursor-pointer">All Operators</div>
-            <div className="px-4 py-2 bg-gray-50 text-gray-500 text-[12px] font-black rounded-xl border border-gray-100 hover:bg-gray-100 transition-all cursor-pointer flex items-center gap-2">
-               Service Type <ChevronDown size={14} />
-            </div>
-            <div className="px-4 py-2 bg-gray-50 text-gray-500 text-[12px] font-black rounded-xl border border-gray-100 hover:bg-gray-100 transition-all cursor-pointer flex items-center gap-2">
-               Online Status <ChevronDown size={14} />
-            </div>
-         </div>
-         <div className="relative w-full md:w-80">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-            <input 
-               type="text" 
-               placeholder="Search by name, plate, or phone..." 
-               value={searchTerm}
-               onChange={(e) => setSearchTerm(e.target.value)}
-               className="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-[13px] font-bold focus:ring-2 focus:ring-gray-100 outline-none transition-all"
-            />
-         </div>
+      <div className="bg-white rounded-lg shadow-sm border border-[#E2E8F0] overflow-visible">
+        <div className="p-6 flex flex-col md:flex-row items-center justify-between gap-4 border-b border-[#F1F5F9]">
+          <div className="flex items-center gap-6">
+             <div className="text-[13px] text-[#718096] font-medium flex items-center gap-2">
+                show 
+                <select 
+                  value={itemsPerPage}
+                  onChange={(e) => setItemsPerPage(e.target.value)}
+                  className="bg-white border border-[#CBD5E0] rounded-lg px-2 py-1 outline-none"
+                >
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                </select>
+                entries
+             </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+             <div className="relative group">
+                <input 
+                  type="text" 
+                  placeholder="" 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-10 focus:w-64 h-10 rounded-full border border-[#CBD5E0] pl-10 pr-4 transition-all duration-300 outline-none"
+                />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A0AEC0]" size={18} />
+             </div>
+             <button className="flex items-center gap-2 bg-[#E67E22] text-white px-5 py-2 rounded-lg text-[13px] font-bold hover:bg-[#D35400] transition-colors shadow-sm">
+                <Filter size={16} /> Filters
+             </button>
+             <button 
+                onClick={() => navigate('/admin/drivers/create')}
+                className="flex items-center gap-2 bg-[#3F51B5] text-white px-5 py-2 rounded-lg text-[13px] font-bold hover:bg-[#303F9F] transition-colors shadow-sm"
+             >
+                <Plus size={16} /> Add Drivers
+             </button>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-[#F8F9FB] border-b border-[#F1F5F9] text-[12px] font-bold text-[#4A5568]">
+                <th className="px-6 py-4">Name</th>
+                <th className="px-4 py-4">Service Location</th>
+                <th className="px-4 py-4">Mobile Number</th>
+                <th className="px-4 py-4">Transport Type</th>
+                <th className="px-4 py-4">Document View</th>
+                <th className="px-4 py-4">Approved Status</th>
+                <th className="px-4 py-4">Rating</th>
+                <th className="px-4 py-4">Registered at</th>
+                <th className="px-6 py-4 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#F1F5F9]">
+              {isLoading ? (
+                <tr>
+                  <td colSpan="9" className="px-6 py-12 text-center text-[13px] text-[#A0AEC0]">Loading fleet data...</td>
+                </tr>
+              ) : filteredDrivers.length === 0 ? (
+                <tr>
+                  <td colSpan="9" className="px-6 py-12 text-center text-[13px] text-[#A0AEC0]">No drivers found.</td>
+                </tr>
+              ) : (
+                filteredDrivers.map((driver) => (
+                  <tr key={driver.id} className="hover:bg-[#F8F9FB] transition-colors">
+                    <td className="px-6 py-5 text-[13px] text-[#4A5568]">{driver.name}</td>
+                    <td className="px-4 py-5 text-[13px] text-[#4A5568]">{driver.serviceLocation}</td>
+                    <td className="px-4 py-5 text-[13px] text-[#4A5568]">{driver.phone}</td>
+                    <td className="px-4 py-5 text-[13px] text-[#4A5568]">{driver.transportType}</td>
+                    <td className="px-4 py-5">
+                       <button className="text-[#3F51B5] hover:opacity-70 transition-opacity">
+                          <FileText size={22} className="fill-[#3F51B5]/10" />
+                       </button>
+                    </td>
+                    <td className="px-4 py-5">
+                       <span className="px-3 py-1 bg-[#00C89E] text-white text-[10px] font-black rounded tracking-wider">
+                          {driver.status}
+                       </span>
+                    </td>
+                    <td className="px-4 py-5">
+                       <div className="flex items-center gap-0.5">
+                          {[1, 2, 3, 4, 5].map((s) => (
+                            <Star key={s} size={14} className={s <= driver.rating ? "fill-[#F1C40F] text-[#F1C40F]" : "text-[#E2E8F0]"} />
+                          ))}
+                       </div>
+                    </td>
+                    <td className="px-4 py-5 text-[13px] text-[#4A5568] whitespace-nowrap">
+                       {driver.registeredAt}
+                    </td>
+                    <td className="px-6 py-5 text-center">
+                       <div className="relative inline-block">
+                          <button 
+                            onClick={(e) => toggleMenu(e, driver.id)}
+                            className="p-2.5 bg-[#E6F0FF] text-[#3F51B5] rounded-lg hover:bg-[#D0E5FF] transition-all"
+                          >
+                             <MoreVertical size={18} />
+                          </button>
+                          
+                          {activeMenu === driver.id && (
+                             <div className="absolute right-0 top-full mt-2 w-52 bg-white rounded-lg shadow-2xl border border-[#E2E8F0] py-2 z-[9999] animate-in fade-in zoom-in-95 duration-200">
+                                <button 
+                                   onClick={() => handleAction('disapprove', driver.id)}
+                                   className="w-full text-left px-5 py-2.5 text-[12px] font-bold text-[#E74C3C] hover:bg-red-50 flex items-center gap-3 transition-colors"
+                                >
+                                   <XCircle size={16} /> disapprove
+                                </button>
+                                <button 
+                                   onClick={() => navigate(`/admin/drivers/edit/${driver.id}`)}
+                                   className="w-full text-left px-5 py-2.5 text-[12px] font-bold text-[#4A5568] hover:bg-gray-50 flex items-center gap-3 transition-colors"
+                                >
+                                   <Edit2 size={16} className="text-gray-400" /> edit
+                                </button>
+                                <button 
+                                   onClick={() => {
+                                     setActiveMenu(null);
+                                     setPasswordModal({ isOpen: true, driverId: driver.id, password: '', isSubmitting: false });
+                                   }}
+                                   className="w-full text-left px-5 py-2.5 text-[12px] font-bold text-[#4A5568] hover:bg-gray-50 flex items-center gap-3 transition-colors"
+                                >
+                                   <Key size={16} className="text-gray-400" /> update password
+                                </button>
+                                <button 
+                                   onClick={() => navigate(`/admin/drivers/${driver.id}`)}
+                                   className="w-full text-left px-5 py-2.5 text-[12px] font-bold text-[#4A5568] hover:bg-gray-50 flex items-center gap-3 transition-colors"
+                                >
+                                   <Eye size={16} className="text-gray-400" /> view profile
+                                </button>
+                                <div className="h-px bg-[#F1F5F9] my-1 mx-2"></div>
+                                <button 
+                                   onClick={() => handleAction('delete', driver.id)}
+                                   className="w-full text-left px-5 py-2.5 text-[12px] font-bold text-[#C0392B] hover:bg-red-100 flex items-center gap-3 transition-colors"
+                                >
+                                   <Trash2 size={16} /> delete
+                                </button>
+                             </div>
+                          )}
+                       </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* FOOTER */}
+        <div className="p-6 border-t border-[#F1F5F9] flex items-center justify-between text-[13px] text-[#718096]">
+           <p>Showing 1 to {filteredDrivers.length} of {filteredDrivers.length} entries</p>
+           <div className="flex items-center gap-1">
+              <button className="px-4 py-2 border border-[#E2E8F0] rounded text-[12px] font-medium text-[#A0AEC0] hover:bg-gray-50 disabled:opacity-50" disabled>Prev</button>
+              <button className="w-8 h-8 bg-[#3F51B5] text-white rounded text-[12px] font-bold">1</button>
+              <button className="px-4 py-2 border border-[#E2E8F0] rounded text-[12px] font-medium text-[#A0AEC0] hover:bg-gray-50 disabled:opacity-50" disabled>Next</button>
+           </div>
+        </div>
       </div>
-
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
-         {/* TABLE */}
-         <div className="xl:col-span-3">
-            <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-visible overflow-hidden">
-               <div className="overflow-x-auto no-scrollbar">
-                  <table className="w-full text-left">
-                     <thead>
-                        <tr className="border-b border-gray-50 text-[11px] font-black text-gray-400 uppercase tracking-widest bg-gray-50/20">
-                           <th className="px-6 py-5 w-10">
-                              <div 
-                                onClick={toggleSelectAll}
-                                className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer ${selectedRows.length === drivers.length ? 'bg-black border-black text-white' : 'border-gray-200 hover:border-gray-300'}`}
-                              >
-                                 {selectedRows.length === drivers.length && <CheckCircle2 size={12} />}
-                              </div>
-                           </th>
-                           <th className="px-4 py-5">Operator Detail</th>
-                           <th className="px-4 py-5 text-center">Work Summary</th>
-                           <th className="px-4 py-5">Service Location</th>
-                           <th className="px-4 py-5">Status</th>
-                           <th className="px-4 py-5 text-center">Wallet</th>
-                           <th className="px-6 py-5 text-right w-10"></th>
-                        </tr>
-                     </thead>
-                     <tbody className="divide-y divide-gray-50">
-                        {isLoading && (
-                          <tr>
-                            <td colSpan="7" className="px-6 py-20 text-center">
-                               <div className="flex flex-col items-center gap-3">
-                                  <div className="w-10 h-10 border-4 border-gray-100 border-t-black rounded-full animate-spin"></div>
-                                  <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Fetching Fleet Data...</p>
-                               </div>
-                            </td>
-                          </tr>
-                        )}
-                        {!isLoading && error && (
-                          <tr>
-                            <td colSpan="6" className="px-6 py-20 text-center">
-                               <div className="flex flex-col items-center gap-3 text-rose-500">
-                                  <Ban size={40} strokeWidth={1.5} />
-                                  <p className="text-[13px] font-bold">{error}</p>
-                                  <button onClick={() => window.location.reload()} className="mt-2 px-4 py-2 bg-gray-950 text-white text-[11px] font-black rounded-lg">Try Again</button>
-                               </div>
-                            </td>
-                          </tr>
-                        )}
-                        {!isLoading && !error && filteredDrivers.length === 0 && (
-                          <tr>
-                            <td colSpan="6" className="px-6 py-20 text-center">
-                               <div className="flex flex-col items-center gap-3 text-gray-400">
-                                  <Search size={40} strokeWidth={1.5} />
-                                  <p className="text-[13px] font-bold">No drivers found matching your criteria</p>
-                               </div>
-                            </td>
-                          </tr>
-                        )}
-                        {!isLoading && !error && filteredDrivers.map((driver) => (
-                           <tr key={driver.id} className={`group hover:bg-gray-50/50 transition-all ${selectedRows.includes(driver.id) ? 'bg-indigo-50/30' : ''}`}>
-                              <td className="px-6 py-4">
-                                 <div 
-                                   onClick={() => toggleRowSelect(driver.id)}
-                                   className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer ${selectedRows.includes(driver.id) ? 'bg-black border-black text-white' : 'border-gray-100 group-hover:border-gray-300'}`}
-                                 >
-                                    {selectedRows.includes(driver.id) && <CheckCircle2 size={12} />}
-                                 </div>
-                              </td>
-                              <td className="px-4 py-6">
-                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-2xl bg-gray-100 border border-gray-200 text-gray-950 font-black text-[14px] flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform">
-                                       {driver.name.split(' ').map(n => n[0]).join('')}
-                                    </div>
-                                    <div>
-                                       <p className="text-[14px] font-bold text-gray-950 tracking-tight leading-none mb-1.5">{driver.name}</p>
-                                       <div className="flex items-center gap-3 text-[11px] font-bold text-gray-400">
-                                          <span className="flex items-center gap-1 text-gray-800"><Car size={12} /> {driver.vehicle}</span>
-                                          <span className="uppercase tracking-widest bg-gray-100 px-1.5 py-0.5 rounded text-[10px]">{driver.plate}</span>
-                                       </div>
-                                    </div>
-                                 </div>
-                              </td>
-                              <td className="px-4 py-6 text-center">
-                                 <div className="flex flex-col items-center">
-                                    <div className="flex items-center gap-1.5 text-[14px] font-black text-gray-950">
-                                       <Target size={14} className="text-gray-300" /> {driver.rides}
-                                       <div className="w-1 h-1 rounded-full bg-gray-300 mx-1"></div>
-                                       {driver.rating} <Star size={12} className="fill-orange-400 text-orange-400" />
-                                    </div>
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1.5">Rides & Rating</p>
-                                 </div>
-                              </td>
-                              <td className="px-4 py-6">
-                                 <div className="flex flex-col">
-                                    <p className="text-[13px] font-black text-gray-950 truncate max-w-[120px]">{driver.serviceLocation}</p>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Region</p>
-                                 </div>
-                              </td>
-                              <td className="px-4 py-6">
-                                 <DriverStatusBadge status={driver.status} />
-                              </td>
-                              <td className="px-4 py-6 text-center">
-                                 <p className="text-[15px] font-black text-gray-950 tracking-tight">{driver.wallet}</p>
-                                 <p className="text-[10px] font-black text-emerald-500 uppercase flex items-center justify-center gap-1 mt-1"><ArrowUpRight size={10} /> POSITIVE</p>
-                              </td>
-                              <td className="px-6 py-6 text-right">
-                                 <div className="relative">
-                                    <button 
-                                      onClick={(e) => toggleMenu(e, driver.id)}
-                                      className="p-2.5 text-gray-400 hover:text-gray-950 hover:bg-gray-100 rounded-xl transition-all"
-                                    >
-                                       <MoreHorizontal size={20} />
-                                    </button>
-                                    {activeMenu === driver.id && (
-                                       <div className="absolute right-0 top-full mt-2 w-52 bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 z-50 animate-in fade-in zoom-in-95 duration-200">
-                                          <button className="w-full text-left px-5 py-3 text-[12px] font-black text-gray-700 hover:bg-gray-50 flex items-center gap-4 transition-colors">
-                                             <FileText size={16} className="text-gray-400" /> Activity Logs
-                                          </button>
-                                          <button className="w-full text-left px-5 py-3 text-[12px] font-black text-gray-700 hover:bg-gray-50 flex items-center gap-4 transition-colors">
-                                             <ShieldCheck size={16} className="text-emerald-500" /> Audits
-                                          </button>
-                                          <button className="w-full text-left px-5 py-3 text-[12px] font-black text-gray-700 hover:bg-gray-50 flex items-center gap-4 transition-colors">
-                                             <CreditCard size={16} className="text-indigo-500" /> Settlements
-                                          </button>
-                                          <div className="h-px bg-gray-50 my-2 mx-3"></div>
-                                          <button className="w-full text-left px-5 py-3 text-[12px] font-black text-rose-600 hover:bg-rose-50 flex items-center gap-4 transition-colors">
-                                             <Ban size={16} /> Suspend Access
-                                          </button>
-                                       </div>
-                                    )}
-                                 </div>
-                              </td>
-                           </tr>
-                        ))}
-                     </tbody>
-                  </table>
-               </div>
-            </div>
-         </div>
-
-         {/* STATS SIDEBAR */}
-         <div className="space-y-6">
-            <div className="bg-white p-8 rounded-[36px] border border-gray-100 shadow-sm relative overflow-hidden group">
-               <div className="absolute top-0 right-0 p-8 opacity-5 text-gray-950 scale-[3] -rotate-12 translate-x-1/2 translate-y-1/2"><Car size={100} strokeWidth={1} /></div>
-               <h4 className="text-[12px] font-black text-gray-400 uppercase tracking-widest mb-8 relative z-10">Unit Statistics</h4>
-               
-               <div className="space-y-8 relative z-10">
-                  <div className="flex flex-col items-center text-center">
-                     <p className="text-x font-black text-gray-950 mb-1">Active Now</p>
-                     <p className="text-5xl font-black text-gray-950 tracking-tighter mb-4">421</p>
-                     <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black rounded-lg">
-                        <ArrowUpRight size={14} /> +12% INCREASE
-                     </div>
+     
+     {/* Password Update Modal */}
+     {passwordModal.isOpen && (
+       <div className="fixed inset-0 z-[10000] flex items-center justify-center p-6 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+         <div className="bg-white rounded-[32px] w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-gray-100">
+            <div className="p-8 space-y-6">
+               <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xl font-black text-gray-950 uppercase tracking-tight leading-none mb-1">Security Update</h3>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Update Driver Password</p>
                   </div>
-
-                  <div className="grid grid-cols-2 gap-4 border-t border-gray-50 pt-8">
-                     <div>
-                        <p className="text-xl font-black text-gray-900 leading-none">1,240</p>
-                        <p className="text-[9px] font-black text-gray-400 uppercase mt-1.5 tracking-widest tracking-tighter">On-Duty Fleet</p>
-                     </div>
-                     <div>
-                        <p className="text-xl font-black text-rose-500 leading-none">12.5%</p>
-                        <p className="text-[9px] font-black text-gray-400 uppercase mt-1.5 tracking-widest tracking-tighter">Inactive Pool</p>
-                     </div>
-                  </div>
-               </div>
-            </div>
-
-            <div className="bg-gray-950 p-8 rounded-[36px] text-white shadow-2xl relative overflow-hidden">
-               <div className="absolute top-0 right-0 p-6 opacity-20"><Wallet size={100} strokeWidth={1} /></div>
-               <div className="relative z-10">
-                  <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-6 leading-none">Net Fleet Payout</p>
-                  <p className="text-4xl font-black mb-2 tracking-tighter leading-none">₹8,42,000</p>
-                  <p className="text-[12px] font-black text-emerald-400 flex items-center gap-2 mt-4 leading-none">
-                     <ArrowUpRight size={16} /> +₹1.2M <span className="text-gray-500">PAID TODAY</span>
-                  </p>
-                  <button className="w-full mt-10 py-5 bg-white/10 hover:bg-white/20 border border-white/10 rounded-2xl text-[12px] font-black uppercase tracking-widest transition-all">
-                     Process Settlement
+                  <button 
+                    onClick={() => setPasswordModal({ isOpen: false, driverId: null, password: '', isSubmitting: false })}
+                    className="text-gray-400 hover:text-gray-900 border border-gray-100 rounded-xl p-1.5 transition-colors"
+                  >
+                     <XCircle size={20} />
                   </button>
                </div>
+
+               <div className="space-y-4">
+                  <div className="relative group">
+                     <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 transition-colors">
+                        <Lock size={18} />
+                     </div>
+                     <input 
+                       type="text" 
+                       placeholder="Enter new strong password"
+                       autoFocus
+                       className="w-full pl-14 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-[14px] font-bold text-gray-900 outline-none focus:bg-white focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50/50 transition-all shadow-inner"
+                       value={passwordModal.password}
+                       onChange={(e) => setPasswordModal(prev => ({ ...prev, password: e.target.value }))}
+                     />
+                  </div>
+                  <div className="flex items-start gap-2 px-2">
+                    <ShieldCheck size={14} className="text-emerald-500 mt-0.5" />
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tight leading-relaxed">System requires minimum 8 characters for driver security compliance.</p>
+                  </div>
+               </div>
+
+               <button 
+                 onClick={() => {
+                   if (passwordModal.password.length < 4) {
+                     alert('Password too short');
+                     return;
+                   }
+                   handleAction('password', passwordModal.driverId);
+                 }}
+                 disabled={passwordModal.isSubmitting || !passwordModal.password}
+                 className="w-full py-4 bg-gray-950 text-white rounded-2xl text-[12px] font-black uppercase tracking-widest hover:translate-y-[-2px] active:translate-y-[1px] transition-all shadow-xl disabled:opacity-50 flex items-center justify-center gap-2"
+               >
+                 {passwordModal.isSubmitting ? <Loader2 className="animate-spin" size={16} /> : <Key size={16} />}
+                 COMMIT NEW PASSWORD
+               </button>
             </div>
          </div>
-      </div>
+       </div>
+     )}
     </div>
   );
 };

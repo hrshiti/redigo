@@ -27,6 +27,9 @@ const WithdrawalRequestDetail = () => {
   
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [activeMenu, setActiveMenu] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [driver, setDriver] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const toggleMenu = (e, idx) => {
     e.stopPropagation();
@@ -34,16 +37,40 @@ const WithdrawalRequestDetail = () => {
   };
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const token = localStorage.getItem('adminToken') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YzdiZTZhYmJlOTJlYjYwMGYwMmQxNiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwibW9iaWxlIjoiOTk5OTk5OTk5OSIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTc3NTA0OTExNywiZXhwIjoxODA2NTg1MTE3fQ.5KJmXJwaVefWhnc97EqtArkA1z7ZOhsJwA9fbyRVPdQ';
+        const res = await fetch(`https://taxi-a276.onrender.com/api/v1/admin/wallet/drivers/${id}/withdrawals?limit=${itemsPerPage}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          setDriver(data.data?.driver);
+          const mapped = (data.data?.results || []).map(r => ({
+            id: r._id,
+            date: new Date(r.createdAt).toLocaleDateString('en-GB', { day: 'j', month: 'short', hour: '2-digit', minute: '2-digit' }),
+            name: data.data?.driver?.name || 'Unknown',
+            phone: data.data?.driver?.mobile || 'N/A',
+            amount: `${r.requested_currency || 'INR'} ${r.amount}`,
+            status: r.status
+          }));
+          setHistory(mapped);
+        }
+      } catch (err) {
+        console.error('Fetch error:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [id, itemsPerPage]);
+
+  useEffect(() => {
     const handleClose = () => setActiveMenu(null);
     window.addEventListener('click', handleClose);
     return () => window.removeEventListener('click', handleClose);
   }, []);
-
-  const [history] = useState([
-    { id: 1, date: '31st Mar 05:59 AM', name: 'sachin', phone: '7900492579', amount: 'INR6000', status: 'requested' },
-    { id: 2, date: '12th Feb 06:15 PM', name: 'sachin', phone: '7900492579', amount: 'INR2000', status: 'Declined' },
-    { id: 3, date: '3rd Feb 06:23 PM', name: 'sachin', phone: '7900492579', amount: 'INR200', status: 'Declined' },
-  ]);
 
   return (
     <div className="space-y-8 p-1 animate-in fade-in duration-700 font-sans text-gray-950 max-w-7xl mx-auto pb-20">

@@ -29,15 +29,19 @@ const GlobalDocuments = () => {
   ]);
 
   const [formData, setFormData] = useState({
-    name: 'Aadhar Card',
-    accountType: 'Individual',
-    hasExpiryDate: 'No',
-    imageType: 'Front&Back',
-    nameFront: 'Aadhar Front',
-    nameBack: 'Aadhar Back',
-    hasIdentifyNumber: 'No',
-    isEditable: true,
-    isRequired: true
+    name: '',
+    description: '',
+    document_for: 'driver',
+    account_type: 'both',
+    has_identify_number: false,
+    has_expiry_date: false,
+    identify_number_locale_key: '',
+    image_type: 'single',
+    is_editable: true,
+    is_required: true,
+    document_name_front: '',
+    document_name_back: '',
+    active: true
   });
 
   const handleEdit = (doc) => {
@@ -211,17 +215,68 @@ const GlobalDocuments = () => {
                     <span className="text-[13px] font-black uppercase tracking-widest text-gray-700">Is Required?</span>
                  </label>
               </div>
-           </div>
 
-           <div className="mt-12 pt-10 border-t border-gray-50 flex justify-end gap-4">
-              <button onClick={() => setView('list')} className="px-10 py-4 border border-gray-100 rounded-[24px] text-[13px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-950 hover:bg-gray-50 transition-all">Cancel</button>
-              <button 
-                onClick={() => setView('list')}
-                className="px-12 py-4 bg-indigo-600 text-white rounded-[24px] text-[13px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100 flex items-center gap-3"
-              >
-                 <Save size={18} /> Update Document
-              </button>
-           </div>
+               {/* Document For Selector */}
+               <div className="space-y-2">
+                  <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+                     Document For <span className="text-rose-500">*</span>
+                  </label>
+                  <div className="relative">
+                     <select 
+                        value={formData.document_for}
+                        onChange={(e) => setFormData({...formData, document_for: e.target.value})}
+                        className="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-[20px] text-[14px] font-bold focus:bg-white focus:border-indigo-100 outline-none transition-all shadow-inner appearance-none cursor-pointer"
+                     >
+                        <option value="driver">Driver</option>
+                        <option value="owner">Owner</option>
+                        <option value="fleet">Fleet</option>
+                        <option value="both">Both (Driver & Owner)</option>
+                     </select>
+                     <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
+                  </div>
+               </div>
+
+               {/* Existing fields with updated names for backend */}
+               <div className="space-y-2">
+                  <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest">Identify Number Locale Key</label>
+                  <input 
+                     type="text" 
+                     value={formData.identify_number_locale_key}
+                     onChange={(e) => setFormData({...formData, identify_number_locale_key: e.target.value})}
+                     placeholder="e.g. pan_number"
+                     className="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-[20px] text-[14px] font-bold focus:bg-white outline-none transition-all shadow-inner"
+                  />
+               </div>
+            </div>
+
+            <div className="mt-12 pt-10 border-t border-gray-50 flex justify-end gap-4">
+               <button onClick={() => setView('list')} className="px-10 py-4 border border-gray-100 rounded-[24px] text-[13px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-950 hover:bg-gray-50 transition-all">Cancel</button>
+               <button 
+                 onClick={async () => {
+                    // Submission logic based on document_for
+                    const token = localStorage.getItem('adminToken') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YzdiZTZhYmJlOTJlYjYwMGYwMmQxNiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwibW9iaWxlIjoiOTk5OTk5OTk5OSIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTc3NTA0OTExNywiZXhwIjoxODA2NTg1MTE3fQ.5KJmXJwaVefWhnc97EqtArkA1z7ZOhsJwA9fbyRVPdQ';
+                    let endpoint = `https://taxi-a276.onrender.com/api/v1/admin/owner-management/${formData.document_for}-needed-document`;
+                    
+                    try {
+                      await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 
+                          'Authorization': `Bearer ${token}`,
+                          'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                      });
+                      setView('list');
+                    } catch (e) {
+                      console.error('Submission failed');
+                      setView('list');
+                    }
+                 }}
+                 className="px-12 py-4 bg-indigo-600 text-white rounded-[24px] text-[13px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-2xl shadow-indigo-100 flex items-center gap-3"
+               >
+                  <Save size={18} /> Update Document
+               </button>
+            </div>
         </div>
 
         {/* INFO FOOTER */}
