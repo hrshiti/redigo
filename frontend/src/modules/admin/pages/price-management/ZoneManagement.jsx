@@ -9,6 +9,7 @@ import {
   GoogleMap, useJsApiLoader, DrawingManager, Polygon, Autocomplete 
 } from '@react-google-maps/api';
 
+import { adminService } from '../../services/adminService';
 
 const libraries = ['drawing', 'places'];
 const mapContainerStyle = {
@@ -50,32 +51,20 @@ const ZoneManagement = () => {
     status: 'active'
   });
 
-  const token = localStorage.getItem('adminToken') || '';
-  const baseUrl = 'https://taxi-a276.onrender.com/api/v1/admin';
-
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Fetch Zones
-      const zoneRes = await fetch(`${baseUrl}/zones`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (zoneRes.ok) {
-        const data = await zoneRes.json();
-        if (data.success) {
-          setZones(Array.isArray(data.data) ? data.data : (data.data?.results || []));
-        }
+      const [zoneRes, slRes] = await Promise.all([
+        adminService.getZones(),
+        adminService.getServiceLocations()
+      ]);
+
+      if (zoneRes.success) {
+        setZones(Array.isArray(zoneRes.data) ? zoneRes.data : (zoneRes.data?.results || []));
       }
 
-      // Fetch Service Locations
-      const slRes = await fetch(`${baseUrl}/service-locations`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (slRes.ok) {
-        const slData = await slRes.json();
-        if (slData.success) {
-          setServiceLocations(Array.isArray(slData.data) ? slData.data : (slData.data?.results || []));
-        }
+      if (slRes.success) {
+        setServiceLocations(Array.isArray(slRes.data) ? slRes.data : (slRes.data?.results || []));
       }
     } catch (err) {
       console.error("Fetch error:", err);
@@ -117,27 +106,17 @@ const ZoneManagement = () => {
 
     setSaving(true);
     try {
-      const zoneId = editingId;
-      const url = zoneId ? `${baseUrl}/zones/${zoneId}` : `${baseUrl}/zones`;
-      const method = zoneId ? 'PATCH' : 'POST';
-
       const payload = {
         ...formData,
         coordinates: polygonCoords,
         name: formData.name.English
       };
 
-      const res = await fetch(url, {
-        method,
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      });
+      const res = editingId 
+        ? await adminService.updateZone(editingId, payload)
+        : await adminService.createZone(payload);
       
-      const data = await res.json();
-      if (data.success) {
+      if (res.success) {
         setView('list');
         setEditingId(null);
         fetchData();
@@ -154,48 +133,34 @@ const ZoneManagement = () => {
         });
         setPolygonCoords([]);
       } else {
-        alert(data.message || "Operation failed");
+        alert(res.message || "Operation failed");
       }
     } catch (err) {
       console.error("Save error:", err);
+      alert("Error connecting to server. Please try again.");
     } finally {
       setSaving(false);
     }
   };
 
   const handleStatusToggle = async (zoneId, currentIsActive) => {
-    const newActiveState = !currentIsActive;
-    
-    // Optimistic Update
-    setZones(prev => prev.map(z => (z._id === zoneId || z.id === zoneId) ? { ...z, active: newActiveState } : z));
-
     try {
-      const res = await fetch(`${baseUrl}/zones/${zoneId}`, {
-        method: 'PATCH',
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ active: newActiveState })
-      });
-      if (!res.ok) {
-        // Rollback
-        setZones(prev => prev.map(z => (z._id === zoneId || z.id === zoneId) ? { ...z, active: currentIsActive } : z));
+      const res = await adminService.toggleZoneStatus(zoneId);
+      if (res.success) {
+        setZones(prev => prev.map(z => (z._id === zoneId || z.id === zoneId) ? { ...z, active: !currentIsActive } : z));
+      } else {
         alert("Failed to update status");
       }
     } catch (err) {
-      setZones(prev => prev.map(z => (z._id === zoneId || z.id === zoneId) ? { ...z, active: currentIsActive } : z));
+      console.error("Status update error:", err);
     }
   };
 
   const handleDelete = async (zoneId) => {
     if (!window.confirm("Are you sure you want to delete this zone?")) return;
     try {
-      const res = await fetch(`${baseUrl}/zones/${zoneId}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) {
+      const res = await adminService.deleteZone(zoneId);
+      if (res.success) {
         setZones(prev => prev.filter(z => (z._id !== zoneId && z.id !== zoneId)));
       } else {
         alert("Delete failed");
