@@ -27,6 +27,8 @@ const ToggleSwitch = ({ label, enabled, onToggle }) => (
   </div>
 );
 
+import { adminService } from '../../services/adminService';
+
 const DriverSubscriptions = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -67,22 +69,22 @@ const DriverSubscriptions = () => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const token = localStorage.getItem('adminToken') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YzdiZTZhYmJlOTJlYjYwMGYwMmQxNiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwibW9iaWxlIjoiOTk5OTk5OTk5OSIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTc3NTA0OTExNywiZXhwIjoxODA2NTg1MTE3fQ.5KJmXJwaVefWhnc97EqtArkA1z7ZOhsJwA9fbyRVPdQ';
         
-        const [plansRes, transportRes, areasRes] = await Promise.all([
-          fetch('https://taxi-a276.onrender.com/api/v1/admin/driver-subscriptions/plans/list', { headers: { 'Authorization': `Bearer ${token}` } }),
-          fetch('https://taxi-a276.onrender.com/api/v1/common/ride_modules', { headers: { 'Authorization': `Bearer ${token}` } }),
-          fetch('https://taxi-a276.onrender.com/api/v1/admin/service-locations', { headers: { 'Authorization': `Bearer ${token}` } })
+        // PRO-LEVEL: Use Promise.all with standardized service calls
+        const [plansData, transportData, areasData] = await Promise.all([
+          adminService.getSubscriptionPlans(),
+          adminService.getRideModules(),
+          adminService.getServiceLocations()
         ]);
 
-        const plansData = await plansRes.json();
-        const transportData = await transportRes.json();
-        const areasData = await areasRes.json();
-
         if (plansData.success) setPlans(plansData.data?.results || []);
-        if (areasData.success && Array.isArray(areasData.data) && areasData.data.length > 0) {
+        
+        if (areasData.success && Array.isArray(areasData.data)) {
           setAreas(areasData.data);
+        } else if (areasData.success && areasData.data?.results) {
+          setAreas(areasData.data.results);
         }
+
         if (transportData.success) {
           const raw = transportData.data;
           const mapped = Array.isArray(raw) ? raw : Object.keys(raw).map(k => ({ transport_type: k }));
@@ -103,12 +105,8 @@ const DriverSubscriptions = () => {
     const fetchVehicles = async () => {
       if (!formData.service_location_id) return;
       try {
-        const token = localStorage.getItem('adminToken') || '';
         const typeFilter = formData.transport_type.toLowerCase();
-        const res = await fetch(`https://taxi-a276.onrender.com/api/v1/types/${formData.service_location_id}?transport_type=${typeFilter}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const json = await res.json();
+        const json = await adminService.getVehicleTypes(formData.service_location_id, typeFilter);
         if (json.success) {
            setVehicleTypes(Array.isArray(json.data) ? json.data : (json.data?.results || []));
         }
@@ -124,25 +122,15 @@ const DriverSubscriptions = () => {
     }
     setSaving(true);
     try {
-      const token = localStorage.getItem('adminToken') || '';
-      const res = await fetch('https://taxi-a276.onrender.com/api/v1/admin/driver-subscriptions/plans/create', {
-        method: 'POST',
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
-      const data = await res.json();
+      const data = await adminService.createSubscriptionPlan(formData);
       if (data.success) {
         setIsAddModalOpen(false);
         // Refresh list
-        const listRes = await fetch('https://taxi-a276.onrender.com/api/v1/admin/driver-subscriptions/plans/list', { headers: { 'Authorization': `Bearer ${token}` } });
-        const listData = await listRes.json();
+        const listData = await adminService.getSubscriptionPlans();
         if (listData.success) setPlans(listData.data?.results || []);
       }
     } catch (err) {
-      alert("Failed to save subscription");
+      alert(err.message || "Failed to save subscription");
     } finally {
       setSaving(false);
     }

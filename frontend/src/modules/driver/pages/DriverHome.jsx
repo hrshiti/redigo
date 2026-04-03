@@ -21,6 +21,8 @@ import RedigoLogo from '@/assets/redigologo.png';
 import DriverBottomNav from '../../shared/components/DriverBottomNav';
 import IncomingRideRequest from './IncomingRideRequest';
 
+import { socketService } from '../../../shared/api/socket';
+
 const DriverHome = () => {
     const navigate = useNavigate();
     const [isOnline, setIsOnline] = useState(false);
@@ -29,33 +31,53 @@ const DriverHome = () => {
     const [completedRides, setCompletedRides] = useState(0);
     const [dutySeconds, setDutySeconds] = useState(0);
 
-    // High-End Mock Request Generator
-    const generateMockRequest = () => {
-        const types = ['ride', 'parcel'];
-        const randomType = types[Math.floor(Math.random() * types.length)];
-        
-        if (randomType === 'parcel') {
-            return {
-                type: 'parcel',
-                title: 'Parcel Delivery',
-                fare: '₹145',
-                payment: 'Online Payment',
-                pickup: 'Flat 402, Swamclose Apts, JP Nagar',
-                drop: 'Tea Villa Cafe, 12th Main, HSR Layout',
-                distance: '1.2 km away'
+    // REAL Socket Integration
+    useEffect(() => {
+        if (isOnline) {
+            const socket = socketService.connect();
+            
+            // Listen for New Ride Requests
+            socketService.on('new_request', (data) => {
+                console.log('📬 Real-time Ride Request Received:', data);
+                setCurrentRequest({
+                    type: data.type || 'ride',
+                    title: data.type === 'parcel' ? 'Parcel Delivery' : 'Bike Taxi',
+                    fare: `₹${data.amount || 0}`,
+                    payment: data.payment_type || 'Online Payment',
+                    pickup: data.pickup_address || 'Pickup Location',
+                    drop: data.drop_address || 'Drop Location',
+                    distance: `${data.distance || 0} km away`,
+                    requestId: data._id
+                });
+                setShowRequest(true);
+            });
+
+            // Listen for requests accepted by others
+            socketService.on('request_accepted_elsewhere', () => {
+                setShowRequest(false);
+            });
+
+            // Emit Location Updates periodically
+            const locationInterval = setInterval(() => {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition((pos) => {
+                        socketService.emit('update_location', {
+                            lat: pos.coords.latitude,
+                            lng: pos.coords.longitude
+                        });
+                    });
+                }
+            }, 10000); // Every 10s
+
+            return () => {
+                socketService.off('new_request');
+                socketService.off('request_accepted_elsewhere');
+                clearInterval(locationInterval);
             };
         } else {
-            return {
-                type: 'ride',
-                title: 'Bike Taxi',
-                fare: '₹120',
-                payment: 'Online Payment',
-                pickup: 'Swamclose Apartments, JP nagar',
-                drop: 'Tea Villa Cafe, HSR Layout',
-                distance: '2 km away'
-            };
+            socketService.disconnect();
         }
-    };
+    }, [isOnline]);
     
     // Simulate other drivers for "Alive" feel
     const [nearbyTaxis, setNearbyTaxis] = useState([
@@ -265,18 +287,7 @@ const DriverHome = () => {
                     <motion.button 
                         whileTap={{ scale: 0.97 }}
                         onClick={() => {
-                            const newOnline = !isOnline;
-                            setIsOnline(newOnline);
-                            if (newOnline) {
-                                // High-end simulation: generate a random request type after 3s
-                                setTimeout(() => {
-                                    setCurrentRequest(generateMockRequest());
-                                    setShowRequest(true);
-                                }, 3000);
-                            } else {
-                                setShowRequest(false);
-                                setCurrentRequest(null);
-                            }
+                            setIsOnline(!isOnline);
                         }}
                         className={`w-full h-14 rounded-[1.6rem] flex items-center justify-center gap-2.5 text-[14px] font-black uppercase tracking-[0.1em] transition-all shadow-md group ${
                             isOnline 

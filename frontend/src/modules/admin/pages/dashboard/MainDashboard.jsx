@@ -124,6 +124,8 @@ const SimpleBarChart = ({ data, colors }) => (
   </div>
 );
 
+import { adminService } from '../../services/adminService';
+
 const MainDashboard = () => {
   const [stats, setStats] = useState({
     total_users: 0,
@@ -136,16 +138,11 @@ const MainDashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const token = localStorage.getItem('adminToken') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YzdiZTZhYmJlOTJlYjYwMGYwMmQxNiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwibW9iaWxlIjoiOTk5OTk5OTk5OSIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTc3NTA0OTExNywiZXhwIjoxODA2NTg1MTE3fQ.5KJmXJwaVefWhnc97EqtArkA1z7ZOhsJwA9fbyRVPdQ';
-        const headers = { 'Authorization': `Bearer ${token}` };
-
-        // Fetch User Total
-        const userRes = await fetch('https://taxi-a276.onrender.com/api/v1/admin/users?limit=1', { headers });
-        const userData = await userRes.json();
-        
-        // Fetch Driver Total
-        const driverRes = await fetch('https://taxi-a276.onrender.com/api/v1/admin/drivers?limit=1', { headers });
-        const driverData = await driverRes.json();
+        // PRO-LEVEL: Fetch everything via the service layer
+        const [userData, driverData] = await Promise.all([
+          adminService.getUsers(1, 1),
+          adminService.getDrivers(1, 1)
+        ]);
 
         // Estimate Pending (this is a rough estimate since we only have list pagination)
         const pendingCount = driverData.data?.results?.filter(d => !d.approve).length || 0;

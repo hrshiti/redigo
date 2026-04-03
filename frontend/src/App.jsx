@@ -111,6 +111,19 @@ const AdminPromoCodes = lazy(() => import('./modules/admin/pages/promotions/Prom
 const AdminSendNotification = lazy(() => import('./modules/admin/pages/promotions/SendNotification'));
 const AdminBannerImage = lazy(() => import('./modules/admin/pages/promotions/BannerImage'));
 
+// Price Management
+const AdminServiceLocation = lazy(() => import('./modules/admin/pages/price-management/ServiceLocation'));
+const AdminZoneManagement = lazy(() => import('./modules/admin/pages/price-management/ZoneManagement'));
+const AdminSetPrices = lazy(() => import('./modules/admin/pages/price-management/SetPrices'));
+const AdminVehicleType = lazy(() => import('./modules/admin/pages/price-management/VehicleType'));
+const AdminPricingPlaceholder = ({ title }) => (
+  <div className="flex flex-col items-center justify-center min-h-[500px] text-gray-400 bg-white rounded-[32px] border border-gray-100 shadow-sm p-10">
+    <MapPin size={60} strokeWidth={1} className="mb-6 opacity-20" />
+    <h2 className="text-xl font-black text-gray-900 uppercase tracking-widest">{title}</h2>
+    <p className="mt-2 font-bold italic tracking-tight">Configuration module coming soon</p>
+  </div>
+);
+
 const AdminOwnerDashboard = lazy(() => import('./modules/admin/pages/owners/OwnerDashboard'));
 const AdminManageOwners = lazy(() => import('./modules/admin/pages/owners/ManageOwners'));
 const AdminOwnerNeededDocuments = lazy(() => import('./modules/admin/pages/owners/OwnerNeededDocuments'));
@@ -277,7 +290,17 @@ function App() {
               <Route path="referrals/active" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Active Referrals Logs - Under Setup</div>} />
               <Route path="geo" element={<AdminGeoFencing />} />
               <Route path="finance" element={<AdminFinance />} />
-              <Route path="pricing" element={<AdminFareConfig />} />
+              {/* Price Management */}
+              <Route path="pricing">
+                <Route index element={<Navigate to="service-location" />} />
+                <Route path="service-location" element={<AdminServiceLocation />} />
+                <Route path="zone" element={<AdminZoneManagement />} />
+                <Route path="airport" element={<AdminPricingPlaceholder title="Airport Management" />} />
+                <Route path="vehicle-type" element={<AdminVehicleType />} />
+                <Route path="rental-packages" element={<AdminPricingPlaceholder title="Rental Package Types" />} />
+                <Route path="set-price" element={<AdminSetPrices />} />
+                <Route path="goods-types" element={<AdminPricingPlaceholder title="Goods Types" />} />
+              </Route>
               <Route path="safety" element={<AdminSafetyCenter />} />
               <Route path="cms" element={<AdminCMSBuilder />} />
               <Route path="notifications" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Global Notifications Center - Under Development</div>} />

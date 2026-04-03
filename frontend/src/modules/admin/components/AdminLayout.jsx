@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import namologo from '../../../assets/namologo.png';
+import RedigoLogo from '../../../assets/redigologo.png';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { socketService } from '../../../shared/api/socket';
 import { 
   BarChart3, 
   Users, 
@@ -129,16 +130,39 @@ const AdminLayout = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [isCollapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
+  const [notifications, setNotifications] = useState([]);
 
-  // Auth Check
+  // Auth & Socket Check
   React.useEffect(() => {
     const token = localStorage.getItem('adminToken');
     if (!token && !window.location.pathname.includes('/admin/login')) {
       navigate('/admin/login');
+      return;
+    }
+
+    if (token) {
+      const socket = socketService.connect();
+      
+      // Global Admin Listeners
+      socketService.on('new_sos', (data) => {
+        console.log('🚨 SOS ALERT RECEIVED:', data);
+        // Play sound or show high-priority modal
+        alert(`🚨 SOS ALERT: Driver ${data.driver_name} is in trouble!`);
+      });
+
+      socketService.on('new_driver_registration', (data) => {
+         setNotifications(prev => [{ id: Date.now(), title: 'New Driver', message: `${data.name} just registered.` }, ...prev]);
+      });
+
+      return () => {
+        socketService.off('new_sos');
+        socketService.off('new_driver_registration');
+      };
     }
   }, [navigate]);
 
   const handleLogout = () => {
+    socketService.disconnect();
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminInfo');
     navigate('/admin/login');
@@ -223,7 +247,19 @@ const AdminLayout = () => {
           { label: 'Banner Image', path: '/admin/promotions/banner-image' },
         ]
      },
-    { icon: IndianRupee, label: 'Price Management', path: '/admin/pricing' },
+    { 
+       icon: IndianRupee, 
+       label: 'Price Management', 
+       subItems: [
+         { label: 'Service Location', path: '/admin/pricing/service-location' },
+         { label: 'Zone', path: '/admin/pricing/zone' },
+         { label: 'Airport', path: '/admin/pricing/airport' },
+         { label: 'Vehicle Type', path: '/admin/pricing/vehicle-type' },
+         { label: 'Rental Package Types', path: '/admin/pricing/rental-packages' },
+         { label: 'Set Price', path: '/admin/pricing/set-price' },
+         { label: 'Goods Types', path: '/admin/pricing/goods-types' },
+       ]
+    },
     { icon: Layers, label: 'Finance', path: '/admin/finance' },
   ];
 
@@ -238,8 +274,8 @@ const AdminLayout = () => {
           <div className="h-28 flex items-center px-6 justify-center border-b border-white/5 bg-white/5 backdrop-blur-sm">
              <div className="flex items-center">
                 <img 
-                  src={namologo} 
-                  alt="Brand Logo" 
+                  src={RedigoLogo} 
+                  alt="Redigo Logo" 
                   className={`cursor-pointer object-contain transition-all duration-500 hover:scale-105 active:scale-95 ${
                     isCollapsed ? 'w-10 h-10' : 'w-48 h-auto max-h-16'
                   }`}

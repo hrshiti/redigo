@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import namologo from '../../../../assets/namologo.png';
+import RedigoLogo from '../../../../assets/redigologo.png';
 import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, Mail, Lock, ArrowRight, Car, Loader2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { adminService } from '../../services/adminService';
 
 const AdminLogin = () => {
   const [email, setEmail] = useState(''); 
@@ -17,18 +18,11 @@ const AdminLogin = () => {
     setError('');
 
     try {
-      const response = await fetch('https://taxi-a276.onrender.com/api/v1/admin/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
+      // PRO-LEVEL: Call standardized service instead of fetch
+      const data = await adminService.login({ email, password });
       console.log("Login Full Response:", data);
 
-      if (response.ok || data.success) {
+      if (data.success || data.access_token || data.token) {
         const token = data.access_token || data.token || data.data?.token;
         const admin = data.user || data.admin || data.data?.admin || data.data?.user;
 
@@ -48,7 +42,7 @@ const AdminLogin = () => {
         setError(data.message || 'Authentication failed. Please check your credentials.');
       }
     } catch (err) {
-      setError('Network error. Please try again later or check your internet connection.');
+      setError(err.message || 'Network error. Please try again later.');
       console.error('Login error:', err);
     } finally {
       setIsLoading(false);
@@ -78,8 +72,8 @@ const AdminLogin = () => {
 
         <div className="flex flex-col items-center mb-10 text-center">
            <img 
-              src={namologo} 
-              alt="Brand Logo" 
+              src={RedigoLogo} 
+              alt="Redigo Logo" 
               className="w-56 h-auto mb-8 object-contain drop-shadow-2xl cursor-pointer hover:scale-105 transition-transform"
               onClick={() => navigate('/')}
            />

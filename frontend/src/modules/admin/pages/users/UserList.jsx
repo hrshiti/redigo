@@ -41,6 +41,7 @@ const StatusToggle = ({ status, onToggle }) => (
 );
 
 import UserModal from './UserModal';
+import { adminService } from '../../services/adminService';
 
 const UserList = () => {
   const navigate = useNavigate();
@@ -58,16 +59,12 @@ const UserList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
 
-  const token = localStorage.getItem('token') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YzdiZTZhYmJlOTJlYjYwMGYwMmQxNiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwibW9iaWxlIjoiOTk5OTk5OTk5OSIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTc3NTA0OTExNywiZXhwIjoxODA2NTg1MTE3fQ.5KJmXJwaVefWhnc97EqtArkA1z7ZOhsJwA9fbyRVPdQ';
-
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('https://taxi-a276.onrender.com/api/v1/admin/users?page=1&limit=50', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const resData = await response.json();
-      if (response.ok && resData.success) {
+      const resData = await adminService.getUsers(1, 50);
+      
+      if (resData.success) {
         const mapped = (resData.data?.results || []).map(u => ({
           id: u._id,
           name: u.name || 'Anonymous',
@@ -84,7 +81,7 @@ const UserList = () => {
         setError(resData.message || 'Failed to fetch users');
       }
     } catch (err) {
-      setError('Network error');
+      setError(err.message || 'Network error');
     } finally {
       setIsLoading(false);
     }
@@ -114,15 +111,8 @@ const UserList = () => {
   const handleToggleStatus = async (userId, currentStatus) => {
     try {
       const newStatus = currentStatus === 'Active' ? false : true;
-      const response = await fetch(`https://taxi-a276.onrender.com/api/v1/admin/users/${userId}`, {
-        method: 'PATCH',
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ active: newStatus })
-      });
-      if (response.ok) {
+      const resData = await adminService.updateUser(userId, { active: newStatus });
+      if (resData.success) {
         setUsers(users.map(u => u.id === userId ? { ...u, status: newStatus ? 'Active' : 'Suspended' } : u));
       }
     } catch (err) {
@@ -143,11 +133,8 @@ const UserList = () => {
   const handleDeleteUser = async (userId) => {
     if (window.confirm('Are you sure you want to delete this passenger? This action cannot be undone.')) {
       try {
-        const response = await fetch(`https://taxi-a276.onrender.com/api/v1/admin/users/${userId}`, {
-          method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (response.ok) {
+        const resData = await adminService.deleteUser(userId);
+        if (resData.success) {
           setUsers(users.filter(u => u.id !== userId));
         }
       } catch (err) {
@@ -159,23 +146,11 @@ const UserList = () => {
   const handleModalSubmit = async (formData) => {
     try {
       setIsSubmitting(true);
-      const url = editingUser 
-        ? `https://taxi-a276.onrender.com/api/v1/admin/users/${editingUser.id}`
-        : 'https://taxi-a276.onrender.com/api/v1/admin/users';
-      
-      const method = editingUser ? 'PATCH' : 'POST';
-      
-      const response = await fetch(url, {
-        method,
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
+      const resData = editingUser 
+        ? await adminService.updateUser(editingUser.id, formData)
+        : await adminService.createUser(formData);
 
-      const resData = await response.json();
-      if (response.ok && resData.success) {
+      if (resData.success) {
         setIsModalOpen(false);
         fetchUsers(); // Refresh list
       } else {
@@ -183,7 +158,7 @@ const UserList = () => {
       }
     } catch (err) {
       console.error('Error submitting form', err);
-      alert('Network error');
+      alert(err.message || 'Network error');
     } finally {
       setIsSubmitting(false);
     }

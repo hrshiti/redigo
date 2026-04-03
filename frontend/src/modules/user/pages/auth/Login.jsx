@@ -4,9 +4,12 @@ import { motion } from 'framer-motion';
 import AuthLayout from '../../components/AuthLayout';
 import { ChevronDown, Phone } from 'lucide-react';
 
+import { userService } from '../../services/userService';
+
 const Login = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const isValidPhone = phoneNumber.length === 10 && /^\d+$/.test(phoneNumber);
@@ -16,11 +19,22 @@ const Login = () => {
     if (!isValidPhone) return;
 
     setLoading(true);
-    // Mock API Call
-    setTimeout(() => {
+    setError('');
+    
+    try {
+      // PRO-LEVEL: Use real service call
+      const res = await userService.sendOtp(phoneNumber);
+      if (res.success) {
+        navigate('/verify-otp', { state: { phone: phoneNumber } });
+      } else {
+        setError(res.message || 'Something went wrong');
+      }
+    } catch (err) {
+      setError(err.message || 'Network error occurred');
+      console.error(err);
+    } finally {
       setLoading(false);
-      navigate('/verify-otp', { state: { phone: phoneNumber } });
-    }, 1500);
+    }
   };
 
   return (

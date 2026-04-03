@@ -4,11 +4,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import AuthLayout from '../../components/AuthLayout';
 import { ArrowLeft, CheckCircle2 } from 'lucide-react';
 
+import { userService } from '../../services/userService';
+
 const VerifyOTP = () => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(30);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [apiError, setApiError] = useState('');
   const [success, setSuccess] = useState(false);
   const inputs = useRef([]);
   
@@ -38,6 +41,7 @@ const VerifyOTP = () => {
     }
     
     setError(false);
+    setApiError('');
   };
 
   const handleKeyDown = (index, e) => {
@@ -65,19 +69,37 @@ const VerifyOTP = () => {
     if (fullOtp.length < 6) return;
 
     setLoading(true);
-    // Mock Verification API
-    setTimeout(() => {
-      setLoading(false);
-      // Example: 123456 is correct, others fail for testing
-      if (fullOtp === '123456' || fullOtp === '000000') {
-        setSuccess(true);
-        setTimeout(() => navigate('/signup'), 1500);
+    setApiError('');
+    
+    try {
+      // PRO-LEVEL: Use real service call
+      const res = await userService.validateOtp(phone, fullOtp);
+      
+      if (res.success || res.token || res.access_token) {
+        const token = res.token || res.access_token || res.data?.token;
+        const user = res.user || res.data?.user;
+
+        if (token) {
+           localStorage.setItem('token', token);
+           if (user) localStorage.setItem('userInfo', JSON.stringify(user));
+           setSuccess(true);
+           setTimeout(() => navigate('/'), 1000);
+        } else {
+           // If no token but successful, it might be a new user flow
+           setSuccess(true);
+           setTimeout(() => navigate('/signup', { state: { phone } }), 1000);
+        }
       } else {
         setError(true);
         setOtp(['', '', '', '', '', '']);
         inputs.current[0].focus();
       }
-    }, 1500);
+    } catch (err) {
+      setApiError(err.message || 'Verification failed');
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const isFilled = otp.every(digit => digit !== '');

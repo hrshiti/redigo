@@ -1,10 +1,30 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Wallet } from 'lucide-react';
 import RedigoLogo from '@/assets/redigologo.png';
 
-const HeaderGreeting = ({ name = "hritik raghuwanshi" }) => {
+const HeaderGreeting = () => {
   const navigate = useNavigate();
+  const [userName, setUserName] = useState('User');
+
+  useEffect(() => {
+    const info = localStorage.getItem('userInfo');
+    if (info) {
+      try {
+        const user = JSON.parse(info);
+        setUserName(user.name || user.first_name || 'User');
+      } catch (e) {
+        console.error("Failed to parse user info", e);
+      }
+    }
+  }, []);
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  };
 
   return (
     <div className="pt-6 pb-2 space-y-3">
@@ -22,7 +42,7 @@ const HeaderGreeting = ({ name = "hritik raghuwanshi" }) => {
       {/* Greeting Row */}
       <div className="px-4 md:px-5">
         <h1 className="text-[17px] md:text-[19px] font-black text-gray-900 tracking-tight whitespace-nowrap overflow-hidden text-ellipsis">
-          Good Morning, <span className="capitalize">{name}</span> 👋
+          {getGreeting()}, <span className="capitalize">{userName}</span> 👋
         </h1>
       </div>
     </div>

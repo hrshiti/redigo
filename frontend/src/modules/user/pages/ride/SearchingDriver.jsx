@@ -24,6 +24,8 @@ const MOCK_DRIVERS = [
 const STAGES = { SEARCHING: 'searching', ASSIGNED: 'assigned', ACCEPTED: 'accepted', COMPLETING: 'completing' };
 
 // ---------- component ----------
+import { socketService } from '../../../shared/api/socket';
+
 const SearchingDriver = () => {
   const navigate  = useNavigate();
   const location  = useLocation();
@@ -31,40 +33,54 @@ const SearchingDriver = () => {
 
   const [stage, setStage] = useState(STAGES.SEARCHING);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
-  const [otp]    = useState(generateOTP);
-  const [driver] = useState(() => MOCK_DRIVERS[Math.floor(Math.random() * MOCK_DRIVERS.length)]);
-
-  const timerRef = useRef(null);
+  const [otp, setOtp] = useState('');
+  const [driver, setDriver] = useState(null);
 
   useEffect(() => {
-    // Stage 1 → 2: after 5 s captain "found"
-    timerRef.current = setTimeout(() => {
+    const socket = socketService.connect();
+
+    // Listen for Captain Found / Ride Accepted
+    socketService.on('ride_accepted', (data) => {
+      console.log('✅ Ride Accepted by Driver:', data);
+      setDriver({
+        name: data.driver_name || 'Professional Driver',
+        rating: data.rating || '4.9',
+        vehicle: data.vehicle_model || 'Standard Vehicle',
+        plate: data.vehicle_number || 'MP09 XX 0000',
+        phone: data.driver_mobile || '',
+        eta: data.eta || 2
+      });
+      setOtp(data.otp || '');
       setStage(STAGES.ASSIGNED);
+    });
 
-      // Stage 2 → 3: after another 5 s captain "accepts"
-      timerRef.current = setTimeout(() => {
-        setStage(STAGES.ACCEPTED);
+    // Listen for Ride Start (Captain verified OTP)
+    socketService.on('ride_started', () => {
+      setStage(STAGES.ACCEPTED);
+    });
 
-        // Stage 3 → 4: after another 5 s ride "completed"
-        timerRef.current = setTimeout(() => {
-          setStage(STAGES.COMPLETING);
-          setTimeout(() => {
-            navigate('/ride/complete', {
-              state: {
-                ...routeState,
-                otp,
-                driver,
-                fare: routeState.fare || (routeState.vehicle?.price) || 22,
-                paymentMethod: routeState.paymentMethod || 'Cash',
-              },
-            });
-          }, 800);
-        }, 5000);
-      }, 5000);
-    }, 5000);
+    // Listen for Ride Completion
+    socketService.on('ride_completed', (data) => {
+      setStage(STAGES.COMPLETING);
+      setTimeout(() => {
+        navigate('/ride/complete', {
+          state: {
+            ...routeState,
+            otp,
+            driver,
+            fare: data.amount || routeState.fare || 22,
+            paymentMethod: data.payment_type || 'Cash',
+          },
+        });
+      }, 800);
+    });
 
-    return () => clearTimeout(timerRef.current);
-  }, []);
+    return () => {
+      socketService.off('ride_accepted');
+      socketService.off('ride_started');
+      socketService.off('ride_completed');
+    };
+  }, [navigate, routeState, otp, driver]);
 
   const handleCancelSearch = () => {
     clearTimeout(timerRef.current);

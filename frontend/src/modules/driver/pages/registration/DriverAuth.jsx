@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronRight, Share2, Smartphone, ShieldCheck, Check } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Share2, Smartphone, ShieldCheck, Check, Loader2 } from 'lucide-react';
+import { driverService } from '../../services/driverService';
 
 const DriverAuth = () => {
     const navigate = useNavigate();
@@ -9,6 +10,8 @@ const DriverAuth = () => {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const [timer, setTimer] = useState(30);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     useEffect(() => {
         let interval;
@@ -17,6 +20,60 @@ const DriverAuth = () => {
         }
         return () => clearInterval(interval);
     }, [step, timer]);
+
+    const handleSendOtp = async () => {
+        if (phoneNumber.length !== 10) return;
+        setLoading(true);
+        setError('');
+        try {
+            const res = await driverService.sendOtp(phoneNumber);
+            if (res.success) {
+                setStep('otp');
+                setTimer(30);
+            } else {
+                setError(res.message || 'Failed to send OTP');
+            }
+        } catch (err) {
+            setError(err.message || 'Network error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleVerifyOtp = async () => {
+        const fullOtp = otp.join('');
+        if (fullOtp.length < 6) return;
+        setLoading(true);
+        setError('');
+        try {
+            const res = await driverService.validateOtp(phoneNumber, fullOtp);
+            if (res.success || res.token || res.access_token) {
+                const token = res.token || res.access_token || res.data?.token;
+                const driver = res.user || res.data?.user || res.driver || res.data?.driver;
+                
+                if (token) {
+                    localStorage.setItem('token', token);
+                    if (driver) localStorage.setItem('userInfo', JSON.stringify(driver));
+                    
+                    // If driver is already approved, go to dashboard
+                    if (driver?.approve) {
+                        navigate('/taxi/driver/dashboard');
+                    } else {
+                        navigate('/taxi/driver/dashboard-reg');
+                    }
+                } else {
+                    // Registration flow
+                    navigate('/taxi/driver/dashboard-reg', { state: { phone: phoneNumber } });
+                }
+            } else {
+                setError(res.message || 'Invalid OTP');
+            }
+        } catch (err) {
+            setError(err.message || 'Verification failed');
+        } finally {
+            setLoading(false);
+        }
+    }
 
     const handleOtpChange = (index, value) => {
         if (isNaN(value)) return;
@@ -89,17 +146,21 @@ const DriverAuth = () => {
 
                         <div className="flex-1" />
 
+                        {error && (
+                            <p className="text-red-500 text-[12px] font-bold text-center bg-red-50 py-2 rounded-lg">{error}</p>
+                        )}
+
                         <motion.button 
                             whileTap={{ scale: 0.96 }}
-                            disabled={phoneNumber.length !== 10}
-                            onClick={() => setStep('otp')}
+                            disabled={phoneNumber.length !== 10 || loading}
+                            onClick={handleSendOtp}
                             className={`w-full h-14 rounded-2xl flex items-center justify-center gap-3 text-[17px] font-black shadow-xl transition-all tracking-tight uppercase ${
-                                phoneNumber.length === 10 
+                                phoneNumber.length === 10 && !loading
                                 ? 'bg-taxi-primary text-taxi-text border border-taxi-primary/80' 
                                 : 'bg-slate-100 text-slate-400 border border-slate-200 grayscale cursor-not-allowed'
                             }`}
                         >
-                            Next Step <ChevronRight size={20} strokeWidth={3} />
+                            {loading ? <Loader2 size={24} className="animate-spin" /> : <>Next Step <ChevronRight size={20} strokeWidth={3} /></>}
                         </motion.button>
                     </motion.div>
                 ) : (
@@ -148,12 +209,17 @@ const DriverAuth = () => {
 
                         <div className="flex-1" />
 
+                        {error && (
+                            <p className="text-red-500 text-[12px] font-bold text-center bg-red-50 py-2 rounded-lg">{error}</p>
+                        )}
+
                         <motion.button 
                             whileTap={{ scale: 0.96 }}
-                            onClick={() => navigate('/taxi/driver/dashboard-reg')}
-                            className="w-full h-14 bg-taxi-primary text-taxi-text py-4 rounded-2xl flex items-center justify-center gap-3 text-[17px] font-black shadow-xl border border-taxi-primary/80 active:scale-95 transition-all tracking-tight uppercase"
+                            disabled={loading}
+                            onClick={handleVerifyOtp}
+                            className={`w-full h-14 bg-taxi-primary text-taxi-text py-4 rounded-2xl flex items-center justify-center gap-3 text-[17px] font-black shadow-xl border border-taxi-primary/80 active:scale-95 transition-all tracking-tight uppercase ${loading ? 'opacity-70' : ''}`}
                         >
-                            Confirm Identity <Check size={20} strokeWidth={3} />
+                            {loading ? <Loader2 size={24} className="animate-spin" /> : <>Confirm Identity <Check size={20} strokeWidth={3} /></>}
                         </motion.button>
                     </motion.div>
                 )}

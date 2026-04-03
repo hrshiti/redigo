@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+import { adminService } from '../../services/adminService';
+
 const DriverList = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
@@ -33,21 +35,10 @@ const DriverList = () => {
     const fetchDrivers = async () => {
       setIsLoading(true);
       try {
-        const providedToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YzdiZTZhYmJlOTJlYjYwMGYwMmQxNiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwibW9iaWxlIjoiOTk5OTk5OTk5OSIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTc3NTA0OTExNywiZXhwIjoxODA2NTg1MTE3fQ.5KJmXJwaVefWhnc97EqtArkA1z7ZOhsJwA9fbyRVPdQ';
-        const storedToken = localStorage.getItem('adminToken');
-        const token = (storedToken && storedToken !== 'undefined' && storedToken !== 'null') ? storedToken : providedToken;
-        
-        const response = await fetch('https://taxi-a276.onrender.com/api/v1/admin/drivers?page=1&limit=50', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        const responseData = await response.json();
+        const responseData = await adminService.getDrivers(1, 50);
         const driversList = responseData.data?.results || [];
         
-        if (response.ok && responseData.success) {
+        if (responseData.success) {
           const approved = driversList.filter(d => {
             const isApproved = d.approve === true || 
                              d.status?.toLowerCase() === 'active' || 
@@ -68,7 +59,7 @@ const DriverList = () => {
           setError(responseData.message || 'Failed to fetch drivers');
         }
       } catch (err) {
-        setError('Network error occurred.');
+        setError(err.message || 'Network error occurred.');
       } finally {
         setIsLoading(false);
       }
@@ -92,37 +83,17 @@ const DriverList = () => {
     if (action !== 'password' && !window.confirm(confirmMsg)) return;
 
     try {
-      const providedToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YzdiZTZhYmJlOTJlYjYwMGYwMmQxNiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwibW9iaWxlIjoiOTk5OTk5OTk5OSIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTc3NTA0OTExNywiZXhwIjoxODA2NTg1MTE3fQ.5KJmXJwaVefWhnc97EqtArkA1z7ZOhsJwA9fbyRVPdQ';
-      const storedToken = localStorage.getItem('adminToken');
-      const token = (storedToken && storedToken !== 'undefined' && storedToken !== 'null') ? storedToken : providedToken;
-
-      const url = action === 'delete' 
-        ? `https://taxi-a276.onrender.com/api/v1/admin/drivers/${driverId}`
-        : action === 'password'
-          ? `https://taxi-a276.onrender.com/api/v1/admin/drivers/update-password/${driverId}`
-          : `https://taxi-a276.onrender.com/api/v1/admin/drivers/update-status/${driverId}`;
-      
-      const method = action === 'delete' ? 'DELETE' : 'PATCH';
-      let body = null;
-      
-      if (action === 'disapprove') {
-        body = JSON.stringify({ approve: false, status: 'inactive', active: false });
+      let resData;
+      if (action === 'delete') {
+        resData = await adminService.deleteDriver(driverId);
+      } else if (action === 'disapprove') {
+        resData = await adminService.updateDriverStatus(driverId, { approve: false, status: 'inactive', active: false });
       } else if (action === 'password') {
         setPasswordModal(prev => ({ ...prev, isSubmitting: true }));
-        body = JSON.stringify({ password: passwordModal.password });
+        resData = await adminService.updateDriverPassword(driverId, passwordModal.password);
       }
 
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body
-      });
-
-      const data = await response.json();
-      if (response.ok && data.success) {
+      if (resData.success) {
         alert(`${action.charAt(0).toUpperCase() + action.slice(1)} successful`);
         if (action === 'delete' || action === 'disapprove') {
           setDrivers(prev => prev.filter(d => d.id !== driverId));
@@ -131,11 +102,11 @@ const DriverList = () => {
           setPasswordModal({ isOpen: false, driverId: null, password: '', isSubmitting: false });
         }
       } else {
-        alert(data.message || `Failed to ${action}`);
+        alert(resData.message || `Failed to ${action}`);
         if (action === 'password') setPasswordModal(prev => ({ ...prev, isSubmitting: false }));
       }
     } catch (err) {
-      alert(`Network error during ${action}`);
+      alert(err.message || `Network error during ${action}`);
       if (action === 'password') setPasswordModal(prev => ({ ...prev, isSubmitting: false }));
     }
   };

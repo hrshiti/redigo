@@ -11,7 +11,7 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-[#F5F5F5] pb-28 max-w-lg mx-auto relative overflow-hidden font-sans no-scrollbar">
       {/* Header with User Name (Single Row) */}
-      <HeaderGreeting name="hritik raghuwanshi" />
+      <HeaderGreeting />
 
       {/* SEARCH/LOCATION TOP SECTION */}
       <LocationCard location="Fetching location..." />

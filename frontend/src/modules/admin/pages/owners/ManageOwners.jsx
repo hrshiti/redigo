@@ -21,6 +21,8 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { adminService } from '../../services/adminService';
+
 const ManageOwners = () => {
   const [view, setView] = useState('list'); // 'list' | 'create' | 'edit'
   const [editingId, setEditingId] = useState(null);
@@ -49,20 +51,15 @@ const ManageOwners = () => {
     transport_type: ''
   });
 
-  const token = localStorage.getItem('adminToken') || '';
-
   const fetchInitialData = async () => {
     setIsLoading(true);
     try {
-      const [ownersRes, areasRes, rideRes] = await Promise.all([
-        fetch('https://taxi-a276.onrender.com/api/v1/admin/owner-management/manage-owners', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('https://taxi-a276.onrender.com/api/v1/admin/service-locations', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('https://taxi-a276.onrender.com/api/v1/common/ride_modules', { headers: { 'Authorization': `Bearer ${token}` } })
+      // PRO-LEVEL: Standardized async fetching
+      const [oData, aData, rData] = await Promise.all([
+        adminService.getOwners(),
+        adminService.getServiceLocations(),
+        adminService.getRideModules()
       ]);
-
-      const oData = await ownersRes.json();
-      const aData = await areasRes.json();
-      const rData = await rideRes.json();
 
       if (oData.success) {
         setOwners(oData.data?.results || []);
@@ -119,20 +116,11 @@ const ManageOwners = () => {
     }
 
     setSubmitting(true);
-    const url = isEditing
-      ? `https://taxi-a276.onrender.com/api/v1/admin/owner-management/manage-owners/${editingId}`
-      : 'https://taxi-a276.onrender.com/api/v1/admin/owner-management/manage-owners';
-
     try {
-      const res = await fetch(url, {
-        method: isEditing ? 'PATCH' : 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
-      const json = await res.json();
+      const json = isEditing
+        ? await adminService.updateOwner(editingId, formData)
+        : await adminService.createOwner(formData);
+
       if (json.success) {
         setView('list');
         fetchInitialData();
@@ -141,7 +129,7 @@ const ManageOwners = () => {
         alert(json.message || `Failed to ${isEditing ? 'update' : 'create'} owner`);
       }
     } catch (err) {
-      alert("Operation failed");
+      alert(err.message || "Operation failed");
     } finally {
       setSubmitting(false);
     }
@@ -149,15 +137,7 @@ const ManageOwners = () => {
 
   const handleToggleStatus = async (id, currentStatus) => {
     try {
-      const res = await fetch(`https://taxi-a276.onrender.com/api/v1/admin/owner-management/manage-owners/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ active: !currentStatus })
-      });
-      const json = await res.json();
+      const json = await adminService.updateOwner(id, { active: !currentStatus });
       if (json.success) {
         setOwners(prev => prev.map(o => o._id === id ? { ...o, active: !currentStatus } : o));
       }
@@ -169,12 +149,7 @@ const ManageOwners = () => {
   const handleApprove = async (id) => {
     if (!window.confirm('Approve this owner?')) return;
     try {
-      const res = await fetch(`https://taxi-a276.onrender.com/api/v1/admin/owner-management/manage-owners/${id}/approve`, {
-        method: 'PATCH',
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ approve: true })
-      });
-      const json = await res.json();
+      const json = await adminService.approveOwner(id, { approve: true });
       if (json.success) fetchInitialData();
       else alert(json.message || 'Approval failed');
     } catch (err) { console.error(err); }
@@ -183,11 +158,7 @@ const ManageOwners = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this owner?')) return;
     try {
-      const res = await fetch(`https://taxi-a276.onrender.com/api/v1/admin/owner-management/manage-owners/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const json = await res.json();
+      const json = await adminService.deleteOwner(id);
       if (json.success) fetchInitialData();
       else alert(json.message || 'Delete failed');
     } catch (err) { alert('Delete failed'); }
