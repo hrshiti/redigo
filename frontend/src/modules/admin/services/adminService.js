@@ -48,7 +48,65 @@ export const adminService = {
   approveOwner: (id, data) => api.patch(`/admin/owner-management/manage-owners/${id}/approve`, data),
 
   /**
-   * Dashboard Stats
+   * Reports Management
+   * PRO-TIP: We use window.open for downloads to handle the stream directly or axios with responseType: 'blob'
    */
-  getDashboardStats: () => api.get('/admin/dashboard/stats'),
+  downloadUserReport: (params) => {
+    const query = new URLSearchParams(params).toString();
+    return api.get(`/admin/reports/user/download?${query}`, { responseType: 'blob' });
+  },
+  downloadDriverReport: (params) => {
+    const query = new URLSearchParams(params).toString();
+    return api.get(`/admin/reports/driver/download?${query}`, { responseType: 'blob' });
+  },
+  downloadDriverDutyReport: (params) => {
+    const query = new URLSearchParams(params).toString();
+    return api.get(`/admin/reports/driver-duty/download?${query}`, { responseType: 'blob' });
+  },
+  downloadOwnerReport: (params) => {
+    const query = new URLSearchParams(params).toString();
+    return api.get(`/admin/reports/owner/download?${query}`, { responseType: 'blob' });
+  },
+  downloadFinanceReport: (params) => {
+    const query = new URLSearchParams(params).toString();
+    return api.get(`/admin/reports/finance/download?${query}`, { responseType: 'blob' });
+  },
+  downloadFleetFinanceReport: (params) => {
+    const query = new URLSearchParams(params).toString();
+    return api.get(`/admin/reports/fleet-finance/download?${query}`, { responseType: 'blob' });
+  },
+  getReportOptions: () => api.get('/admin/reports/options'),
+
+  /**
+   * Dashboard Stats & Data (New Parity Routes)
+   */
+  getDashboardPage: () => api.get('/admin/dashboard/page'),
+  getDashboardData: () => api.get('/admin/dashboard/data'),
+  getTodayEarnings: () => api.get('/admin/dashboard/today-earnings'),
+  getOverallEarnings: () => api.get('/admin/dashboard/overall-earnings'),
+  getCancelChart: () => api.get('/admin/dashboard/cancel-chart'),
+
+  /**
+   * Wallet & Financials
+   */
+  getUserWallets: () => api.get('/admin/wallet/users'),
+  getDriverWallets: () => api.get('/admin/wallet/drivers'),
+  getWithdrawalRequests: () => api.get('/admin/wallet/withdrawals'),
+  updateWithdrawalStatus: (id, status) => api.patch(`/admin/wallet/withdrawals/${id}`, { status }),
+
+  /**
+   * Notifications & Banners
+   */
+  getNotifications: () => api.get('/admin/notifications'),
+  sendNotification: (data) => api.post('/admin/notifications/send', data),
+  getBanners: () => api.get('/admin/banners'),
+
+  /**
+   * Geofencing & Zone Management
+   */
+  getZones: () => api.get('/admin/zones'),
+  createZone: (zoneData) => api.post('/admin/zones', zoneData),
+  updateZone: (id, zoneData) => api.patch(`/admin/zones/${id}`, zoneData),
+  deleteZone: (id) => api.delete(`/admin/zones/${id}`),
+  toggleZoneStatus: (id) => api.patch(`/admin/zones/${id}/toggle-status`),
 };

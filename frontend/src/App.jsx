@@ -1,5 +1,6 @@
 import { useState, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { MapPin, FileText } from 'lucide-react';
 import './App.css';
 
 // Lazy loading pages for performance
@@ -141,6 +142,21 @@ const AdminFareConfig = lazy(() => import('./modules/admin/pages/finance/FareCon
 const AdminSafetyCenter = lazy(() => import('./modules/admin/pages/safety/SafetyCenter'));
 const AdminCMSBuilder = lazy(() => import('./modules/admin/pages/cms/CMSBuilder'));
 const AdminGlobalSettings = lazy(() => import('./modules/admin/pages/settings/GlobalSettings'));
+
+// Reports Module
+const AdminUserReport = lazy(() => import('./modules/admin/pages/reports/UserReport'));
+const AdminDriverReport = lazy(() => import('./modules/admin/pages/reports/DriverReport'));
+const AdminDriverDutyReport = lazy(() => import('./modules/admin/pages/reports/DriverDutyReport'));
+const AdminOwnerReport = lazy(() => import('./modules/admin/pages/reports/OwnerReport'));
+const AdminFinanceReport = lazy(() => import('./modules/admin/pages/reports/FinanceReport'));
+const AdminFleetFinanceReport = lazy(() => import('./modules/admin/pages/reports/FleetFinanceReport'));
+const AdminReportPlaceholder = ({ title }) => (
+  <div className="flex flex-col items-center justify-center min-h-[500px] text-gray-400 bg-white rounded-[32px] border border-gray-100 shadow-sm p-10 mx-6">
+    <FileText size={60} strokeWidth={1} className="mb-6 opacity-20" />
+    <h2 className="text-xl font-black text-gray-900 uppercase tracking-widest">{title}</h2>
+    <p className="mt-2 font-bold italic tracking-tight text-primary">Report engine initializing...</p>
+  </div>
+);
 
 // A wrapper to handle conditional layouts (Mobile for User/Driver, Full for Admin)
 const MainLayout = ({ children }) => {
@@ -306,6 +322,14 @@ function App() {
               <Route path="notifications" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Global Notifications Center - Under Development</div>} />
               <Route path="support" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Help & Ticket Management - Under Development</div>} />
               <Route path="settings" element={<AdminGlobalSettings />} />
+              
+              {/* Report Module Routes */}
+              <Route path="reports/user" element={<AdminUserReport />} />
+              <Route path="reports/driver" element={<AdminDriverReport />} />
+              <Route path="reports/driver-duty" element={<AdminDriverDutyReport />} />
+              <Route path="reports/owner" element={<AdminOwnerReport />} />
+              <Route path="reports/finance" element={<AdminFinanceReport />} />
+              <Route path="reports/fleet-finance" element={<AdminFleetFinanceReport />} />
             </Route>
             
             <Route path="*" element={<Navigate to="/" />} />

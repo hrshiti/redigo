@@ -25,6 +25,7 @@ import {
   TrendingUp,
   Zap,
   Share2,
+  FileText,
   ChevronDown as ChevronDownIcon
 } from 'lucide-react';
 
@@ -261,6 +262,18 @@ const AdminLayout = () => {
        ]
     },
     { icon: Layers, label: 'Finance', path: '/admin/finance' },
+    { 
+       icon: FileText, 
+       label: 'Report', 
+       subItems: [
+         { label: 'User Report', path: '/admin/reports/user' },
+         { label: 'Driver Report', path: '/admin/reports/driver' },
+         { label: 'Driver Duty Report', path: '/admin/reports/driver-duty' },
+         { label: 'Owner Report', path: '/admin/reports/owner' },
+         { label: 'Finance Report', path: '/admin/reports/finance' },
+         { label: 'Fleet Finance Report', path: '/admin/reports/fleet-finance' },
+       ]
+    },
   ];
 
   return (

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Plus, Search, MapPin, Globe, Trash2, Edit2, 
   Map as MapIcon, Navigation, Save, ArrowLeft, 
-  Loader2, Zap, Target 
+  Loader2, Zap, Target, Maximize2 
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
