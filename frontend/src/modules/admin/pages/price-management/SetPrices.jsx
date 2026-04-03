@@ -46,12 +46,14 @@ const SetPrices = () => {
   const [vehicleTypes, setVehicleTypes] = useState([]);
   const [appModules, setAppModules] = useState([]);
   const [serviceLocations, setServiceLocations] = useState([]);
+  const [vehiclePreferences, setVehiclePreferences] = useState([]);
 
   const [formData, setFormData] = useState({
     zone_id: '',
     transport_type: '',
     vehicle_type: '',
     app_modules: '',
+    vehicle_preference: '',
     payment_type: [],
     customer_commission_type: 'percentage',
     customer_commission: '',
@@ -89,12 +91,13 @@ const SetPrices = () => {
   const fetchInitialData = async () => {
     setLoading(true);
     try {
-      const [prizesRes, zonesRes, vehiclesRes, modulesRes, locationsRes] = await Promise.all([
+      const [prizesRes, zonesRes, vehiclesRes, modulesRes, locationsRes, prefsRes] = await Promise.all([
         fetch(`${baseUrl}/types/set-prices`, { headers: { 'Authorization': `Bearer ${token}` } }),
         fetch(`${baseUrl}/zones`, { headers: { 'Authorization': `Bearer ${token}` } }),
         fetch(`${baseUrl}/types/vehicle-types`, { headers: { 'Authorization': `Bearer ${token}` } }),
         fetch(`${baseUrl}/common/app-modules`, { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch(`${baseUrl}/service-locations`, { headers: { 'Authorization': `Bearer ${token}` } })
+        fetch(`${baseUrl}/service-locations`, { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch(`${baseUrl}/vehicle_preference`, { headers: { 'Authorization': `Bearer ${token}` } })
       ]);
 
       const prizesData = await prizesRes.json();
@@ -102,6 +105,7 @@ const SetPrices = () => {
       const vehiclesData = await vehiclesRes.json();
       const modulesData = await modulesRes.json();
       const locationsData = await locationsRes.json();
+      const prefsData = await prefsRes.json();
 
       if (prizesData.success) {
         const items = prizesData.data?.set_prices || (Array.isArray(prizesData.data) ? prizesData.data : (prizesData.data?.results || prizesData.results || []));
@@ -122,6 +126,11 @@ const SetPrices = () => {
       if (locationsData.success) {
         const items = locationsData.data?.service_locations || (Array.isArray(locationsData.data) ? locationsData.data : (locationsData.data?.results || locationsData.results || []));
         setServiceLocations(items);
+      }
+      if (prefsData.success) {
+        const rawItems = prefsData.data || [];
+        const items = Array.isArray(rawItems) ? rawItems : (rawItems.results || rawItems.vehicle_preferences || rawItems.vehicle_preference || []);
+        setVehiclePreferences(items);
       }
 
     } catch (error) {
@@ -441,12 +450,27 @@ const SetPrices = () => {
                       className="w-full bg-slate-50 border-slate-200 border rounded-2xl py-4 px-5 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all outline-none"
                     >
                       <option value="">Select App Modules</option>
-                      <option value="taxi">Taxi</option>
-                      <option value="delivery">Delivery</option>
-                      <option value="rental">Rental</option>
-                      <option value="delivery_rental">Delivery Rental</option>
-                      <option value="outstation">Outstation</option>
+                      {appModules.map(m => (
+                        <option key={m._id || m.id} value={m._id || m.id}>{m.name || m.module_name || m}</option>
+                      ))}
                     </select>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Vehicle Preference *</label>
+                    <div className="relative group">
+                      <select 
+                        value={formData.vehicle_preference}
+                        onChange={(e) => setFormData({...formData, vehicle_preference: e.target.value})}
+                        className="w-full bg-slate-50 border-slate-200 border rounded-2xl py-4 px-5 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all outline-none appearance-none"
+                      >
+                        <option value="">Select Preference</option>
+                        {Array.isArray(vehiclePreferences) && vehiclePreferences.map(pref => (
+                          <option key={pref._id || pref.id} value={pref._id || pref.id}>{pref.name}</option>
+                        ))}
+                      </select>
+                      <ChevronDown size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-indigo-600 transition-colors" />
+                    </div>
                   </div>
 
                   <div>

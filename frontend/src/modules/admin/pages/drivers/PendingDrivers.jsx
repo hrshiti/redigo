@@ -16,12 +16,16 @@ import {
   Star,
   ChevronDown,
   Trash2,
-  Plus,
-  LayoutGrid,
-  List,
-  Edit,
+  Check,
+  Edit2,
+  Key,
+  Lock,
+  ShieldCheck,
+  Loader2,
   MoreVertical,
-  Check
+  Plus,
+  List,
+  LayoutGrid
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -34,14 +38,15 @@ const PendingDrivers = () => {
   const [pendingDrivers, setPendingDrivers] = useState([]);
   const [error, setError] = useState('');
   const [activeMenu, setActiveMenu] = useState(null);
+  const [passwordModal, setPasswordModal] = useState({ isOpen: false, driverId: null, password: '', isSubmitting: false });
 
-  const providedToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YzdiZTZhYmJlOTJlYjYwMGYwMmQxNiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwibW9iaWxlIjoiOTk5OTk5OTk5OSIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTc3NTA0OTExNywiZXhwIjoxODA2NTg1MTE3fQ.5KJmXJwaVefWhnc97EqtArkA1z7ZOhsJwA9fbyRVPdQ';
+  const providedToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YzdiZTZhYmJlOTJlYjYwMGYwMmQxNiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwibW9iaWxlIjoiOTk5OTk5OTk5OSIsInR5cCI6InN1cGVyLWFkbWluIiwiaWF0IjoxNzc1MDQ5MTE3LCJleHAiOjE4MDY1ODUxMTd9.5KJmXJwaVefWhnc97EqtArkA1z7ZOhsJwA9fbyRVPdQ';
   const storedToken = localStorage.getItem('adminToken');
   const token = (storedToken && storedToken !== 'undefined' && storedToken !== 'null') ? storedToken : providedToken;
 
   const handleAction = async (action, driverId) => {
     const confirmMsg = action === 'delete' ? 'Are you sure you want to delete this pending request?' : 'Are you sure you want to APPROVE this driver?';
-    if (action !== 'view' && action !== 'edit' && !window.confirm(confirmMsg)) return;
+    if (action !== 'view' && action !== 'edit' && action !== 'password' && !window.confirm(confirmMsg)) return;
 
     if (action === 'view') {
       navigate(`/admin/drivers/${driverId}`);
@@ -53,12 +58,23 @@ const PendingDrivers = () => {
     }
 
     try {
+      if (action === 'password') {
+        setPasswordModal(prev => ({ ...prev, isSubmitting: true }));
+      }
+
       const url = action === 'delete' 
         ? `https://taxi-a276.onrender.com/api/v1/admin/drivers/${driverId}`
-        : `https://taxi-a276.onrender.com/api/v1/admin/drivers/update-status/${driverId}`;
+        : action === 'password'
+          ? `https://taxi-a276.onrender.com/api/v1/admin/drivers/update-password/${driverId}`
+          : `https://taxi-a276.onrender.com/api/v1/admin/drivers/${driverId}`;
       
       const method = action === 'delete' ? 'DELETE' : 'PATCH';
-      const body = action === 'approve' ? JSON.stringify({ approve: true, status: 'active', active: true }) : null;
+      let bodyData = null;
+      if (action === 'approve') {
+        bodyData = { approve: true, active: true };
+      } else if (action === 'password') {
+        bodyData = { password: passwordModal.password };
+      }
 
       const response = await fetch(url, {
         method,
@@ -66,18 +82,25 @@ const PendingDrivers = () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body
+        body: bodyData ? JSON.stringify(bodyData) : null
       });
 
       const data = await response.json();
       if (response.ok && data.success) {
         alert(`${action.charAt(0).toUpperCase() + action.slice(1)} successful`);
-        setPendingDrivers(prev => prev.filter(d => d.id !== driverId));
+        if (action === 'delete' || action === 'approve') {
+          setPendingDrivers(prev => prev.filter(d => d.id !== driverId));
+        }
+        if (action === 'password') {
+          setPasswordModal({ isOpen: false, driverId: null, password: '', isSubmitting: false });
+        }
       } else {
         alert(data.message || `Failed to ${action}`);
+        if (action === 'password') setPasswordModal(prev => ({ ...prev, isSubmitting: false }));
       }
     } catch (err) {
       alert(`Network error during ${action}`);
+      if (action === 'password') setPasswordModal(prev => ({ ...prev, isSubmitting: false }));
     } finally {
       setActiveMenu(null);
     }
@@ -96,7 +119,6 @@ const PendingDrivers = () => {
       const responseData = await response.json();
       if (response.ok && responseData.success) {
         const driversList = responseData.data?.results || [];
-        // Filtering for anything that is not approved (pending)
         const pending = driversList.filter(d => d.approve === false).map(d => ({
           id: d._id,
           name: d.name || d.user_id?.name || 'Unknown',
@@ -105,7 +127,7 @@ const PendingDrivers = () => {
           phone: d.mobile || d.user_id?.mobile || 'N/A',
           transport: d.transport_type || 'N/A',
           docs: 'View Docs',
-          status: 'DISAPPROVED', // As requested in the image (or Pending)
+          status: 'DISAPPROVED',
           reason: d.rejectionReason || '-',
           rating: d.rating || 0.0,
           registeredAt: d.createdAt ? new Date(d.createdAt).toLocaleString() : 'N/A'
@@ -135,19 +157,19 @@ const PendingDrivers = () => {
   return (
     <div className="min-h-screen bg-transparent p-1 font-sans text-gray-950 animate-in fade-in duration-700">
       
-      {/* ── HEADER ── */}
+      {/* HEADER */}
       <div className="flex items-center justify-between mb-8 px-1">
          <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
             <h1 className="text-[15px] font-black tracking-tight text-gray-800 uppercase">Pending Drivers</h1>
          </motion.div>
          <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="flex items-center gap-2 text-[11px] font-bold text-gray-400 uppercase tracking-widest">
-            <span className="hover:text-indigo-600 transition-colors cursor-pointer">Pending Drivers</span>
+            <span className="hover:text-indigo-600 transition-colors cursor-pointer text-gray-400">Drivers</span>
             <ChevronRight size={12} className="opacity-50" />
             <span className="text-gray-950 font-black">Pending Drivers</span>
          </motion.div>
       </div>
 
-      {/* ── CONTROLS ── */}
+      {/* CONTROLS */}
       <motion.div 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -156,40 +178,38 @@ const PendingDrivers = () => {
         <div className="p-6 flex flex-col md:flex-row items-center justify-between gap-6">
            <div className="flex items-center gap-3">
               <button className="w-10 h-10 bg-teal-500 text-white rounded-xl flex items-center justify-center shadow-lg"><List size={18} /></button>
-              <button className="w-10 h-10 bg-gray-100 text-gray-400 rounded-xl flex items-center justify-center hover:bg-indigo-50 hover:text-indigo-600 transition-all"><LayoutGrid size={18} /></button>
+              <button className="w-10 h-10 bg-gray-100 text-gray-400 rounded-xl flex items-center justify-center hover:bg-indigo-50 transition-all"><LayoutGrid size={18} /></button>
               <div className="flex items-center gap-2 text-[12px] font-black text-gray-400 ml-4 uppercase tracking-[0.2em]">
                  show 
-                 <div className="relative">
-                   <select 
-                     value={itemsPerPage}
-                     onChange={(e) => setItemsPerPage(parseInt(e.target.value))}
-                     className="bg-white border border-gray-100 rounded-lg px-3 py-1.5 outline-none font-black text-gray-900 shadow-sm mx-2 appearance-none pr-8 cursor-pointer"
-                   >
-                      <option value={10}>10</option>
-                      <option value={25}>25</option>
-                      <option value={50}>50</option>
-                   </select>
-                   <ChevronDown size={12} className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none opacity-50" />
-                 </div>
+                 <select 
+                   value={itemsPerPage}
+                   onChange={(e) => setItemsPerPage(parseInt(e.target.value))}
+                   className="bg-white border border-gray-100 rounded-lg px-3 py-1.5 outline-none font-black text-gray-900 shadow-sm mx-2 appearance-none cursor-pointer"
+                 >
+                    <option value={10}>10</option>
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                 </select>
                  entries
               </div>
            </div>
 
            <div className="flex items-center gap-3">
-              <button className="w-10 h-10 bg-white border border-gray-100 text-gray-400 rounded-full flex items-center justify-center hover:bg-indigo-50 hover:text-indigo-600 transition-all shadow-sm">
-                 <Search size={18} />
-              </button>
-              <button className="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-xl text-[12px] font-black flex items-center gap-2 transition-all shadow-lg active:scale-95 uppercase tracking-widest">
+              <div className="relative group">
+                 <input type="text" placeholder="Search drivers..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2 bg-gray-50 border border-gray-100 rounded-xl text-[13px] font-bold outline-none focus:bg-white transition-all w-64" />
+                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              </div>
+              <button className="bg-orange-500 text-white px-5 py-2.5 rounded-xl text-[12px] font-black flex items-center gap-2 transition-all shadow-lg uppercase tracking-widest">
                  <Filter size={16} /> Filters
               </button>
-              <button onClick={() => navigate('/admin/drivers/create')} className="bg-[#2D3A6E] hover:bg-black text-white px-6 py-2.5 rounded-xl text-[12px] font-black flex items-center gap-2 transition-all shadow-xl active:scale-95 uppercase tracking-widest">
-                 <Plus size={20} strokeWidth={2.5} /> Add Fleet Drivers
+              <button onClick={() => navigate('/admin/drivers/create')} className="bg-[#2D3A6E] text-white px-6 py-2.5 rounded-xl text-[12px] font-black flex items-center gap-2 shadow-xl uppercase tracking-widest hover:bg-black transition-colors">
+                 <Plus size={20} /> Add Fleet Drivers
               </button>
            </div>
         </div>
       </motion.div>
 
-      {/* ── TABLE ── */}
+      {/* TABLE */}
       <motion.div 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -199,10 +219,9 @@ const PendingDrivers = () => {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-50/50 border-b border-gray-50 text-[11px] font-black text-gray-400 uppercase tracking-[0.15em]">
-                <th className="px-8 py-6">Name</th>
-                <th className="px-6 py-6">Service Locations</th>
+                <th className="px-8 py-6">Service Locations</th>
                 <th className="px-6 py-6">Email</th>
-                <th className="px-6 py-6">Mobile Number</th>
+                <th className="px-6 py-6 font-medium">Mobile Number</th>
                 <th className="px-6 py-6">Transport Type</th>
                 <th className="px-6 py-6 text-center">Document View</th>
                 <th className="px-6 py-6 text-center">Approved Status</th>
@@ -214,27 +233,16 @@ const PendingDrivers = () => {
             <tbody className="divide-y divide-gray-50 text-[13px] font-bold text-gray-600">
               {isLoading ? (
                 <tr>
-                  <td colSpan="10" className="px-8 py-20 text-center">
-                    <div className="flex flex-col items-center gap-4 py-10 opacity-40">
-                       <Loader2 size={32} className="animate-spin text-indigo-950" />
-                       <p className="text-[12px] font-black uppercase tracking-widest">Compiling Driver Dossiers...</p>
-                    </div>
-                  </td>
+                  <td colSpan="9" className="px-8 py-20 text-center opacity-40">Compiling Driver Dossiers...</td>
                 </tr>
               ) : filteredDrivers.length === 0 ? (
                 <tr>
-                  <td colSpan="10" className="px-8 py-24 text-center">
-                    <div className="flex flex-col items-center gap-4 opacity-20">
-                       <XCircle size={48} strokeWidth={1.5} />
-                       <p className="text-[14px] font-black uppercase tracking-widest">No Pending Applications</p>
-                    </div>
-                  </td>
+                  <td colSpan="9" className="px-8 py-24 text-center opacity-20 uppercase font-black tracking-widest text-[14px]">No Pending Applications</td>
                 </tr>
               ) : (
                 filteredDrivers.map((driver) => (
-                  <tr key={driver.id} className="hover:bg-indigo-50/30 transition-all group border-l-4 border-l-transparent hover:border-l-indigo-600">
-                    <td className="px-8 py-6 text-gray-950 capitalize">{driver.name}</td>
-                    <td className="px-6 py-6">{driver.location}</td>
+                  <tr key={driver.id} className="hover:bg-indigo-50/30 transition-all border-l-4 border-l-transparent hover:border-l-indigo-600 group">
+                    <td className="px-8 py-6 text-gray-950 capitalize">{driver.location}</td>
                     <td className="px-6 py-6 font-medium lowercase overflow-hidden text-ellipsis max-w-[150px]">{driver.email}</td>
                     <td className="px-6 py-6 font-black text-gray-800">{driver.phone}</td>
                     <td className="px-6 py-6 uppercase tracking-wider">{driver.transport}</td>
@@ -244,51 +252,65 @@ const PendingDrivers = () => {
                        </button>
                     </td>
                     <td className="px-6 py-6 text-center">
-                       <span className="bg-rose-500 text-white px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest shadow-sm">
+                       <span className="bg-rose-500 text-white px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest">
                           {driver.status}
                        </span>
                     </td>
                     <td className="px-6 py-6 text-center italic text-gray-400">{driver.reason}</td>
-                    <td className="px-6 py-6 text-center">
-                        <div className="flex items-center justify-center gap-0.5 text-gray-200">
+                    <td className="px-6 py-6 text-center text-gray-200">
+                        <div className="flex items-center justify-center gap-0.5">
                            {[1,2,3,4,5].map(i => <Star key={i} size={12} strokeWidth={2.5} />)}
                         </div>
                     </td>
-                    <td className="px-8 py-6 text-right relative">
-                       <button 
-                        onClick={() => setActiveMenu(activeMenu === driver.id ? null : driver.id)}
-                        className="w-10 h-10 ml-auto bg-[#E8F1FF] text-blue-400 rounded-lg flex items-center justify-center hover:bg-blue-100 transition-all shadow-sm shadow-blue-50"
-                       >
-                          <MoreVertical size={20} />
-                       </button>
+                    <td className="px-8 py-6 text-right">
+                       <div className="relative inline-block">
+                          <button 
+                            onClick={(e) => {
+                               e.stopPropagation();
+                               setActiveMenu(activeMenu === driver.id ? null : driver.id);
+                            }}
+                            className="w-10 h-10 ml-auto bg-[#E8F1FF] text-blue-400 rounded-lg flex items-center justify-center hover:bg-blue-100 transition-all shadow-sm"
+                          >
+                             <MoreVertical size={20} />
+                          </button>
 
-                       <AnimatePresence>
-                         {activeMenu === driver.id && (
-                           <>
-                             <div className="fixed inset-0 z-10" onClick={() => setActiveMenu(null)} />
-                             <motion.div 
-                               initial={{ opacity: 0, scale: 0.9, y: -10 }}
-                               animate={{ opacity: 1, scale: 1, y: 0 }}
-                               exit={{ opacity: 0, scale: 0.9, y: -10 }}
-                               className="absolute right-20 top-6 z-20 bg-white border border-gray-100 shadow-2xl rounded-2xl p-2 min-w-[160px] text-left"
-                             >
-                                <button onClick={() => handleAction('approve', driver.id)} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-emerald-50 text-emerald-600 rounded-xl transition-colors text-[12px] font-black uppercase tracking-widest">
-                                   <CheckCircle2 size={16} /> Approve
-                                </button>
-                                <button onClick={() => handleAction('edit', driver.id)} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-amber-50 text-amber-500 rounded-xl transition-colors text-[12px] font-black uppercase tracking-widest">
-                                   <Edit size={16} /> Edit
-                                </button>
-                                <button onClick={() => handleAction('view', driver.id)} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-indigo-50 text-indigo-600 rounded-xl transition-colors text-[12px] font-black uppercase tracking-widest">
-                                   <Eye size={16} /> View Profile
-                                </button>
-                                <div className="h-px bg-gray-50 my-1 mx-2" />
-                                <button onClick={() => handleAction('delete', driver.id)} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-rose-50 text-rose-500 rounded-xl transition-colors text-[12px] font-black uppercase tracking-widest">
-                                   <Trash2 size={16} /> Delete
-                                </button>
-                             </motion.div>
-                           </>
-                         )}
-                       </AnimatePresence>
+                          <AnimatePresence>
+                            {activeMenu === driver.id && (
+                              <>
+                                <div className="fixed inset-0 z-10" onClick={() => setActiveMenu(null)} />
+                                <motion.div 
+                                  initial={{ opacity: 0, scale: 0.9, y: -10 }}
+                                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                                  exit={{ opacity: 0, scale: 0.9, y: -10 }}
+                                  className="absolute right-0 top-full mt-2 z-20 bg-white border border-gray-100 shadow-2xl rounded-2xl p-2 min-w-[180px] text-left"
+                                >
+                                   <button onClick={() => handleAction('approve', driver.id)} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-emerald-50 text-emerald-600 rounded-xl transition-colors text-[12px] font-black uppercase tracking-widest">
+                                      <CheckCircle2 size={16} /> Approve
+                                   </button>
+                                   <button onClick={() => handleAction('edit', driver.id)} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-amber-50 text-amber-500 rounded-xl transition-colors text-[12px] font-black uppercase tracking-widest">
+                                      <Edit2 size={16} /> Edit
+                                   </button>
+                                   <button 
+                                      onClick={() => {
+                                        setActiveMenu(null);
+                                        setPasswordModal({ isOpen: true, driverId: driver.id, password: '', isSubmitting: false });
+                                      }}
+                                      className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 text-gray-600 rounded-xl transition-colors text-[12px] font-black uppercase tracking-widest"
+                                   >
+                                      <Key size={16} /> Password
+                                   </button>
+                                   <button onClick={() => handleAction('view', driver.id)} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-indigo-50 text-indigo-600 rounded-xl transition-colors text-[12px] font-black uppercase tracking-widest">
+                                      <Eye size={16} /> View Profile
+                                   </button>
+                                   <div className="h-px bg-gray-50 my-1 mx-2" />
+                                   <button onClick={() => handleAction('delete', driver.id)} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-rose-50 text-rose-500 rounded-xl transition-colors text-[12px] font-black uppercase tracking-widest">
+                                      <Trash2 size={16} /> Delete
+                                   </button>
+                                </motion.div>
+                              </>
+                            )}
+                          </AnimatePresence>
+                       </div>
                     </td>
                   </tr>
                 ))
@@ -297,7 +319,7 @@ const PendingDrivers = () => {
           </table>
         </div>
 
-        {/* ── FOOTER ── */}
+        {/* FOOTER */}
         <div className="p-8 flex items-center justify-between bg-gray-50/50 border-t border-gray-50">
            <span className="text-[11px] font-black text-gray-400 uppercase tracking-widest">Showing 1 to {filteredDrivers.length} of {filteredDrivers.length} entries</span>
            <div className="flex items-center gap-1.5">
@@ -308,7 +330,7 @@ const PendingDrivers = () => {
         </div>
       </motion.div>
 
-      {/* ── LOADER HELPER ── */}
+      {/* OPERATIONAL INTEGRITY */}
       {isLoading === false && (
         <div className="mt-8 bg-[#2D3A6E] rounded-[32px] p-8 text-white flex items-center justify-between shadow-2xl relative overflow-hidden group">
            <div className="absolute top-0 right-0 p-10 opacity-5 -rotate-12 translate-x-8 group-hover:scale-110 transition-transform duration-700">
@@ -320,29 +342,57 @@ const PendingDrivers = () => {
                  "Reviewing documents and approval status ensures fleet safety. Please verify all documents before granting access to live passenger requests."
               </p>
            </div>
-           <CheckCircle2 size={48} className="text-emerald-400 drop-shadow-lg" />
+           <CheckCircle2 size={48} className="text-emerald-400" />
         </div>
       )}
+
+      {/* PASSWORD MODAL */}
+      <AnimatePresence>
+        {passwordModal.isOpen && (
+          <div className="fixed inset-0 z-[10000] flex items-center justify-center p-6 bg-black/50 backdrop-blur-sm">
+             <motion.div 
+               initial={{ opacity: 0, scale: 0.95 }}
+               animate={{ opacity: 1, scale: 1 }}
+               exit={{ opacity: 0, scale: 0.95 }}
+               className="bg-white rounded-[32px] w-full max-w-sm shadow-2xl overflow-hidden border border-gray-100 p-8 space-y-6"
+             >
+                <div className="flex items-center justify-between">
+                   <div>
+                     <h3 className="text-xl font-black text-gray-950 uppercase tracking-tight">Security Update</h3>
+                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Update Driver Password</p>
+                   </div>
+                   <button onClick={() => setPasswordModal({ isOpen: false, driverId: null, password: '', isSubmitting: false })} className="text-gray-400 hover:text-gray-900 transition-colors">
+                      <XCircle size={24} />
+                   </button>
+                </div>
+                <div className="space-y-4">
+                   <div className="relative group">
+                      <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 transition-colors">
+                         <Lock size={18} />
+                      </div>
+                      <input 
+                        type="text" 
+                        placeholder="New password"
+                        className="w-full pl-14 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-[14px] font-bold text-gray-900 outline-none focus:bg-white focus:border-indigo-200 transition-all shadow-inner"
+                        value={passwordModal.password}
+                        onChange={(e) => setPasswordModal(prev => ({ ...prev, password: e.target.value }))}
+                      />
+                   </div>
+                </div>
+                <button 
+                  onClick={() => handleAction('password', passwordModal.driverId)}
+                  disabled={passwordModal.isSubmitting || !passwordModal.password}
+                  className="w-full py-4 bg-gray-950 text-white rounded-2xl text-[12px] font-black uppercase tracking-widest hover:translate-y-[-2px] transition-all shadow-xl disabled:opacity-50"
+                >
+                  {passwordModal.isSubmitting ? 'Updating...' : 'COMMIT NEW PASSWORD'}
+                </button>
+             </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
     </div>
   );
 };
-
-const Loader2 = ({ size, className }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2.5" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-    className={className}
-  >
-    <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-  </svg>
-);
 
 export default PendingDrivers;

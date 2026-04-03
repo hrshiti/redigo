@@ -105,32 +105,38 @@ const SendNotification = () => {
 
     setSaving(true);
     try {
-      const body = new FormData();
-      body.append('service_location_id', formData.service_location_id);
-      body.append('send_to', formData.send_to);
-      body.append('push_title', formData.push_title);
-      body.append('message', formData.message);
+      let imageData = null;
       if (formData.image) {
-        body.append('image', formData.image);
+        imageData = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = (e) => reject(e);
+          reader.readAsDataURL(formData.image);
+        });
       }
 
-      // Attempt POST to root notifications
-      const res = await fetch(`${baseUrl}/notifications`, {
+      const payload = {
+        service_location_id: formData.service_location_id,
+        send_to: formData.send_to,
+        title: formData.push_title, // Use 'title' which is more standard
+        message: formData.message,
+        image: imageData
+      };
+
+      // Use the endpoint defined in adminService
+      const res = await fetch(`${baseUrl}/notifications/send`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: body
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
       });
       
-      let data;
-      try {
-        data = await res.json();
-      } catch (e) {
-        // Fallback for non-json response
-        if (res.status === 501) throw new Error("501 Not Implemented");
-      }
+      const data = await res.json();
 
-      if (data && data.success) {
-        setToastMsg("Notification context sent successfully");
+      if (data.success) {
+        setToastMsg("Notification sent successfully");
         setShowToast(true);
         setView('list');
         fetchData();
@@ -138,11 +144,14 @@ const SendNotification = () => {
         setImagePreview(null);
         setTimeout(() => setShowToast(false), 3000);
       } else {
-        // Try fallback to push-notifications if notifications fails
-        const fallbackRes = await fetch(`${baseUrl}/push-notifications`, {
+        // Fallback to /notifications without /send if needed, but keeping JSON
+        const fallbackRes = await fetch(`${baseUrl}/notifications`, {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}` },
-          body: body
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
         });
         const fallbackData = await fallbackRes.json();
         if (fallbackData.success) {
@@ -153,11 +162,13 @@ const SendNotification = () => {
            setFormData({ service_location_id: '', send_to: '', push_title: '', message: '', image: null });
            setImagePreview(null);
            setTimeout(() => setShowToast(false), 3000);
+        } else {
+          alert(fallbackData.message || data.message || "Failed to send notification");
         }
       }
     } catch (err) {
       console.error("Save error:", err);
-      // If both fail, check if maybe it should be JSON?
+      alert("Error: " + err.message);
     } finally {
       setSaving(false);
     }
@@ -321,9 +332,11 @@ const SendNotification = () => {
                   className="w-full h-16 px-6 bg-gray-50/50 border border-transparent rounded-[24px] text-[15px] font-bold text-gray-950 outline-none focus:bg-white focus:border-[#2D3A6E]/10 transition-all shadow-inner"
                 >
                    <option value="">Select Service Location</option>
-                   {serviceLocations.map((loc) => (
-                      <option key={loc.id} value={loc.id}>{loc.name}</option>
-                   ))}
+                    {serviceLocations.map((loc) => (
+                       <option key={loc._id || loc.id} value={loc._id || loc.id}>
+                         {loc.service_location_name || loc.name}
+                       </option>
+                    ))}
                 </select>
              </div>
 
@@ -338,9 +351,9 @@ const SendNotification = () => {
                   className="w-full h-16 px-6 bg-gray-50/50 border border-transparent rounded-[24px] text-[15px] font-bold text-gray-950 outline-none focus:bg-white focus:border-[#2D3A6E]/10 transition-all shadow-inner"
                 >
                    <option value="">Select</option>
-                   <option value="driver">Driver</option>
-                   <option value="user">User</option>
-                   <option value="owner">Owner</option>
+                   <option value="all">All</option>
+                   <option value="drivers">Drivers</option>
+                   <option value="users">Users</option>
                 </select>
              </div>
 

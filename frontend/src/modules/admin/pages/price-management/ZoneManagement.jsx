@@ -59,12 +59,16 @@ const ZoneManagement = () => {
         adminService.getServiceLocations()
       ]);
 
-      if (zoneRes.success) {
-        setZones(Array.isArray(zoneRes.data) ? zoneRes.data : (zoneRes.data?.results || []));
+      // Robust Zone Parsing
+      if (zoneRes) {
+        const zoneData = zoneRes.success ? (zoneRes.data?.results || zoneRes.data) : zoneRes;
+        setZones(Array.isArray(zoneData) ? zoneData : []);
       }
 
-      if (slRes.success) {
-        setServiceLocations(Array.isArray(slRes.data) ? slRes.data : (slRes.data?.results || []));
+      // Robust Service Location Parsing
+      if (slRes) {
+        const locs = slRes.success ? (slRes.data?.results || slRes.data) : slRes;
+        setServiceLocations(Array.isArray(locs) ? locs : []);
       }
     } catch (err) {
       console.error("Fetch error:", err);
@@ -424,7 +428,9 @@ const ZoneManagement = () => {
                   >
                     <option value="">Select Location</option>
                     {serviceLocations.map(sl => (
-                      <option key={sl._id || sl.id} value={sl._id || sl.id}>{sl.name || sl.service_location_name}</option>
+                      <option key={sl._id || sl.id} value={sl._id || sl.id}>
+                        {sl.service_location_name || sl.name || 'Unknown Location'}
+                      </option>
                     ))}
                   </select>
                 </div>

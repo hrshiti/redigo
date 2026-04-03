@@ -33,54 +33,68 @@ const EditDriver = () => {
   const [formData, setFormData] = useState({
     area: '',
     country: '',
-    name: 'Rahul Sharma',
-    mobile: '9876543210',
+    name: '',
+    mobile: '',
     gender: 'Male',
-    email: 'rahul@example.com',
+    email: '',
     password: '',
     confirmPassword: '',
-    transportType: 'Car',
-    vehicleType: 'Sedan',
-    vehicleMake: 'Toyota',
-    vehicleModel: 'Camry',
-    vehicleColor: 'Silver',
-    vehicleNumber: 'MP04AB1234'
+    transportType: 'taxi',
+    vehicleType: '',
+    vehicleMake: '',
+    vehicleModel: '',
+    vehicleColor: '',
+    vehicleNumber: ''
   });
 
   const [error, setError] = useState('');
+
+  const providedToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YzdiZTZhYmJlOTJlYjYwMGYwMmQxNiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwibW9iaWxlIjoiOTk5OTk5OTk5OSIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTc3NTA0OTExNywiZXhwIjoxODA2NTg1MTE3fQ.5KJmXJwaVefWhnc97EqtArkA1z7ZOhsJwA9fbyRVPdQ';
+  const storedToken = localStorage.getItem('adminToken');
+  const token = (storedToken && storedToken !== 'undefined' && storedToken !== 'null') ? storedToken : providedToken;
 
   useEffect(() => {
     const fetchInitialData = async () => {
       setIsFetching(true);
       try {
-        const token = localStorage.getItem('adminToken') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YzdiZTZhYmJlOTJlYjYwMGYwMmQxNiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwibW9iaWxlIjoiOTk5OTk5OTk5OSIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTc3NTA0OTExNywiZXhwIjoxODA2NTg1MTE3fQ.5KJmXJwaVefWhnc97EqtArkA1z7ZOhsJwA9fbyRVPdQ';
         
         // Fetch Service Locations
         const locRes = await fetch('https://taxi-a276.onrender.com/api/v1/admin/service-locations', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const locData = await locRes.json();
-        if (locData.success) {
-          setLocations(Array.isArray(locData.data) ? locData.data : (locData.data?.results || []));
+        if (locData.success || locData.data) {
+          const results = locData.data?.results || locData.data || locData.results || [];
+          setLocations(Array.isArray(results) ? results : []);
         }
 
         // Fetch Countries
-        const countRes = await fetch('https://taxi-a276.onrender.com/api/v1/countries');
+        const countRes = await fetch('https://taxi-a276.onrender.com/api/v1/countries', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
         const countData = await countRes.json();
-        if (countData.success) {
-          setCountries(Array.isArray(countData.data) ? countData.data : (countData.data?.results || []));
+        if (countData.success || countData.data) {
+          const results = countData.data?.results || countData.data || countData.results || [];
+          setCountries(Array.isArray(results) ? results : []);
         }
 
         // Correct Transport Types API
         try {
-          const transRes = await fetch('https://taxi-a276.onrender.com/api/v1/common/ride_modules');
+          const transRes = await fetch('https://taxi-a276.onrender.com/api/v1/common/ride_modules', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
           const transData = await transRes.json();
-          if (transData.success) {
-            const rawTrans = Array.isArray(transData.data) ? transData.data : Object.keys(transData.data || {});
-            const mapped = rawTrans.map(t => ({ 
-              _id: typeof t === 'string' ? t.toLowerCase() : (t.id || t._id), 
-              name: typeof t === 'string' ? t.charAt(0).toUpperCase() + t.slice(1) : (t.name || t.id)
-            }));
+          if (transData.success || transData.data) {
+            const rawData = transData.data || transData.results || transData;
+            const rawTrans = Array.isArray(rawData) ? rawData : (typeof rawData === 'object' ? Object.keys(rawData) : []);
+            const mapped = rawTrans
+              .map(t => {
+                const id = (typeof t === 'string' ? t.toLowerCase() : (t.id || t._id)) || '';
+                const name = (typeof t === 'string' ? t.charAt(0).toUpperCase() + t.slice(1) : (t.name || t.id)) || '';
+                return { _id: id, name };
+              })
+              .filter(t => t._id === 'taxi' || t._id === 'delivery');
+
             setTransportTypes(mapped.length > 0 ? mapped : [
               { _id: 'taxi', name: 'Taxi' },
               { _id: 'delivery', name: 'Delivery' }
@@ -98,21 +112,24 @@ const EditDriver = () => {
         
         if (response.ok && data.success) {
           const d = data.data;
+          // Log for debugging if needed
+          console.log("Driver Data:", d);
+          
           setFormData({
-            area: d.service_location_id?._id || d.service_location_id || '',
-            country: d.country?._id || d.country || '',
+            area: d.service_location_id?._id || d.service_location_id || d.service_location?._id || d.service_location || '',
+            country: d.country?._id || d.country || d.service_location?.country?._id || d.service_location?.country || '',
             name: d.name || d.user_id?.name || '',
             mobile: d.mobile || d.user_id?.mobile || '',
             gender: d.gender ? d.gender.charAt(0).toUpperCase() + d.gender.slice(1) : 'Male',
             email: d.email || d.user_id?.email || '',
             password: '',
             confirmPassword: '',
-            transportType: d.transport_type ? d.transport_type.charAt(0).toUpperCase() + d.transport_type.slice(1) : 'Car',
-            vehicleType: d.car_type || 'Sedan',
-            vehicleMake: d.car_make || '',
-            vehicleModel: d.car_model || '',
-            vehicleColor: d.car_color || '',
-            vehicleNumber: d.car_number || ''
+            transportType: d.transport_type || 'taxi',
+            vehicleType: d.car_type || d.vehicle_type || '',
+            vehicleMake: d.car_make || d.vehicle_make || '',
+            vehicleModel: d.car_model || d.vehicle_model || '',
+            vehicleColor: d.car_color || d.vehicle_color || '',
+            vehicleNumber: d.car_number || d.vehicle_number || ''
           });
         }
       } catch (err) {
@@ -129,7 +146,8 @@ const EditDriver = () => {
     const fetchVehiclesForArea = async () => {
       if (!formData.area || !formData.transportType) return;
       try {
-        const typeFilter = formData.transportType.toLowerCase();
+        // Map any existing transport type to 'taxi' or 'delivery' for the API filter
+        const typeFilter = (formData.transportType.toLowerCase() === 'delivery') ? 'delivery' : 'taxi';
         const res = await fetch(`https://taxi-a276.onrender.com/api/v1/types/${formData.area}?transport_type=${typeFilter}`);
         const data = await res.json();
         if (data.success) {
@@ -274,11 +292,12 @@ const EditDriver = () => {
                    required
                    value={formData.area}
                    onChange={handleChange}
+                   style={{ color: '#000000' }}
                    className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-4 text-[14px] font-bold text-gray-950 focus:bg-white focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50/50 outline-none transition-all shadow-inner"
                  >
-                   <option value="">Select Area</option>
+                   <option value="" className="bg-white text-gray-950 font-bold">Select Area</option>
                    {locations.map(loc => (
-                     <option key={loc._id} value={loc._id}>{loc.service_location_name}</option>
+                     <option key={loc._id} value={loc._id} className="bg-white text-gray-950 font-bold">{loc.service_location_name}</option>
                    ))}
                  </select>
                </div>
@@ -294,9 +313,9 @@ const EditDriver = () => {
                    onChange={handleChange}
                    className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-4 text-[14px] font-bold text-gray-950 focus:bg-white focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50/50 outline-none transition-all shadow-inner"
                  >
-                   <option value="">Select Country</option>
+                   <option value="" className="text-gray-900">Select Country</option>
                    {countries.map(c => (
-                     <option key={c._id} value={c._id}>{c.name}</option>
+                     <option key={c._id} value={c._id} className="text-gray-900">{c.name}</option>
                    ))}
                  </select>
                </div>
@@ -334,11 +353,12 @@ const EditDriver = () => {
                   required
                   value={formData.gender}
                   onChange={handleChange}
+                  style={{ color: '#000000' }}
                   className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-4 text-[14px] font-bold text-gray-950 focus:bg-white focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50/50 outline-none transition-all shadow-inner"
                 >
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
+                  <option value="Male" className="bg-white text-gray-950 font-bold">Male</option>
+                  <option value="Female" className="bg-white text-gray-950 font-bold">Female</option>
+                  <option value="Other" className="bg-white text-gray-950 font-bold">Other</option>
                 </select>
               </div>
 
@@ -376,11 +396,11 @@ const EditDriver = () => {
                      required
                      value={formData.transportType}
                      onChange={handleChange}
+                     style={{ color: '#000000' }}
                      className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-4 text-[14px] font-bold text-gray-950 focus:bg-white focus:border-emerald-200 focus:ring-4 focus:ring-emerald-50/50 outline-none transition-all shadow-inner"
                   >
-                     <option value="Bike">Bike</option>
-                     <option value="Car">Car</option>
-                     <option value="Auto">Auto</option>
+                     <option value="taxi" className="bg-white text-gray-950 font-bold">Taxi / Car / Auto</option>
+                     <option value="delivery" className="bg-white text-gray-950 font-bold">Delivery</option>
                   </select>
                </div>
 
@@ -391,11 +411,13 @@ const EditDriver = () => {
                      required
                      value={formData.vehicleType}
                      onChange={handleChange}
+                     style={{ color: '#000000' }}
                      className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-4 text-[14px] font-bold text-gray-950 focus:bg-white focus:border-emerald-200 focus:ring-4 focus:ring-emerald-50/50 outline-none transition-all shadow-inner"
                   >
-                     <option value="Sedan">Sedan</option>
-                     <option value="SUV">SUV</option>
-                     <option value="Hatchback">Hatchback</option>
+                     <option value="" className="bg-white text-gray-950 font-bold">Select Vehicle Type</option>
+                     {vehicleTypes.map(vt => (
+                       <option key={vt._id} value={vt._id} className="bg-white text-gray-950 font-bold">{vt.vehicle_type || vt.name}</option>
+                     ))}
                   </select>
                </div>
 
