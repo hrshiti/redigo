@@ -117,6 +117,8 @@ const AdminServiceLocation = lazy(() => import('./modules/admin/pages/price-mana
 const AdminZoneManagement = lazy(() => import('./modules/admin/pages/price-management/ZoneManagement'));
 const AdminSetPrices = lazy(() => import('./modules/admin/pages/price-management/SetPrices'));
 const AdminVehicleType = lazy(() => import('./modules/admin/pages/price-management/VehicleType'));
+const AdminRentalPackageTypes = lazy(() => import('./modules/admin/pages/price-management/RentalPackageTypes'));
+const AdminGoodsTypes = lazy(() => import('./modules/admin/pages/price-management/GoodsTypes'));
 const AdminPricingPlaceholder = ({ title }) => (
   <div className="flex flex-col items-center justify-center min-h-[500px] text-gray-400 bg-white rounded-[32px] border border-gray-100 shadow-sm p-10">
     <MapPin size={60} strokeWidth={1} className="mb-6 opacity-20" />
@@ -313,9 +315,9 @@ function App() {
                 <Route path="zone" element={<AdminZoneManagement />} />
                 <Route path="airport" element={<AdminPricingPlaceholder title="Airport Management" />} />
                 <Route path="vehicle-type" element={<AdminVehicleType />} />
-                <Route path="rental-packages" element={<AdminPricingPlaceholder title="Rental Package Types" />} />
+                <Route path="rental-packages" element={<AdminRentalPackageTypes />} />
                 <Route path="set-price" element={<AdminSetPrices />} />
-                <Route path="goods-types" element={<AdminPricingPlaceholder title="Goods Types" />} />
+                <Route path="goods-types" element={<AdminGoodsTypes />} />
               </Route>
               <Route path="safety" element={<AdminSafetyCenter />} />
               <Route path="cms" element={<AdminCMSBuilder />} />

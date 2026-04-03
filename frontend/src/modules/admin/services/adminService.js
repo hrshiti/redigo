@@ -109,4 +109,17 @@ export const adminService = {
   updateZone: (id, zoneData) => api.patch(`/admin/zones/${id}`, zoneData),
   deleteZone: (id) => api.delete(`/admin/zones/${id}`),
   toggleZoneStatus: (id) => api.patch(`/admin/zones/${id}/toggle-status`),
+   * Dashboard Stats
+   */
+  getDashboardData: () => api.get('/admin/dashboard/data'),
+
+  /**
+   * GeoFencing / Zones
+   */
+  getZones: () => api.get('/admin/zones'),
+
+  /**
+   * Finance / Withdrawals
+   */
+  getWithdrawals: () => api.get('/admin/wallet/withdrawals'),
 };

@@ -1,0 +1,28 @@
+﻿
+
+--- https://taxi-a276.onrender.com/api/v1/admin/dashboard ---
+{"success":false,"message":"This web route is not implemented in backend API. Use /api/v1/admin/dashboard/* (JWT) for admin dashboard JSON, or extend web routes as needed.","method":"GET","path":"/api/v1/admin/dashboard"}
+
+
+--- https://taxi-a276.onrender.com/api/v1/admin/dashboard/data ---
+{"totalDrivers":{"approved":1,"declined":3,"approve_percentage":25,"decline_percentage":75,"total":4},"totalUsers":5,"currencySymbol":"Γé╣"}
+
+
+--- https://taxi-a276.onrender.com/api/v1/admin/dashboard/today_earnings ---
+{"success":false,"message":"This web route is not implemented in backend API. Use /api/v1/admin/dashboard/* (JWT) for admin dashboard JSON, or extend web routes as needed.","method":"GET","path":"/api/v1/admin/dashboard/today_earnings"}
+
+
+--- https://taxi-a276.onrender.com/api/v1/admin/dashboard/overall_earnings ---
+{"success":false,"message":"This web route is not implemented in backend API. Use /api/v1/admin/dashboard/* (JWT) for admin dashboard JSON, or extend web routes as needed.","method":"GET","path":"/api/v1/admin/dashboard/overall_earnings"}
+
+
+--- https://taxi-a276.onrender.com/api/v1/admin/dashboard/cancel_chart ---
+{"success":false,"message":"This web route is not implemented in backend API. Use /api/v1/admin/dashboard/* (JWT) for admin dashboard JSON, or extend web routes as needed.","method":"GET","path":"/api/v1/admin/dashboard/cancel_chart"}
+
+
+--- https://taxi-a276.onrender.com/api/v1/admin/zones ---
+{"success":true,"message":"success","data":{"results":[{"_id":"69cf609270e6cf48dca443f3","name":"indore","service_location_id":{"_id":"69cd1e0fc3a56962349acf08","name":"Indore","slug":"indore"},"coordinates":[{"lat":22.763934371204016,"lng":75.8493468069067},{"lat":22.718799852092907,"lng":75.78143134681189},{"lat":22.654756968040054,"lng":75.82437787172996},{"lat":22.65936535426481,"lng":75.88080769372785},{"lat":22.706160656172507,"lng":75.91652889238351},{"lat":22.76235149927984,"lng":75.9055
+
+
+--- https://taxi-a276.onrender.com/api/v1/admin/sos ---
+{"success":false,"message":"This web route is not implemented in backend API. Use /api/v1/admin/dashboard/* (JWT) for admin dashboard JSON, or extend web routes as needed.","method":"GET","path":"/api/v1/admin/sos"}

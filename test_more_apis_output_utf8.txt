@@ -1,0 +1,12 @@
+﻿
+
+--- https://taxi-a276.onrender.com/api/v1/admin/wallet/withdrawals ---
+{"success":true,"message":"success","data":{"results":[],"paginator":{"total":0,"per_page":20,"current_page":1,"last_page":1}}}
+
+
+--- https://taxi-a276.onrender.com/api/v1/admin/driver-subscriptions/plans/list ---
+{"success":true,"message":"success","data":{"results":[],"paginator":{"total":0,"per_page":20,"current_page":1,"last_page":1}}}
+
+
+--- https://taxi-a276.onrender.com/api/v1/admin/dashboard/stats ---
+{"success":false,"message":"This web route is not implemented in backend API. Use /api/v1/admin/dashboard/* (JWT) for admin dashboard JSON, or extend web routes as needed.","method":"GET","path":"/api/v1/admin/dashboard/stats"}

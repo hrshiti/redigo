@@ -13,6 +13,7 @@ import {
   MousePointer2,
   Square
 } from 'lucide-react';
+import { adminService } from '../../services/adminService';
 
 const ZoneCard = ({ name, surge, status, type }) => (
   <div className="p-4 bg-white border border-gray-100 rounded-xl hover:shadow-md transition-all cursor-pointer group">
@@ -42,14 +43,27 @@ const ZoneCard = ({ name, surge, status, type }) => (
 
 const GeoFencing = () => {
   const [isDrawing, setIsDrawing] = useState(false);
-  
-  const activeZones = [
-    { name: 'Indore Central (Core)', surge: '1.2', status: 'Active', type: 'Main' },
-    { name: 'Vijay Nagar Square', surge: '1.5', status: 'Active', type: 'Surge' },
-    { name: 'Rajwada Peak Zone', surge: '2.0', status: 'Active', type: 'Surge' },
-    { name: 'Bhawarkua (Student)', surge: '1.0', status: 'Active', type: 'Main' },
-    { name: 'Indore Airport (Restricted)', surge: '1.8', status: 'Active', type: 'Rule' },
-  ];
+  const [activeZones, setActiveZones] = useState([]);
+
+  React.useEffect(() => {
+    const fetchZones = async () => {
+      try {
+        const response = await adminService.getZones();
+        const zones = response?.data?.results || [];
+        const mapped = zones.map(z => ({
+          id: z._id,
+          name: z.name || 'Unnamed Zone',
+          surge: z.surge_multiplier || '1.0',
+          status: z.status === 1 || z.status === 'active' || z.active ? 'Active' : 'Active', // Fallback to Active since usually returned means active
+          type: z.type || 'Main'
+        }));
+        setActiveZones(mapped);
+      } catch (err) {
+         console.error('Failed to fetch zones', err);
+      }
+    };
+    fetchZones();
+  }, []);
 
   return (
     <div className="flex h-[calc(100vh-120px)] gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
