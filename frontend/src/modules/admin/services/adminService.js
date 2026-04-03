@@ -109,4 +109,45 @@ export const adminService = {
   updateZone: (id, zoneData) => api.patch(`/admin/zones/${id}`, zoneData),
   deleteZone: (id) => api.delete(`/admin/zones/${id}`),
   toggleZoneStatus: (id) => api.patch(`/admin/zones/${id}/toggle-status`),
+
+  /**
+   * Languages Management (Master)
+   */
+  getLanguages: (params) => api.get('/admin/languages', { params }),
+  createLanguage: (data) => api.post('/admin/languages', data),
+  getLanguage: (id) => api.get(`/admin/languages/${id}`),
+  updateLanguage: (id, data) => api.patch(`/admin/languages/${id}`, data),
+  updateLanguageStatus: (id, data) => api.patch(`/admin/languages/${id}/status`, data),
+  deleteLanguage: (id) => api.delete(`/admin/languages/${id}`),
+
+  /**
+   * Preferences Management (Master)
+   */
+  getPreferences: (params) => api.get('/admin/preferences', { params: params }),
+  createPreference: (formData) => api.post('/admin/preferences', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  getPreference: (id) => api.get(`/admin/preferences/${id}`),
+  updatePreference: (id, formData) => api.patch(`/admin/preferences/${id}`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  updatePreferenceStatus: (id, data) => api.patch(`/admin/preferences/${id}/status`, data),
+  deletePreference: (id) => api.delete(`/admin/preferences/${id}`),
+
+  /**
+   * Roles & Permissions Management
+   */
+  getRoles: (params) => api.get('/admin/roles', { params }),
+  createRole: (roleData) => api.post('/admin/roles', roleData),
+  getRole: (id) => api.get(`/admin/roles/${id}`),
+  updateRole: (id, roleData) => api.patch(`/admin/roles/${id}`, roleData),
+  deleteRole: (id) => api.delete(`/admin/roles/${id}`),
+  getRolePermissions: (id) => api.get(`/admin/roles/${id}/permissions`),
+  updateRolePermissions: (id, data) => api.put(`/roles/${id}/permissions`, data),
+
+  getPermissions: (params) => api.get('/admin/permissions', { params }),
+  createPermission: (data) => api.post('/admin/permissions', data),
+  getPermission: (id) => api.get(`/admin/permissions/${id}`),
+  updatePermission: (id, data) => api.patch(`/admin/permissions/${id}`, data),
+  deletePermission: (id) => api.delete(`/admin/permissions/${id}`),
 };

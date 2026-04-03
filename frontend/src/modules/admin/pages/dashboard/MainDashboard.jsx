@@ -24,6 +24,7 @@ import {
   SearchIcon,
   ShieldAlert
 } from 'lucide-react';
+import { adminService } from '../../services/adminService';
 
 const TopStatCard = ({ label, value, trend, icon: Icon, color, isLoading }) => (
   <div className="bg-white p-5 rounded-[24px] border border-gray-100 shadow-sm relative overflow-hidden group min-h-[140px]">
@@ -124,8 +125,6 @@ const SimpleBarChart = ({ data, colors }) => (
   </div>
 );
 
-import { adminService } from '../../services/adminService';
-
 const MainDashboard = () => {
   const [stats, setStats] = useState({
     total_users: 0,
@@ -138,15 +137,14 @@ const MainDashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // PRO-LEVEL: Fetch dashboard overview data natively
         const dashboardData = await adminService.getDashboardData();
-        const data = dashboardData?.data || dashboardData; // handle generic response wrapping
+        const data = dashboardData?.data || dashboardData;
 
         setStats({
           total_users: data?.totalUsers || 0,
           total_drivers: data?.totalDrivers?.total || 0,
           approved_drivers: data?.totalDrivers?.approved || 0, 
-          pending_drivers: data?.totalDrivers?.declined || 0, // treating declined/pending together based on available response
+          pending_drivers: data?.totalDrivers?.declined || 0,
           isLoading: false
         });
       } catch (err) {
