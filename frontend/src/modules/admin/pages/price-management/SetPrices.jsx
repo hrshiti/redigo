@@ -103,11 +103,26 @@ const SetPrices = () => {
       const modulesData = await modulesRes.json();
       const locationsData = await locationsRes.json();
 
-      if (prizesData.success) setPrizes(prizesData.data.set_prices || []);
-      if (zonesData.success) setZones(zonesData.data.zones || []);
-      if (vehiclesData.success) setVehicleTypes(vehiclesData.data.vehicle_types || []);
-      if (modulesData.success) setAppModules(modulesData.data.app_modules || []);
-      if (locationsData.success) setServiceLocations(locationsData.data.service_locations || []);
+      if (prizesData.success) {
+        const items = prizesData.data?.set_prices || (Array.isArray(prizesData.data) ? prizesData.data : (prizesData.data?.results || prizesData.results || []));
+        setPrizes(items);
+      }
+      if (zonesData.success) {
+        const items = zonesData.data?.zones || (Array.isArray(zonesData.data) ? zonesData.data : (zonesData.data?.results || zonesData.results || []));
+        setZones(items);
+      }
+      if (vehiclesData.success) {
+        const items = vehiclesData.data?.vehicle_types || (Array.isArray(vehiclesData.data) ? vehiclesData.data : (vehiclesData.data?.results || vehiclesData.results || []));
+        setVehicleTypes(items);
+      }
+      if (modulesData.success) {
+        const items = modulesData.data?.app_modules || (Array.isArray(modulesData.data) ? modulesData.data : (modulesData.data?.results || modulesData.results || []));
+        setAppModules(items);
+      }
+      if (locationsData.success) {
+        const items = locationsData.data?.service_locations || (Array.isArray(locationsData.data) ? locationsData.data : (locationsData.data?.results || locationsData.results || []));
+        setServiceLocations(items);
+      }
 
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -290,27 +305,52 @@ const SetPrices = () => {
                         prizes.map((prize, idx) => (
                           <tr key={prize._id || idx} className="hover:bg-slate-50/50 transition-colors group">
                             <td className="px-8 py-6">
-                              <span className="text-sm font-bold text-slate-900 tracking-tight">{prize.zone_id?.name || 'Global'}</span>
+                              <span className="text-sm font-bold text-slate-900 tracking-tight">{prize.zone_id?.name || prize.zone?.name || 'Global'}</span>
                             </td>
                             <td className="px-8 py-6">
                               <span className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[11px] font-black uppercase tracking-wider">{prize.transport_type || 'Taxi'}</span>
                             </td>
                             <td className="px-8 py-6">
-                              <span className="text-sm font-bold text-slate-600">{prize.vehicle_type?.name || 'Standard'}</span>
+                              <span className="text-sm font-bold text-slate-600">{prize.vehicle_type?.name || prize.vehicle_name || 'Standard'}</span>
                             </td>
                             <td className="px-8 py-6">
                               <div className="flex justify-center">
-                                <StatusToggle active={prize.status === 'active'} onToggle={() => {}} />
+                                <StatusToggle 
+                                  active={prize.status === "active" || prize.status === 1 || prize.active === true} 
+                                  onToggle={async () => {
+                                    const currentIsActive = (prize.status === "active" || prize.status === 1 || prize.active === true);
+                                    const nextStatus = currentIsActive ? "inactive" : "active";
+                                    const nextActive = !currentIsActive;
+                                    
+                                    try {
+                                      console.log(`CURRENT: ${prize.status}, TARGET: ${nextStatus}`);
+                                      const res = await fetch(`${baseUrl}/types/set-prices/${prize._id || prize.id}`, {
+                                        method: 'PATCH',
+                                        headers: { 
+                                          'Authorization': `Bearer ${token}`,
+                                          'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify({ 
+                                          status: nextStatus,
+                                          active: nextActive 
+                                        })
+                                      });
+                                      const result = await res.json();
+                                      if (result.success) fetchInitialData();
+                                    } catch (e) { 
+                                      console.error("Toggle error:", e); 
+                                    }
+                                  }} 
+                                />
                               </div>
                             </td>
                             <td className="px-8 py-6">
                               <div className="flex items-center justify-end gap-2">
                                 <button onClick={() => handleEdit(prize)} className="p-2.5 bg-amber-50 text-amber-600 rounded-xl hover:bg-amber-100 transition-all active:scale-90"><Edit2 size={16} /></button>
-                                <button className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-all"><Gift size={16} /></button>
-                                <button className="p-2.5 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all"><Info size={16} /></button>
-                                <button className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition-all"><Zap size={16} /></button>
-                                <button className="p-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-all"><ShieldCheck size={16} /></button>
-                                <button onClick={() => handleDelete(prize._id)} className="p-2.5 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-all"><Trash2 size={16} /></button>
+                                <button className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-all active:scale-90"><Layers size={16} /></button>
+                                <button className="p-2.5 bg-[#0F172A] text-white rounded-xl hover:bg-slate-800 transition-all active:scale-90"><Settings size={16} /></button>
+                                <button className="p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-all active:scale-90"><Zap size={16} /></button>
+                                <button onClick={() => handleDelete(prize._id || prize.id)} className="p-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-all active:scale-90"><Trash2 size={16} /></button>
                               </div>
                             </td>
                           </tr>

@@ -1,0 +1,306 @@
+Admins > List Admins -> GET 
+Admins > Create Admin -> POST 
+Admins > Get Admin -> GET 
+Admins > Update Admin -> PATCH 
+Admins > Delete Admin -> DELETE 
+Users > List Users -> GET 
+Users > Create User -> POST 
+Users > Bulk Upload Users -> POST 
+Users > Delete Requests -> GET 
+Users > Deleted Users -> GET 
+Users > Deleted User Profile -> GET 
+Users > Restore Deleted User -> PATCH 
+Users > Delete Permanently (Deleted User) -> DELETE 
+Users > User Wallet -> GET 
+Users > User Wallet History -> GET 
+Users > User Reviews -> GET 
+Users > User Review History -> GET 
+Users > User Requests -> GET 
+Users > User Request Detail -> GET 
+Users > Get User -> GET 
+Users > Update User -> PATCH 
+Users > Delete User -> DELETE 
+Drivers > List Drivers -> GET 
+Drivers > Pending Drivers -> GET 
+Drivers > Approved Drivers -> GET 
+Drivers > Create Driver -> POST 
+Drivers > Bulk Upload Drivers -> POST 
+Drivers > Deleted Drivers -> GET 
+Drivers > Deleted Driver Profile -> GET 
+Drivers > Restore Deleted Driver -> PATCH 
+Drivers > Delete Permanently (Deleted Driver) -> DELETE 
+Drivers > Driver Requests -> GET 
+Drivers > Driver Review History -> GET 
+Drivers > Driver Reviews -> GET 
+Drivers > Get Driver -> GET 
+Drivers > Update Driver -> PATCH 
+Drivers > Delete Driver -> DELETE 
+Owners > List Owners -> GET 
+Owners > Create Owner -> POST 
+Owners > Get Owner -> GET 
+Owners > Update Owner -> PATCH 
+Owners > Delete Owner -> DELETE 
+Requests > List Requests -> GET 
+Requests > Assign Driver -> POST 
+Requests > Cancel Request -> POST 
+Requests > Get Request -> GET 
+Promos > List Promos -> GET 
+Promos > Create Promo -> POST 
+Promos > Get Promo -> GET 
+Promos > Update Promo -> PATCH 
+Promos > Delete Promo -> DELETE 
+Service Locations > List Service Locations -> GET 
+Service Locations > Create Service Location -> POST 
+Service Locations > Get Service Location -> GET 
+Service Locations > Update Service Location -> PATCH 
+Service Locations > Delete Service Location -> DELETE 
+Service Locations > List Service Locations (Alias) -> GET 
+Banners > List Banners -> GET 
+Banners > Create Banner -> POST 
+Banners > Get Banner -> GET 
+Banners > Update Banner -> PATCH 
+Banners > Delete Banner -> DELETE 
+Banners > Push Banner Notification -> POST 
+Zones > List Zones -> GET 
+Zones > Create Zone -> POST 
+Zones > Get Zone -> GET 
+Zones > Update Zone -> PATCH 
+Zones > Delete Zone -> DELETE 
+Types (Vehicle/Sub/Rental/Set-Price) > List Vehicle Types -> GET 
+Types (Vehicle/Sub/Rental/Set-Price) > Create Vehicle Type -> POST 
+Types (Vehicle/Sub/Rental/Set-Price) > Get Vehicle Type -> GET 
+Types (Vehicle/Sub/Rental/Set-Price) > Update Vehicle Type -> PATCH 
+Types (Vehicle/Sub/Rental/Set-Price) > Delete Vehicle Type -> DELETE 
+Types (Vehicle/Sub/Rental/Set-Price) > List Sub Vehicle Types -> GET 
+Types (Vehicle/Sub/Rental/Set-Price) > Create Sub Vehicle Type -> POST 
+Types (Vehicle/Sub/Rental/Set-Price) > Get Sub Vehicle Type -> GET 
+Types (Vehicle/Sub/Rental/Set-Price) > Update Sub Vehicle Type -> PATCH 
+Types (Vehicle/Sub/Rental/Set-Price) > Delete Sub Vehicle Type -> DELETE 
+Types (Vehicle/Sub/Rental/Set-Price) > List Rental Packages -> GET 
+Types (Vehicle/Sub/Rental/Set-Price) > Create Rental Package -> POST 
+Types (Vehicle/Sub/Rental/Set-Price) > Get Rental Package -> GET 
+Types (Vehicle/Sub/Rental/Set-Price) > Update Rental Package -> PATCH 
+Types (Vehicle/Sub/Rental/Set-Price) > Delete Rental Package -> DELETE 
+Types (Vehicle/Sub/Rental/Set-Price) > List Set Prices -> GET 
+Types (Vehicle/Sub/Rental/Set-Price) > Create Set Price -> POST 
+Types (Vehicle/Sub/Rental/Set-Price) > Get Set Price -> GET 
+Types (Vehicle/Sub/Rental/Set-Price) > Update Set Price -> PATCH 
+Types (Vehicle/Sub/Rental/Set-Price) > Delete Set Price -> DELETE 
+Types (Vehicle/Sub/Rental/Set-Price) > List Rental Package Prices -> GET 
+Types (Vehicle/Sub/Rental/Set-Price) > Create Rental Package Price -> POST 
+Types (Vehicle/Sub/Rental/Set-Price) > Get Rental Package Price -> GET 
+Types (Vehicle/Sub/Rental/Set-Price) > Update Rental Package Price -> PATCH 
+Types (Vehicle/Sub/Rental/Set-Price) > Delete Rental Package Price -> DELETE 
+Goods Types > List Goods Types -> GET 
+Goods Types > Create Goods Type -> POST 
+Goods Types > Get Goods Type -> GET 
+Goods Types > Update Goods Type -> PATCH 
+Goods Types > Delete Goods Type -> DELETE 
+Wallet > List User Wallets -> GET 
+Wallet > Get User Wallet -> GET 
+Wallet > Adjust User Wallet -> POST 
+Wallet > Add User Wallet Amount -> POST 
+Wallet > Deduct User Wallet Amount -> POST 
+Wallet > List Driver Wallets -> GET 
+Wallet > Negative Driver Wallets -> GET 
+Wallet > Drivers With Withdrawals -> GET 
+Wallet > Driver Withdrawals -> GET 
+Wallet > Get Driver Wallet -> GET 
+Wallet > Adjust Driver Wallet -> POST 
+Wallet > Add Driver Wallet Amount -> POST 
+Wallet > Deduct Driver Wallet Amount -> POST 
+Wallet > List Withdrawals -> GET 
+Wallet > Get Withdrawal -> GET 
+Wallet > Update Withdrawal Status -> PATCH 
+Wallet > Delete Withdrawal -> DELETE 
+Referral > Referral Dashboard -> GET 
+Referral > Get Referral Settings (All) -> GET 
+Referral > Get User Referral Settings -> GET 
+Referral > Update User Referral Settings -> PATCH 
+Referral > Get Driver Referral Settings -> GET 
+Referral > Update Driver Referral Settings -> PATCH 
+Referral > Get Joining Bonus Settings -> GET 
+Referral > Update Joining Bonus Settings -> PATCH 
+Payment Methods > List Payment Methods -> GET 
+Payment Methods > Create Payment Method -> POST 
+Payment Methods > Get Payment Method -> GET 
+Payment Methods > Update Payment Method -> PATCH 
+Payment Methods > Delete Payment Method -> DELETE 
+Owner Management > Dashboard -> GET 
+Owner Management > List Manage Owners -> GET 
+Owner Management > Create Manage Owner -> POST 
+Owner Management > Get Manage Owner -> GET 
+Owner Management > Update Manage Owner -> PATCH 
+Owner Management > Delete Manage Owner -> DELETE 
+Owner Management > Approve Manage Owner -> PATCH 
+Owner Management > List Owner Wallet -> GET 
+Owner Management > Create Owner Wallet -> POST 
+Owner Management > Get Owner Wallet -> GET 
+Owner Management > Update Owner Wallet -> PATCH 
+Owner Management > Adjust Owner Wallet -> POST 
+Owner Management > Delete Owner Wallet -> DELETE 
+Owner Management > List Fleet Management -> GET 
+Owner Management > Create Fleet Management -> POST 
+Owner Management > Get Fleet Management -> GET 
+Owner Management > Update Fleet Management -> PATCH 
+Owner Management > Delete Fleet Management -> DELETE 
+Owner Management > Approve Fleet -> PATCH 
+Owner Management > List Manage Fleet -> GET 
+Owner Management > Create Manage Fleet -> POST 
+Owner Management > Get Manage Fleet -> GET 
+Owner Management > Update Manage Fleet -> PATCH 
+Owner Management > Delete Manage Fleet -> DELETE 
+Owner Management > List Blocked Fleet Drivers -> GET 
+Owner Management > Create Blocked Fleet Driver -> POST 
+Owner Management > Get Blocked Fleet Driver -> GET 
+Owner Management > Update Blocked Fleet Driver -> PATCH 
+Owner Management > Delete Blocked Fleet Driver -> DELETE 
+Owner Management > List Fleet Needed Document -> GET 
+Owner Management > Create Fleet Needed Document -> POST 
+Owner Management > Get Fleet Needed Document -> GET 
+Owner Management > Update Fleet Needed Document -> PATCH 
+Owner Management > Delete Fleet Needed Document -> DELETE 
+Owner Management > List Owner Needed Document -> GET 
+Owner Management > Create Owner Needed Document -> POST 
+Owner Management > Get Owner Needed Document -> GET 
+Owner Management > Update Owner Needed Document -> PATCH 
+Owner Management > Delete Owner Needed Document -> DELETE 
+Owner Management > List Driver Needed Document -> GET 
+Owner Management > Create Driver Needed Document -> POST 
+Owner Management > Get Driver Needed Document -> GET 
+Owner Management > Update Driver Needed Document -> PATCH 
+Owner Management > Delete Driver Needed Document -> DELETE 
+Owner Management > List Owner Documents -> GET 
+Owner Management > Upload Owner Document -> POST 
+Owner Management > Review Owner Document -> PATCH 
+Owner Management > List Fleet Documents -> GET 
+Owner Management > Review Fleet Document -> PATCH 
+Owner Management > List Driver Documents -> GET 
+Owner Management > Review Driver Document -> PATCH 
+Owner Management > Approve Driver -> PATCH 
+Owner Management > List Driver Ratings -> GET 
+Owner Management > Driver Rating Details -> GET 
+Driver Subscriptions > List Plans -> GET 
+Driver Subscriptions > Create Plan -> POST 
+Driver Subscriptions > Get Plan -> GET 
+Driver Subscriptions > Update Plan -> PATCH 
+Driver Subscriptions > Delete Plan -> DELETE 
+Driver Subscriptions > List Subscriptions -> GET 
+Driver Subscriptions > Create Subscription -> POST 
+Driver Subscriptions > Get Subscription -> GET 
+Driver Subscriptions > Update Subscription -> PATCH 
+Driver Subscriptions > Delete Subscription -> DELETE 
+Rewards > List Reward Points -> GET 
+Rewards > Get Reward Point -> GET 
+Rewards > Adjust User Reward -> POST 
+Rewards > Adjust Driver Reward -> POST 
+Common Content > List FAQs -> GET 
+Common Content > Create FAQ -> POST 
+Common Content > Get FAQ -> GET 
+Common Content > Update FAQ -> PATCH 
+Common Content > Delete FAQ -> DELETE 
+Common Content > List Cancellation Reasons -> GET 
+Common Content > Create Cancellation Reason -> POST 
+Common Content > Get Cancellation Reason -> GET 
+Common Content > Update Cancellation Reason -> PATCH 
+Common Content > Delete Cancellation Reason -> DELETE 
+Common Content > List SOS -> GET 
+Common Content > Create SOS -> POST 
+Common Content > Get SOS -> GET 
+Common Content > Update SOS -> PATCH 
+Common Content > Delete SOS -> DELETE 
+Common Content > List App Modules -> GET 
+Common Content > Create App Module -> POST 
+Common Content > Get App Module -> GET 
+Common Content > Update App Module -> PATCH 
+Common Content > Delete App Module -> DELETE 
+Support Tickets > List Titles -> GET 
+Support Tickets > Create Title -> POST 
+Support Tickets > Get Title -> GET 
+Support Tickets > Update Title -> PATCH 
+Support Tickets > Delete Title -> DELETE 
+Support Tickets > List Tickets -> GET 
+Support Tickets > Get Ticket -> GET 
+Support Tickets > Reply Ticket -> POST 
+Support Tickets > Update Ticket Status -> PATCH 
+Reports > Report Options -> GET 
+Reports > Download User Report -> GET 
+Reports > Download Driver Report -> GET 
+Reports > Download Driver Duty Report -> GET 
+Reports > Download Owner Report -> GET 
+Reports > Download Finance Report -> GET 
+Reports > Download Fleet Finance Report -> GET 
+Admin Dashboard JSON > Dashboard Page -> GET 
+Admin Dashboard JSON > Dashboard Data -> GET 
+Admin Dashboard JSON > Today Earnings -> GET 
+Admin Dashboard JSON > Overall Earnings -> GET 
+Admin Dashboard JSON > Cancel Chart -> GET 
+Admin Dashboard JSON > Owner Dashboard Page -> GET 
+Admin Dashboard JSON > Owner Dashboard Data -> GET 
+Admin Dashboard JSON > Owner Dashboard Earnings -> GET 
+Admin Dashboard JSON > Overall Menu -> GET 
+Admin Web Parity Routes > Status -> GET 
+Admin Web Parity Routes > Healthcheck -> GET 
+Admin Web Parity Routes > Set Locale -> POST 
+Admin Web Parity Routes > Track Request -> GET 
+Admin Web Parity Routes > Download User Invoice -> GET 
+Admin Web Parity Routes > Download Driver Invoice -> GET 
+Admin Web Parity Routes > Landing Home -> GET 
+Admin Web Parity Routes > Landing Driver -> GET 
+Admin Web Parity Routes > Landing About Us -> GET 
+Admin Web Parity Routes > Landing User -> GET 
+Admin Web Parity Routes > Landing Contact -> GET 
+Admin Web Parity Routes > Landing Privacy -> GET 
+Admin Web Parity Routes > Landing Compliance -> GET 
+Admin Web Parity Routes > Landing Terms -> GET 
+Admin Web Parity Routes > Landing DMV -> GET 
+Admin Web Parity Routes > MI Login -> GET 
+Admin Web Parity Routes > PayPal -> GET 
+Admin Web Parity Routes > PayPal Payment -> POST 
+Admin Web Parity Routes > PayPal Success -> GET 
+Admin Web Parity Routes > PayPal Cancel -> GET 
+Admin Web Parity Routes > Stripe -> GET 
+Admin Web Parity Routes > Stripe Checkout -> POST 
+Admin Web Parity Routes > Stripe Success -> GET 
+Admin Web Parity Routes > Stripe Error -> GET 
+Admin Web Parity Routes > Flutterwave -> GET 
+Admin Web Parity Routes > Flutterwave Success -> GET 
+Admin Web Parity Routes > Cashfree -> GET 
+Admin Web Parity Routes > Cashfree Store -> POST 
+Admin Web Parity Routes > Cashfree Success -> GET 
+Admin Web Parity Routes > Paystack -> GET 
+Admin Web Parity Routes > Paystack Success -> GET 
+Admin Web Parity Routes > Khalti -> GET 
+Admin Web Parity Routes > Khalti Checkout -> POST 
+Admin Web Parity Routes > Razorpay -> GET 
+Admin Web Parity Routes > Razorpay Success -> GET 
+Admin Web Parity Routes > MercadoPago -> GET 
+Admin Web Parity Routes > MercadoPago Success -> GET 
+Admin Web Parity Routes > MercadoPago Webhook -> POST 
+Admin Web Parity Routes > OpenPix -> GET 
+Admin Web Parity Routes > PayTech -> GET 
+Admin Web Parity Routes > PayTech Initiate -> POST 
+Admin Web Parity Routes > PayTech Success -> GET 
+Admin Web Parity Routes > Flexpaie -> GET 
+Admin Web Parity Routes > Flexpaie Pay -> POST 
+Admin Web Parity Routes > Flexpaie Success -> GET 
+Admin Web Parity Routes > CCAvenue -> GET 
+Admin Web Parity Routes > CCAvenue Checkout -> POST 
+Admin Web Parity Routes > CCAvenue Success -> GET 
+Admin Web Parity Routes > CCAvenue Failure -> GET 
+Admin Web Parity Routes > PayPhone -> GET 
+Admin Web Parity Routes > PayPhone Success -> GET 
+Admin Web Parity Routes > MyFatoora -> GET 
+Admin Web Parity Routes > MyFatoora Checkout -> POST 
+Admin Web Parity Routes > MyFatoora Success -> GET 
+Admin Web Parity Routes > Easypaisa -> GET 
+Admin Web Parity Routes > Easypaisa Success -> GET 
+Admin Web Parity Routes > PayMongo -> GET 
+Admin Web Parity Routes > PayMongo Checkout -> POST 
+Admin Web Parity Routes > PayMongo Success -> GET 
+Admin Web Parity Routes > FedaPay -> GET 
+Admin Web Parity Routes > FedaPay Checkout -> POST 
+Admin Web Parity Routes > FedaPay Success -> GET 
+Admin Web Parity Routes > Success View -> GET 
+Admin Web Parity Routes > Failure View -> GET 
+Admin Web Parity Routes > Pending View -> GET 

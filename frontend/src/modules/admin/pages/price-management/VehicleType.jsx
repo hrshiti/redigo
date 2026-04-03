@@ -64,7 +64,9 @@ const VehicleType = () => {
       });
       const data = await res.json();
       if (data.success) {
-        setVehicles(data.data.vehicle_types || []);
+        // Handle various response structures
+        const items = data.data?.vehicle_types || (Array.isArray(data.data) ? data.data : (data.data?.results || data.results || []));
+        setVehicles(items);
       }
     } catch (error) {
       console.error("Error fetching vehicles:", error);
@@ -78,21 +80,34 @@ const VehicleType = () => {
       const method = editingId ? 'PATCH' : 'POST';
       const url = editingId ? `${baseUrl}/types/vehicle-types/${editingId}` : `${baseUrl}/types/vehicle-types`;
       
-      // Use FormData for image upload
-      const data = new FormData();
-      data.append('name', formData.name);
-      data.append('transport_type', formData.transport_type);
-      data.append('dispatch_type', formData.dispatch_type);
-      data.append('icon_types', formData.icon_types);
-      data.append('status', formData.status);
+      let imageData = formData.image;
+      
+      // If image is a File, convert to base64 for JSON body
       if (formData.image instanceof File) {
-        data.append('image', formData.image);
+         imageData = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (e) => reject(e);
+            reader.readAsDataURL(formData.image);
+         });
       }
+
+      const payload = {
+        name: formData.name,
+        transport_type: formData.transport_type,
+        dispatch_type: formData.dispatch_type,
+        icon_types: formData.icon_types,
+        status: formData.status ? 1 : 0,
+        image: imageData
+      };
 
       const res = await fetch(url, {
         method,
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: data
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
       });
 
       const result = await res.json();
@@ -105,6 +120,7 @@ const VehicleType = () => {
       }
     } catch (error) {
       console.error("Error saving:", error);
+      alert("Error: " + error.message);
     }
   };
 
@@ -265,7 +281,23 @@ const VehicleType = () => {
                           </td>
                           <td className="px-8 py-6">
                             <div className="flex justify-center">
-                               <StatusToggle active={vehicle.status !== false} onToggle={() => {}} />
+                               <StatusToggle 
+                                 active={vehicle.status !== false && vehicle.status !== 0} 
+                                 onToggle={async () => {
+                                   try {
+                                     const res = await fetch(`${baseUrl}/types/vehicle-types/${vehicle._id}`, {
+                                       method: 'PATCH',
+                                       headers: { 
+                                         'Authorization': `Bearer ${token}`,
+                                         'Content-Type': 'application/json'
+                                       },
+                                       body: JSON.stringify({ status: (vehicle.status === 1 || vehicle.status === true) ? 0 : 1 })
+                                     });
+                                     const result = await res.json();
+                                     if (result.success) fetchVehicles();
+                                   } catch (e) { console.error(e); }
+                                 }} 
+                               />
                             </div>
                           </td>
                           <td className="px-8 py-6 text-right">

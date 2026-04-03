@@ -2,12 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Plus, Search, MapPin, Globe, Trash2, Edit2, 
   Map as MapIcon, Navigation, Save, ArrowLeft, 
-  Loader2, Zap, Target 
+  Loader2, Zap, Target, Maximize2 
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  GoogleMap, useJsApiLoader, DrawingManager, Polygon 
+  GoogleMap, useJsApiLoader, DrawingManager, Polygon, Autocomplete 
 } from '@react-google-maps/api';
+
 
 const libraries = ['drawing', 'places'];
 const mapContainerStyle = {
@@ -24,6 +25,9 @@ const ZoneManagement = () => {
   const [saving, setSaving] = useState(false);
   const [enablePeakZoneGlobal, setEnablePeakZoneGlobal] = useState(true);
   const [editingId, setEditingId] = useState(null);
+  const [activeTab, setActiveTab] = useState('English');
+  const [mapCenter, setMapCenter] = useState({ lat: 21.1458, lng: 79.0882 }); // Default India (Nagpur approx)
+  const [autocomplete, setAutocomplete] = useState(null);
 
   // Map & Drawing States
   const [polygonCoords, setPolygonCoords] = useState([]);
@@ -91,6 +95,18 @@ const ZoneManagement = () => {
     }));
     setPolygonCoords(coords);
     polygon.setMap(null);
+  };
+
+  const onPlaceChanged = () => {
+    if (autocomplete !== null) {
+      const place = autocomplete.getPlace();
+      if (place.geometry) {
+        setMapCenter({
+          lat: place.geometry.location.lat(),
+          lng: place.geometry.location.lng()
+        });
+      }
+    }
   };
 
   const handleSave = async () => {
@@ -232,6 +248,10 @@ const ZoneManagement = () => {
         if (coord && typeof coord === 'object') return { lat: Number(coord.lat), lng: Number(coord.lng) };
         return coord;
       });
+    }
+    
+    if (parsedCoords.length > 0) {
+      setMapCenter(parsedCoords[0]);
     }
     
     setPolygonCoords(parsedCoords);
@@ -409,188 +429,237 @@ const ZoneManagement = () => {
         ) : (
           <motion.div 
             key="create"
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            className="space-y-6 pb-20"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="space-y-6"
           >
-             {/* Form Header */}
-             <div className="flex items-center justify-between bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm">
-                <div className="flex items-center gap-5">
-                   <button 
-                     onClick={() => {
-                        setView('list');
-                        setEditingId(null);
-                     }}
-                     className="p-4 bg-gray-50 rounded-2xl hover:bg-indigo-50 transition-all text-gray-400 hover:text-indigo-600 active:scale-90"
-                   >
-                      <ArrowLeft size={24} />
-                   </button>
-                   <div>
-                      <h2 className="text-2xl font-black text-gray-1000 tracking-tight">
-                        {editingId ? 'Edit Configuration: ' + (formData.name.English || 'Sector') : 'Calibrate New Market Zone'}
-                      </h2>
-                      <p className="text-[12px] font-bold text-gray-400 uppercase tracking-widest mt-1">
-                        {editingId ? 'Updating geofenced boundary and parameters' : 'Mapping geospatial operational limits'}
-                      </p>
-                   </div>
+            {/* Page Header as per image */}
+            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+              <h2 className="text-xl font-bold text-slate-800 uppercase tracking-tight">
+                {editingId ? 'Edit' : 'Add Market Zone'}
+              </h2>
+              <div className="flex items-center gap-2 text-sm text-slate-400">
+                <span>Zone</span>
+                <span>{'>'}</span>
+                <span className="text-slate-600 font-medium">{editingId ? 'Edit' : 'Add'}</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+              {/* Left Column: Form Fields */}
+              <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-6">
+                {/* Service Location */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-600">Service Location</label>
+                  <select 
+                    value={formData.service_location_id}
+                    onChange={(e) => setFormData({...formData, service_location_id: e.target.value})}
+                    className="w-full border border-gray-200 rounded-lg py-3 px-4 text-slate-700 bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                  >
+                    <option value="">Select Location</option>
+                    {serviceLocations.map(sl => (
+                      <option key={sl._id || sl.id} value={sl._id || sl.id}>{sl.name || sl.service_location_name}</option>
+                    ))}
+                  </select>
                 </div>
-                <button 
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="bg-[#0F172A] text-white px-10 py-4 rounded-2xl font-black text-sm flex items-center gap-3 hover:bg-slate-800 transition-all shadow-2xl active:scale-95 disabled:opacity-50"
-                >
-                  {saving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
-                  {editingId ? 'Update Zone' : 'Finalize Boundary'}
-                </button>
-             </div>
 
-             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-               {/* Config Column */}
-               <div className="lg:col-span-1 space-y-6">
-                  <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm space-y-8">
-                     <div className="space-y-3">
-                        <label className="text-[12px] font-black text-gray-400 uppercase tracking-widest ml-1">Market Location *</label>
-                        <select 
-                          value={formData.service_location_id}
-                          onChange={(e) => setFormData({...formData, service_location_id: e.target.value})}
-                          className="w-full bg-slate-50 border-none rounded-2xl py-4.5 px-6 text-[15px] font-bold text-gray-900 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner appearance-none placeholder:text-gray-300"
-                        >
-                           <option value="">Select city/area...</option>
-                           {serviceLocations.map(sl => (
-                              <option key={sl._id || sl.id} value={sl._id || sl.id}>{sl.name || sl.service_location_name}</option>
-                           ))}
-                        </select>
-                     </div>
+                {/* Language Tabs */}
+                <div className="space-y-4">
+                  <div className="flex items-center border-b border-gray-100 gap-6">
+                    {['English', 'Arabic', 'French', 'Spanish'].map(lang => (
+                      <button
+                        key={lang}
+                        onClick={() => setActiveTab(lang)}
+                        className={`pb-3 text-sm font-semibold transition-all relative ${activeTab === lang ? 'text-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}
+                      >
+                        {lang}
+                        {activeTab === lang && (
+                          <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
 
-                     <div className="space-y-3">
-                        <label className="text-[12px] font-black text-gray-400 uppercase tracking-widest ml-1">Sector Name (En)</label>
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-slate-600">Name</label>
+                    <input 
+                      type="text" 
+                      placeholder="Enter name"
+                      value={formData.name[activeTab]}
+                      onChange={(e) => setFormData({
+                        ...formData, 
+                        name: { ...formData.name, [activeTab]: e.target.value }
+                      })}
+                      className="w-full border border-gray-200 rounded-lg py-3 px-4 text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                    />
+                  </div>
+                </div>
+
+                {/* Select Unit */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-600">Select Unit</label>
+                  <select 
+                    value={formData.unit}
+                    onChange={(e) => setFormData({...formData, unit: e.target.value})}
+                    className="w-full border border-gray-200 rounded-lg py-3 px-4 text-slate-700 bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                  >
+                    <option value="km">Kilometers</option>
+                    <option value="miles">Miles</option>
+                  </select>
+                </div>
+
+                {/* Peak Zone Parameters Grid */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-slate-600">Peak Zone Ride Count <span className="text-rose-500">*</span></label>
+                    <input 
+                      type="number" 
+                      value={formData.peak_zone_ride_count}
+                      onChange={(e) => setFormData({...formData, peak_zone_ride_count: e.target.value})}
+                      className="w-full border border-gray-200 rounded-lg py-2.5 px-3 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-slate-600">Peak Zone Radius <span className="text-rose-500">*</span></label>
+                    <input 
+                      type="number" 
+                      value={formData.peak_zone_radius}
+                      onChange={(e) => setFormData({...formData, peak_zone_radius: e.target.value})}
+                      className="w-full border border-gray-200 rounded-lg py-2.5 px-3 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-slate-600">Peak Zone Selection Duration in mins <span className="text-rose-500">*</span></label>
+                    <input 
+                      type="number" 
+                      value={formData.peak_zone_selection_duration}
+                      onChange={(e) => setFormData({...formData, peak_zone_selection_duration: e.target.value})}
+                      className="w-full border border-gray-200 rounded-lg py-2.5 px-3 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-slate-600">Peak Zone Duration in mins <span className="text-rose-500">*</span></label>
+                    <input 
+                      type="number" 
+                      value={formData.peak_zone_duration}
+                      onChange={(e) => setFormData({...formData, peak_zone_duration: e.target.value})}
+                      className="w-full border border-gray-200 rounded-lg py-2.5 px-3 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                    />
+                  </div>
+                  <div className="col-span-1 space-y-2">
+                    <label className="text-xs font-semibold text-slate-600">Peak Zone Surge percentage <span className="text-rose-500">*</span> <span className="text-cyan-500 cursor-pointer">How It Works</span></label>
+                    <input 
+                      type="number" 
+                      value={formData.peak_zone_surge_percentage}
+                      onChange={(e) => setFormData({...formData, peak_zone_surge_percentage: e.target.value})}
+                      className="w-full border border-gray-200 rounded-lg py-2.5 px-3 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                    />
+                  </div>
+                </div>
+
+                {/* Footer Action */}
+                <div className="pt-6 flex justify-end">
+                  <button 
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="bg-[#415385] text-white px-8 py-3 rounded-lg font-semibold text-sm hover:bg-[#34446b] transition-all shadow-md active:scale-95 disabled:opacity-70 flex items-center gap-2"
+                  >
+                    {saving && <Loader2 className="animate-spin" size={16} />}
+                    {editingId ? 'Update' : 'Create'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Right Column: Map */}
+              <div className="space-y-4">
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden">
+                  {/* Search Bar inside map container area */}
+                  <div className="mb-4 relative z-10">
+                    <Autocomplete
+                      onLoad={setAutocomplete}
+                      onPlaceChanged={onPlaceChanged}
+                    >
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                         <input 
                           type="text" 
-                          placeholder="e.g. Uptown Alpha" 
-                          value={formData.name.English}
-                          onChange={(e) => setFormData({...formData, name: { ...formData.name, English: e.target.value }})}
-                          className="w-full bg-slate-50 border-none rounded-2xl py-4.5 px-6 text-[15px] font-bold text-gray-900 focus:ring-4 focus:ring-indigo-500/10 transition-all placeholder:text-gray-300 shadow-inner"
+                          placeholder="Search for a city"
+                          className="w-full border border-gray-200 rounded-lg py-2.5 pl-10 pr-4 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none"
                         />
-                     </div>
-
-                     <div className="space-y-3">
-                        <label className="text-[12px] font-black text-gray-400 uppercase tracking-widest ml-1">Distance Unit</label>
-                        <div className="grid grid-cols-2 gap-3 bg-slate-50 p-2 rounded-2xl shadow-inner border border-gray-100">
-                           <button 
-                             onClick={() => setFormData({...formData, unit: 'km'})}
-                             className={`py-3 rounded-xl text-[12px] font-black transition-all ${formData.unit === 'km' ? 'bg-white text-indigo-600 shadow-lg' : 'text-slate-400 hover:text-slate-600'}`}
-                           >
-                             METRIC (KM)
-                           </button>
-                           <button 
-                             onClick={() => setFormData({...formData, unit: 'miles'})}
-                             className={`py-3 rounded-xl text-[12px] font-black transition-all ${formData.unit === 'miles' ? 'bg-white text-indigo-600 shadow-lg' : 'text-slate-400 hover:text-slate-600'}`}
-                           >
-                             IMPERIAL (MI)
-                           </button>
-                        </div>
-                     </div>
+                      </div>
+                    </Autocomplete>
                   </div>
 
-                  <div className="bg-indigo-600 p-8 rounded-[40px] text-white shadow-2xl shadow-indigo-100 flex items-start gap-4">
-                     <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center shrink-0">
-                        <Navigation size={24} className="animate-pulse" />
-                     </div>
-                     <div className="space-y-2">
-                        <p className="text-[11px] font-black uppercase tracking-[0.2em] opacity-60">Mapping Protocol</p>
-                        <p className="text-[15px] font-bold leading-relaxed opacity-90">
-                           Use the polygon tool at the top of the map to trace the exact boundary. Connect the final point to close the geofence.
-                        </p>
-                     </div>
-                  </div>
-               </div>
-
-               {/* Drawing Map */}
-               <div className="lg:col-span-2 min-h-[700px] bg-slate-900 rounded-[48px] overflow-hidden relative border-[12px] border-white shadow-2xl group">
-                  {isLoaded ? (
-                    <GoogleMap
-                      mapContainerStyle={{ width: '100%', height: '100%' }}
-                      center={polygonCoords.length > 0 ? polygonCoords[0] : { lat: 22.7196, lng: 75.8577 }}
-                      zoom={14}
-                      options={{
-                        disableDefaultUI: false,
-                        zoomControl: true,
-                        streetViewControl: false,
-                        mapTypeControl: false,
-                        fullscreenControl: true,
-                        styles: [
-                          {
-                            "featureType": "water",
-                            "elementType": "geometry",
-                            "stylers": [{"color": "#e9e9e9"}, {"lightness": 17}]
-                          },
-                          {
-                            "featureType": "landscape",
-                            "elementType": "geometry",
-                            "stylers": [{"color": "#f5f5f5"}, {"lightness": 20}]
-                          },
-                          {
-                            "featureType": "road.highway",
-                            "elementType": "geometry.fill",
-                            "stylers": [{"color": "#ffffff"}, {"lightness": 17}]
-                          },
-                          // ... more refined styles
-                        ]
-                      }}
-                    >
-                      <DrawingManager
-                        onPolygonComplete={onPolygonComplete}
+                  <div className="h-[550px] w-full bg-slate-100 rounded-lg overflow-hidden border border-gray-100 relative shadow-inner">
+                    {isLoaded ? (
+                      <GoogleMap
+                        mapContainerStyle={{ width: '100%', height: '100%' }}
+                        center={mapCenter}
+                        zoom={12}
                         options={{
-                          drawingControl: true,
-                          drawingControlOptions: {
-                            position: isLoaded ? window.google.maps.ControlPosition.TOP_CENTER : 0,
-                            drawingModes: [isLoaded ? window.google.maps.drawing.OverlayType.POLYGON : 'polygon'],
-                          },
-                          polygonOptions: {
-                            fillColor: '#4f46e5',
-                            fillOpacity: 0.3,
-                            strokeWeight: 4,
-                            strokeColor: '#4f46e5',
-                            clickable: true,
-                            editable: true,
-                            zIndex: 1
-                          },
+                          mapTypeControl: true,
+                          streetViewControl: true,
+                          fullscreenControl: true,
+                          mapTypeControlOptions: {
+                            position: isLoaded ? window.google.maps.ControlPosition.TOP_LEFT : 0
+                          }
                         }}
-                      />
-                      {polygonCoords.length > 0 && (
-                        <Polygon
-                          paths={polygonCoords}
+                      >
+                        <DrawingManager
+                          onPolygonComplete={onPolygonComplete}
                           options={{
-                            fillColor: '#4f46e5',
-                            fillOpacity: 0.4,
-                            strokeColor: '#4f46e5',
-                            strokeWeight: 5,
-                            editable: true,
-                            draggable: true
+                            drawingControl: true,
+                            drawingControlOptions: {
+                              position: isLoaded ? window.google.maps.ControlPosition.LEFT_CENTER : 0,
+                              drawingModes: [isLoaded ? window.google.maps.drawing.OverlayType.POLYGON : 'polygon'],
+                            },
+                            polygonOptions: {
+                              fillColor: '#6366f1',
+                              fillOpacity: 0.3,
+                              strokeWeight: 2,
+                              strokeColor: '#6366f1',
+                              editable: true,
+                            },
                           }}
                         />
-                      )}
-                    </GoogleMap>
-                  ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center gap-6 bg-slate-900">
-                       <Loader2 className="animate-spin text-indigo-400" size={64} />
-                       <p className="text-indigo-200/50 font-black uppercase tracking-[0.3em] text-[12px]">Booting Vector Engine...</p>
-                    </div>
-                  )}
+                        {polygonCoords.length > 0 && (
+                          <Polygon
+                            paths={polygonCoords}
+                            options={{
+                              fillColor: '#6366f1',
+                              fillOpacity: 0.35,
+                              strokeColor: '#6366f1',
+                              strokeWeight: 3,
+                              editable: true,
+                              draggable: true
+                            }}
+                          />
+                        )}
+                      </GoogleMap>
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-slate-50">
+                        <Loader2 className="animate-spin text-slate-300" size={40} />
+                      </div>
+                    )}
 
-                  {/* Vertices Counter */}
-                  <div className="absolute top-24 right-8 bg-black/40 backdrop-blur-xl px-5 py-3 rounded-2xl border border-white/10 shadow-2xl flex items-center gap-4">
-                     <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center text-white">
-                        <Maximize2 size={20} />
-                     </div>
-                     <div>
-                        <p className="text-[10px] font-black text-indigo-200 uppercase tracking-widest">Vertices Locked</p>
-                        <p className="text-xl font-black text-white">{polygonCoords.length}</p>
-                     </div>
+                    {/* Vertices indicator overlay (optional, but keeping it for UX) */}
+                    <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg border border-gray-100 shadow-sm flex items-center gap-2">
+                       <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse" />
+                       <span className="text-[10px] font-bold text-slate-500 uppercase">Vertices: {polygonCoords.length}</span>
+                    </div>
                   </div>
-               </div>
-             </div>
+                </div>
+
+                {/* Overlap Warning Box as per image */}
+                <div className="bg-[#fff9e6] border border-[#ffecb3] p-4 rounded-lg flex items-center gap-3">
+                   <div className="w-2 h-2 bg-amber-400 rounded-full" />
+                   <p className="text-amber-800 text-xs font-semibold">
+                     Avoid make new polygons that overlap with existing zones.
+                   </p>
+                </div>
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

@@ -50,5 +50,15 @@ export const adminService = {
   /**
    * Dashboard Stats
    */
-  getDashboardStats: () => api.get('/admin/dashboard/stats'),
+  getDashboardData: () => api.get('/admin/dashboard/data'),
+
+  /**
+   * GeoFencing / Zones
+   */
+  getZones: () => api.get('/admin/zones'),
+
+  /**
+   * Finance / Withdrawals
+   */
+  getWithdrawals: () => api.get('/admin/wallet/withdrawals'),
 };

@@ -138,23 +138,17 @@ const MainDashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // PRO-LEVEL: Fetch everything via the service layer
-        const [userData, driverData] = await Promise.all([
-          adminService.getUsers(1, 1),
-          adminService.getDrivers(1, 1)
-        ]);
-
-        // Estimate Pending (this is a rough estimate since we only have list pagination)
-        const pendingCount = driverData.data?.results?.filter(d => !d.approve).length || 0;
+        // PRO-LEVEL: Fetch dashboard overview data natively
+        const dashboardData = await adminService.getDashboardData();
+        const data = dashboardData?.data || dashboardData; // handle generic response wrapping
 
         setStats({
-          total_users: userData.data?.paginator?.total || 0,
-          total_drivers: driverData.data?.paginator?.total || 0,
-          approved_drivers: driverData.data?.paginator?.total || 0, 
-          pending_drivers: pendingCount,
+          total_users: data?.totalUsers || 0,
+          total_drivers: data?.totalDrivers?.total || 0,
+          approved_drivers: data?.totalDrivers?.approved || 0, 
+          pending_drivers: data?.totalDrivers?.declined || 0, // treating declined/pending together based on available response
           isLoading: false
         });
-
       } catch (err) {
         console.error('Dashboard Fetch Error:', err);
         setStats(prev => ({ ...prev, isLoading: false }));

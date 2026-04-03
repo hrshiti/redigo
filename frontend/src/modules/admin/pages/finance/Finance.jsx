@@ -16,15 +16,37 @@ import {
   ShieldCheck
 } from 'lucide-react';
 
-
+import { adminService } from '../../services/adminService';
 
 const Finance = () => {
-  const settlements = [
-    { id: '#ST1024', driver: 'Vijay Kumar', amount: '₹1,240', method: 'UPI', status: 'Completed', date: 'Today, 11:30 AM' },
-    { id: '#ST1023', driver: 'Rahul Singh', amount: '₹4,500', method: 'Bank Transfer', status: 'Pending', date: 'Today, 09:15 AM' },
-    { id: '#ST1022', driver: 'Amit Sharma', amount: '₹680', method: 'Wallet', status: 'Completed', date: 'Yesterday' },
-    { id: '#ST1021', driver: 'Deepak Rao', amount: '₹2,300', method: 'Bank Transfer', status: 'Failed', date: 'Yesterday' },
-  ];
+  const [settlements, setSettlements] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchFinance = async () => {
+      try {
+        const response = await adminService.getWithdrawals();
+        const results = response?.data?.results || [];
+        
+        const mapped = results.map(w => ({
+          id: w.transactionId || `#WTH${Math.floor(Math.random()*1000)}`,
+          driver: w.driver_id?.name || 'Unknown Driver',
+          amount: `₹${w.amount || 0}`,
+          method: w.payment_method || 'Bank Transfer',
+          status: w.status ? w.status.charAt(0).toUpperCase() + w.status.slice(1) : 'Pending',
+          date: w.createdAt ? new Date(w.createdAt).toLocaleDateString() : 'N/A'
+        }));
+        
+        setSettlements(mapped);
+      } catch (error) {
+        console.error('Failed to load withdrawals', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchFinance();
+  }, []);
+
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
