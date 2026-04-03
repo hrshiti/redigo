@@ -223,7 +223,19 @@ const AdminLayout = () => {
           { label: 'Banner Image', path: '/admin/promotions/banner-image' },
         ]
      },
-    { icon: IndianRupee, label: 'Price Management', path: '/admin/pricing' },
+    { 
+       icon: IndianRupee, 
+       label: 'Price Management', 
+       subItems: [
+         { label: 'Service Location', path: '/admin/pricing/service-location' },
+         { label: 'Zone', path: '/admin/pricing/zone' },
+         { label: 'Airport', path: '/admin/pricing/airport' },
+         { label: 'Vehicle Type', path: '/admin/pricing/vehicle-type' },
+         { label: 'Rental Package Types', path: '/admin/pricing/rental-packages' },
+         { label: 'Set Price', path: '/admin/pricing/set-price' },
+         { label: 'Goods Types', path: '/admin/pricing/goods-types' },
+       ]
+    },
     { icon: Layers, label: 'Finance', path: '/admin/finance' },
   ];
 
