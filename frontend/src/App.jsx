@@ -152,6 +152,12 @@ const AdminDriverDutyReport = lazy(() => import('./modules/admin/pages/reports/D
 const AdminOwnerReport = lazy(() => import('./modules/admin/pages/reports/OwnerReport'));
 const AdminFinanceReport = lazy(() => import('./modules/admin/pages/reports/FinanceReport'));
 const AdminFleetFinanceReport = lazy(() => import('./modules/admin/pages/reports/FleetFinanceReport'));
+
+// Masters Management
+const AdminLanguages = lazy(() => import('./modules/admin/pages/masters/Languages'));
+const AdminPreferences = lazy(() => import('./modules/admin/pages/masters/Preferences'));
+const AdminRoles = lazy(() => import('./modules/admin/pages/masters/Roles'));
+
 const AdminReportPlaceholder = ({ title }) => (
   <div className="flex flex-col items-center justify-center min-h-[500px] text-gray-400 bg-white rounded-[32px] border border-gray-100 shadow-sm p-10 mx-6">
     <FileText size={60} strokeWidth={1} className="mb-6 opacity-20" />
@@ -306,7 +312,7 @@ function App() {
               <Route path="owners/bookings" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest italic decoration-indigo-200">Global Fleet Bookings - Indexing</div>} />
               <Route path="referrals/config" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Referral Configuration - Under Setup</div>} />
               <Route path="referrals/active" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Active Referrals Logs - Under Setup</div>} />
-              <Route path="geo" element={<AdminGeoFencing />} />
+              <Route path="geo/*" element={<AdminGeoFencing />} />
               <Route path="finance" element={<AdminFinance />} />
               {/* Price Management */}
               <Route path="pricing">
@@ -321,9 +327,7 @@ function App() {
               </Route>
               <Route path="safety" element={<AdminSafetyCenter />} />
               <Route path="cms" element={<AdminCMSBuilder />} />
-              <Route path="notifications" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Global Notifications Center - Under Development</div>} />
               <Route path="support" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Help & Ticket Management - Under Development</div>} />
-              <Route path="settings" element={<AdminGlobalSettings />} />
               
               {/* Report Module Routes */}
               <Route path="reports/user" element={<AdminUserReport />} />
@@ -332,6 +336,18 @@ function App() {
               <Route path="reports/owner" element={<AdminOwnerReport />} />
               <Route path="reports/finance" element={<AdminFinanceReport />} />
               <Route path="reports/fleet-finance" element={<AdminFleetFinanceReport />} />
+
+              {/* Masters Management */}
+              <Route path="masters/languages" element={<AdminLanguages />} />
+              <Route path="masters/preferences" element={<AdminPreferences />} />
+              <Route path="masters/roles" element={<AdminRoles />} />
+
+              {/* Settings & Config Placeholders */}
+              <Route path="settings/business/*" element={<AdminReportPlaceholder title="Business Settings" />} />
+              <Route path="settings/app/*" element={<AdminReportPlaceholder title="App Settings" />} />
+              <Route path="settings/third-party/*" element={<AdminReportPlaceholder title="Third-party Settings" />} />
+              <Route path="settings/addons/*" element={<AdminReportPlaceholder title="Addons Management" />} />
+              <Route path="settings/cms/*" element={<AdminReportPlaceholder title="CMS Management" />} />
             </Route>
             
             <Route path="*" element={<Navigate to="/" />} />
