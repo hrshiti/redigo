@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, ShieldCheck, Wallet, Clock, Star } from 'lucide-react';
+import { ChevronRight, ShieldCheck, Wallet, Clock, Star, TrendingUp } from 'lucide-react';
 import DriverHero from '@/assets/driver_welcome_hero.png';
 import RedigoLogo from '@/assets/redigologo.png';
 
@@ -9,67 +9,79 @@ const DriverWelcome = () => {
     const navigate = useNavigate();
 
     const perks = [
-        { icon: <Wallet size={20} />, title: 'Weekly Payouts', sub: 'Get your earnings every Monday' },
-        { icon: <Clock size={20} />, title: 'Flexible Hours', sub: 'Drive whenever you want' },
-        { icon: <ShieldCheck size={20} />, title: 'Safety First', sub: '24/7 on-road support' },
-        { icon: <Star size={20} />, title: 'Incentives', sub: 'Bonus for top-rated drivers' }
+        { icon: <Wallet size={20} />, title: 'Weekly Payouts', sub: 'Instant earnings transfer' },
+        { icon: <Clock size={20} />, title: 'Set Your Schedule', sub: 'Ultimate work-life balance' },
+        { icon: <ShieldCheck size={20} />, title: 'Premium Support', sub: '24/7 dedicated assistance' },
+        { icon: <TrendingUp size={20} />, title: 'Growth Incentives', sub: 'High performance rewards' }
     ];
 
     return (
-        <div className="min-h-screen bg-taxi-bg font-sans select-none overflow-x-hidden">
+        <div className="min-h-screen bg-[#FDFDFD] font-sans select-none overflow-x-hidden">
             {/* Hero Section */}
-            <div className="relative h-[35vh] bg-taxi-secondary overflow-hidden rounded-b-[2.5rem] shadow-2xl">
-                <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent z-10" />
+            <div className="relative h-[30vh] bg-slate-900 overflow-hidden rounded-b-[2rem] shadow-premium">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-10" />
                 <img 
                     src={DriverHero} 
                     alt="Drive with Redigo" 
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover opacity-70"
                 />
                 
                 {/* Branding Top Overlay */}
-                <div className="absolute top-10 left-8 z-20">
-                     <img src={RedigoLogo} alt="Redigo" className="h-10 drop-shadow-xl" />
+                <div className="absolute top-8 left-6 z-20">
+                     <img src={RedigoLogo} alt="RedigoLogo" className="h-8 brightness-0 invert opacity-90" />
                 </div>
 
                 {/* Overlay Greeting */}
-                <div className="absolute bottom-10 left-8 right-8 text-white z-20">
+                <div className="absolute bottom-8 left-6 right-6 text-white z-20">
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 15 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
+                        transition={{ duration: 0.5 }}
                     >
-                        <h1 className="text-4xl font-black leading-tight tracking-tight">
-                            Drive & Earn<br />with Redigo
+                        <h1 className="text-3xl font-display font-bold leading-tight tracking-tight">
+                            Partner with <span className="text-primary">Redigo</span>
                         </h1>
-                        <p className="text-[14px] font-bold text-white/80 mt-2">
-                            Join over 10,000+ happy drivers today.
+                        <p className="text-[14px] text-white/70 mt-1 font-medium">
+                            The smartest way to drive and earn.
                         </p>
                     </motion.div>
                 </div>
             </div>
 
             {/* Content Section */}
-            <main className="px-6 pt-6 pb-28 space-y-8">
+            <main className="px-5 pt-8 pb-32">
                 <div className="space-y-6">
-                    <h3 className="text-[14px] font-black text-slate-400 tracking-widest uppercase opacity-60 px-1">
-                        Why partner with us?
-                    </h3>
+                    <div className="flex items-center justify-between px-1">
+                        <h3 className="text-[13px] font-bold text-slate-400 tracking-wider uppercase">
+                            Why Choose Redigo?
+                        </h3>
+                        <div className="flex -space-x-2">
+                            {[1, 2, 3].map((i) => (
+                                <div key={i} className="w-6 h-6 rounded-full border-2 border-white bg-slate-100 overflow-hidden">
+                                     <img src={`https://i.pravatar.cc/100?img=${i+40}`} alt="driver" className="w-full h-full object-cover" />
+                                </div>
+                            ))}
+                            <div className="w-6 h-6 rounded-full border-2 border-white bg-primary text-[8px] flex items-center justify-center text-white font-bold">
+                                +10k
+                            </div>
+                        </div>
+                    </div>
                     
-                    <div className="grid grid-cols-1 gap-5">
+                    <div className="grid grid-cols-1 gap-4">
                         {perks.map((perk, index) => (
                             <motion.div
                                 key={index}
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.1 * index }}
-                                className="flex items-center gap-5 bg-white p-4 rounded-2xl shadow-[0_4px_25px_rgba(0,0,0,0.02)] border border-slate-50 transition-transform active:scale-98"
+                                className="flex items-center gap-4 bg-white p-4 rounded-xl border border-slate-100 shadow-soft transition-all hover:border-primary/20"
                             >
-                                <div className="w-11 h-11 rounded-xl bg-taxi-primary/10 text-taxi-secondary flex items-center justify-center shadow-sm">
+                                <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
                                     {perk.icon}
                                 </div>
-                                <div className="space-y-0.5">
-                                    <h4 className="text-[15px] font-black text-taxi-text tracking-tight">{perk.title}</h4>
-                                    <p className="text-[11px] font-bold text-slate-400 leading-none">{perk.sub}</p>
+                                <div className="flex-1">
+                                    <h4 className="text-[15px] font-display font-semibold text-slate-800 leading-tight">{perk.title}</h4>
+                                    <p className="text-[12px] font-medium text-slate-400 mt-0.5">{perk.sub}</p>
                                 </div>
                             </motion.div>
                         ))}
@@ -77,36 +89,35 @@ const DriverWelcome = () => {
                 </div>
 
                 {/* Testimonial Placeholder */}
-                <div className="bg-taxi-primary/5 rounded-2xl p-4 border border-taxi-primary/10">
+                <div className="mt-8 bg-slate-50/50 rounded-2xl p-5 border border-slate-100 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-2 opacity-5">
+                       <Star size={40} fill="currentColor" />
+                    </div>
                     <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-full bg-slate-200 border-2 border-white shadow-sm overflow-hidden text-2xl flex items-center justify-center text-slate-900 shadow-xl border border-white">
-                            👨🏽‍✈️
+                        <div className="w-10 h-10 rounded-full bg-slate-200 border-2 border-white shadow-soft overflow-hidden">
+                            <img src="https://i.pravatar.cc/100?img=12" alt="Rahul" className="w-full h-full object-cover" />
                         </div>
                         <div>
-                            <h5 className="text-[14px] font-black text-taxi-text">Rahul Shinde</h5>
-                            <div className="flex gap-0.5 text-taxi-secondary">
-                                <Star size={10} fill="currentColor" />
-                                <Star size={10} fill="currentColor" />
-                                <Star size={10} fill="currentColor" />
-                                <Star size={10} fill="currentColor" />
-                                <Star size={10} fill="currentColor" />
+                            <h5 className="text-[14px] font-display font-bold text-slate-800">Rahul Shinde</h5>
+                            <div className="flex gap-0.5 text-orange-400">
+                                {[1,2,3,4,5].map(i => <Star key={i} size={10} fill="currentColor" />)}
                             </div>
                         </div>
                     </div>
-                    <p className="text-[13px] font-bold text-slate-500 italic leading-relaxed">
-                        "Joining Redigo was the best decision for my family. The payouts are always on time and the support team is incredible."
+                    <p className="text-[13px] font-medium text-slate-500 italic leading-relaxed">
+                        "Joining Redigo transformed how I manage my time and earnings. The regular payouts and support are top-notch."
                     </p>
                 </div>
             </main>
 
             {/* Sticky Action Footer */}
-            <div className="fixed bottom-0 left-0 right-0 p-6 pt-3 pb-8 bg-white/80 backdrop-blur-xl border-t border-slate-50 z-50">
+            <div className="fixed bottom-0 left-0 right-0 p-5 bg-white/80 backdrop-blur-xl border-t border-slate-100 z-50">
                 <motion.button 
-                    whileTap={{ scale: 0.96 }}
-                    onClick={() => navigate('/taxi/driver/auth')}
-                    className="w-full bg-taxi-primary h-14 rounded-2xl flex items-center justify-center gap-3 text-[17px] font-black text-taxi-text shadow-xl border border-taxi-primary/80 active:scale-95 transition-all tracking-tight uppercase"
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => navigate('/taxi/driver/lang-select')}
+                    className="w-full bg-primary h-14 rounded-xl flex items-center justify-center gap-2 text-[16px] font-display font-bold text-white shadow-premium active:scale-95 transition-all"
                 >
-                    Become a Partner <ChevronRight size={18} strokeWidth={3} />
+                    Get Started Now <ChevronRight size={18} />
                 </motion.button>
             </div>
         </div>

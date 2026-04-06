@@ -1,12 +1,12 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Rocket, Bell } from 'lucide-react';
+import { ArrowLeft, Rocket, Bell, Bike, Car, Landmark, Bus } from 'lucide-react';
 
 // Feature metadata per route
 const FEATURE_META = {
   '/rental': {
-    emoji: '🛵',
+    icon: <Bike size={48} strokeWidth={1.5} />,
     title: 'Bike Rentals',
     subtitle: 'Self-drive scooters & motorcycles',
     description: 'Rent a bike by the hour or day — no driver needed. Choose from Activa, Splendor, Royal Enfield & more.',
@@ -16,7 +16,7 @@ const FEATURE_META = {
     tag: 'COMING SOON',
   },
   '/intercity': {
-    emoji: '🚗',
+    icon: <Car size={48} strokeWidth={1.5} />,
     title: 'Intercity Travel',
     subtitle: 'Indore ↔ Bhopal · Ujjain · Mumbai',
     description: 'Book scheduled city-to-city cab rides. One-way or round trip — Mini, Sedan, or SUV.',
@@ -26,7 +26,7 @@ const FEATURE_META = {
     tag: 'COMING SOON',
   },
   '/tours': {
-    emoji: '🕉️',
+    icon: <Landmark size={48} strokeWidth={1.5} />,
     title: 'Spiritual Tours',
     subtitle: 'Mahakal · Omkareshwar · Maheshwar',
     description: 'Curated temple tour packages with expert guides, flexible timings, and group travel options.',
@@ -36,7 +36,7 @@ const FEATURE_META = {
     tag: 'COMING SOON',
   },
   '/cab-sharing': {
-    emoji: '🚌',
+    icon: <Bus size={48} strokeWidth={1.5} />,
     title: 'Cab Sharing',
     subtitle: 'Share rides, save big — Redigo\'s USP',
     description: 'Real-time seat booking in shared cabs. Choose your seat, split the fare, and travel smart.',
@@ -48,7 +48,7 @@ const FEATURE_META = {
 };
 
 const DEFAULT_META = {
-  emoji: '🚀',
+  icon: <Rocket size={48} strokeWidth={1.5} />,
   title: 'Feature Coming Soon',
   subtitle: 'We\'re working on something great',
   description: 'This feature is under development and will be available in a future update.',
@@ -79,9 +79,9 @@ const ComingSoon = () => {
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 200 }}
-          className={`w-32 h-32 ${meta.color} rounded-[40px] flex items-center justify-center text-6xl shadow-xl border ${meta.border}`}
+          className={`w-32 h-32 ${meta.color} rounded-[40px] flex items-center justify-center shadow-xl border ${meta.border} ${meta.accent}`}
         >
-          {meta.emoji}
+          {meta.icon}
         </motion.div>
 
         {/* Badge */}

@@ -44,16 +44,19 @@ const AddressSettings = lazy(() => import('./modules/user/pages/profile/AddressS
 const NotificationSettings = lazy(() => import('./modules/user/pages/profile/NotificationSettings'));
 const SecuritySettings = lazy(() => import('./modules/user/pages/profile/SecuritySettings'));
 
+// Driver Module - Common
+import DriverLayout from './modules/driver/components/DriverLayout';
+
 // Driver Module - Registration
+const LanguageSelect = lazy(() => import('./modules/driver/pages/registration/LanguageSelect'));
 const DriverWelcome = lazy(() => import('./modules/driver/pages/registration/DriverWelcome'));
-const DriverAuth = lazy(() => import('./modules/driver/pages/registration/DriverAuth'));
-const RegistrationDashboard = lazy(() => import('./modules/driver/pages/registration/RegistrationDashboard'));
+const PhoneRegistration = lazy(() => import('./modules/driver/pages/registration/PhoneRegistration'));
+const OTPVerification = lazy(() => import('./modules/driver/pages/registration/OTPVerification'));
 const RegistrationStatus = lazy(() => import('./modules/driver/pages/registration/RegistrationStatus'));
 const StepPersonal = lazy(() => import('./modules/driver/pages/registration/StepPersonal'));
+const StepReferral = lazy(() => import('./modules/driver/pages/registration/StepReferral'));
 const StepVehicle = lazy(() => import('./modules/driver/pages/registration/StepVehicle'));
 const StepDocuments = lazy(() => import('./modules/driver/pages/registration/StepDocuments'));
-const StepSelfie = lazy(() => import('./modules/driver/pages/registration/StepSelfie'));
-const StepBank = lazy(() => import('./modules/driver/pages/registration/StepBank'));
 const ApplicationStatus = lazy(() => import('./modules/driver/pages/registration/ApplicationStatus'));
 
 // Driver Module - Core
@@ -62,6 +65,7 @@ const ActiveTrip = lazy(() => import('./modules/driver/pages/ActiveTrip'));
 const DriverWallet = lazy(() => import('./modules/driver/pages/DriverWallet'));
 const DriverProfile = lazy(() => import('./modules/driver/pages/DriverProfile'));
 const RideRequests = lazy(() => import('./modules/driver/pages/RideRequests'));
+const Leaderboard = lazy(() => import('./modules/driver/pages/Leaderboard'));
 
 // Driver Module - Settings
 const DriverSettings = lazy(() => import('./modules/driver/pages/settings/DriverSettings'));
@@ -230,34 +234,37 @@ function App() {
             <Route path="/profile/notifications" element={<NotificationSettings />} />
             <Route path="/profile/security" element={<SecuritySettings />} />
             
-            {/* Driver Module Routes */}
-            <Route path="/taxi/driver/welcome" element={<DriverWelcome />} />
-            <Route path="/taxi/driver/auth" element={<DriverAuth />} />
-            <Route path="/taxi/driver/dashboard-reg" element={<RegistrationDashboard />} />
-            <Route path="/taxi/driver/step-personal" element={<StepPersonal />} />
-            <Route path="/taxi/driver/step-vehicle" element={<StepVehicle />} />
-            <Route path="/taxi/driver/step-documents" element={<StepDocuments />} />
-            <Route path="/taxi/driver/step-selfie" element={<StepSelfie />} />
-            <Route path="/taxi/driver/step-bank" element={<StepBank />} />
-            <Route path="/taxi/driver/registration-status" element={<RegistrationStatus />} />
-            <Route path="/taxi/driver/status" element={<ApplicationStatus />} />
+            {/* Driver Module Routes - Centralized under DriverLayout for Theme & Styling */}
+            <Route path="/taxi/driver" element={<DriverLayout />}>
+              <Route path="lang-select" element={<LanguageSelect />} />
+              <Route path="welcome" element={<DriverWelcome />} />
+              <Route path="reg-phone" element={<PhoneRegistration />} />
+              <Route path="otp-verify" element={<OTPVerification />} />
+              <Route path="step-personal" element={<StepPersonal />} />
+              <Route path="step-referral" element={<StepReferral />} />
+              <Route path="step-vehicle" element={<StepVehicle />} />
+              <Route path="step-documents" element={<StepDocuments />} />
+              <Route path="registration-status" element={<RegistrationStatus />} />
+              <Route path="status" element={<ApplicationStatus />} />
 
-            <Route path="/taxi/driver/home" element={<DriverHome />} />
-            <Route path="/taxi/driver/dashboard" element={<DriverHome />} />
-            <Route path="/taxi/driver/active-trip" element={<ActiveTrip />} />
-            <Route path="/taxi/driver/wallet" element={<DriverWallet />} />
-            <Route path="/taxi/driver/profile" element={<DriverProfile />} />
-            <Route path="/taxi/driver/history" element={<RideRequests />} />
+              <Route path="home" element={<DriverHome />} />
+              <Route path="dashboard" element={<DriverHome />} />
+              <Route path="active-trip" element={<ActiveTrip />} />
+              <Route path="wallet" element={<DriverWallet />} />
+              <Route path="profile" element={<DriverProfile />} />
+              <Route path="history" element={<RideRequests />} />
+              <Route path="leaderboard" element={<Leaderboard />} />
 
-            <Route path="/taxi/driver/settings" element={<DriverSettings />} />
-            <Route path="/taxi/driver/edit-profile" element={<EditProfile />} />
-            <Route path="/taxi/driver/documents" element={<DriverDocuments />} />
-            <Route path="/taxi/driver/notifications" element={<Notifications />} />
-            <Route path="/taxi/driver/payout-methods" element={<PayoutMethods />} />
-            <Route path="/taxi/driver/referral" element={<Referral />} />
-            <Route path="/taxi/driver/security" element={<SecuritySOS />} />
-            <Route path="/taxi/driver/support" element={<DriverSupport />} />
-            <Route path="/taxi/driver/vehicle-fleet" element={<VehicleFleet />} />
+              <Route path="settings" element={<DriverSettings />} />
+              <Route path="edit-profile" element={<EditProfile />} />
+              <Route path="documents" element={<DriverDocuments />} />
+              <Route path="notifications" element={<Notifications />} />
+              <Route path="payout-methods" element={<PayoutMethods />} />
+              <Route path="referral" element={<Referral />} />
+              <Route path="security" element={<SecuritySOS />} />
+              <Route path="support" element={<DriverSupport />} />
+              <Route path="vehicle-fleet" element={<VehicleFleet />} />
+            </Route>
 
             {/* Admin Module Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />

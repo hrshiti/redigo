@@ -9,8 +9,8 @@
 export const SERVICE_CONFIG = {
   /** Active service types captains can register for */
   services: [
-    { id: 'taxi',     label: 'Taxi',     icon: '🚖', description: 'City cab & bike rides',  active: true },
-    { id: 'delivery', label: 'Delivery', icon: '📦', description: 'Parcel & courier drops',  active: true },
+    { id: 'taxi',     label: 'Taxi',     icon: 'taxi_icon', description: 'City cab & bike rides',  active: true },
+    { id: 'delivery', label: 'Delivery', icon: 'delivery_icon', description: 'Parcel & courier drops',  active: true },
   ],
 
   /**
@@ -28,9 +28,9 @@ export const SERVICE_CONFIG = {
       state: 'Madhya Pradesh',
       active: true,
       vehicleTypes: [
-        { id: 'bike',  label: 'Bike',  icon: '🏍️', services: ['taxi', 'delivery'], active: true },
-        { id: 'auto',  label: 'Auto',  icon: '🛺', services: ['taxi'],             active: true },
-        { id: 'cab',   label: 'Cab',   icon: '🚗', services: ['taxi'],             active: true },
+        { id: 'bike',  label: 'Bike',  icon: 'bike_icon', services: ['taxi', 'delivery'], active: true },
+        { id: 'auto',  label: 'Auto',  icon: 'auto_icon', services: ['taxi'],             active: true },
+        { id: 'cab',   label: 'Cab',   icon: 'cab_icon', services: ['taxi'],             active: true },
       ],
     },
     {
@@ -39,8 +39,8 @@ export const SERVICE_CONFIG = {
       state: 'Madhya Pradesh',
       active: true,
       vehicleTypes: [
-        { id: 'bike',  label: 'Bike',  icon: '🏍️', services: ['taxi', 'delivery'], active: true },
-        { id: 'auto',  label: 'Auto',  icon: '🛺', services: ['taxi'],             active: true },
+        { id: 'bike',  label: 'Bike',  icon: 'bike_icon', services: ['taxi', 'delivery'], active: true },
+        { id: 'auto',  label: 'Auto',  icon: 'auto_icon', services: ['taxi'],             active: true },
       ],
     },
     {
@@ -49,7 +49,7 @@ export const SERVICE_CONFIG = {
       state: 'Madhya Pradesh',
       active: true,
       vehicleTypes: [
-        { id: 'bike',  label: 'Bike',  icon: '🏍️', services: ['taxi', 'delivery'], active: true },
+        { id: 'bike',  label: 'Bike',  icon: 'bike_icon', services: ['taxi', 'delivery'], active: true },
       ],
     },
     {
@@ -58,8 +58,8 @@ export const SERVICE_CONFIG = {
       state: 'Madhya Pradesh',
       active: true,
       vehicleTypes: [
-        { id: 'bike',  label: 'Bike',  icon: '🏍️', services: ['taxi', 'delivery'], active: true },
-        { id: 'cab',   label: 'Cab',   icon: '🚗', services: ['taxi'],             active: true },
+        { id: 'bike',  label: 'Bike',  icon: 'bike_icon', services: ['taxi', 'delivery'], active: true },
+        { id: 'cab',   label: 'Cab',   icon: 'cab_icon', services: ['taxi'],             active: true },
       ],
     },
   ],
