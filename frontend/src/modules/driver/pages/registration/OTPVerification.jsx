@@ -11,6 +11,7 @@ const OTPVerification = () => {
     const [timer, setTimer] = useState(30);
 
     const phone = location.state?.phone || '95898 14119';
+    const role = location.state?.role || 'driver';
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -38,7 +39,7 @@ const OTPVerification = () => {
 
     const handleVerify = () => {
         if (otp.join('').length === 6) {
-            navigate('/taxi/driver/step-personal', { state: { phone } });
+            navigate('/taxi/driver/step-personal', { state: { ...location.state, phone, role } });
         } else {
             alert('Please enter a valid 6-digit OTP');
         }
@@ -57,7 +58,9 @@ const OTPVerification = () => {
 
             <main className="space-y-5 max-w-sm mx-auto">
                 <div className="space-y-1.5 text-center">
-                    <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-none uppercase">Verify Mobile</h1>
+                    <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-none uppercase">
+                        Verify {role === 'owner' ? 'Owner' : 'Mobile'}
+                    </h1>
                     <p className="text-[11px] font-bold text-slate-400 opacity-80 uppercase tracking-widest leading-relaxed">Identity Check for +91 {phone}</p>
                 </div>
 

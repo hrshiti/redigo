@@ -6,11 +6,12 @@ import { useNavigate } from 'react-router-dom';
 const PhoneRegistration = () => {
     const navigate = useNavigate();
     const [phone, setPhone] = useState('');
+    const [role, setRole] = useState('driver');
     const [agreed, setAgreed] = useState(true);
 
     const handleSendOTP = () => {
         if (phone.length === 10) {
-            navigate('/taxi/driver/otp-verify', { state: { phone } });
+            navigate('/taxi/driver/otp-verify', { state: { phone, role } });
         } else {
             alert('Please enter a valid 10-digit mobile number');
         }
@@ -29,7 +30,9 @@ const PhoneRegistration = () => {
 
             <main className="space-y-6 max-w-sm mx-auto">
                 <div className="space-y-1.5">
-                    <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-none uppercase">Join Redigo</h1>
+                    <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-none uppercase">
+                        Join Redigo {role === 'owner' ? 'as Owner' : ''}
+                    </h1>
                     <p className="text-[12px] font-bold text-slate-400 opacity-80 uppercase tracking-widest leading-relaxed">Let's verify your mobile to get started</p>
                 </div>
 
@@ -79,16 +82,10 @@ const PhoneRegistration = () => {
 
                     <div className="pt-2">
                         <button 
-                            onClick={() => {
-                                if (phone.length === 10) {
-                                    navigate('/taxi/driver/otp-verify', { state: { phone, role: 'owner' } });
-                                } else {
-                                    alert('Please enter a valid 10-digit mobile number to login as owner');
-                                }
-                            }}
+                            onClick={() => setRole(role === 'driver' ? 'owner' : 'driver')}
                             className="w-full h-12 rounded-xl flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-[0.15em] text-slate-400 hover:text-slate-900 transition-colors border border-dashed border-slate-200 hover:border-slate-900 group"
                         >
-                            Login as a <span className="text-slate-900 group-hover:underline">Owner</span>
+                            Login as a <span className="text-slate-900 group-hover:underline">{role === 'driver' ? 'Owner' : 'Driver'}</span>
                         </button>
                     </div>
                 </div>

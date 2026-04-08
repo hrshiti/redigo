@@ -272,7 +272,7 @@ const StepVehicle = () => {
                         className={`w-full h-14 rounded-2xl flex items-center justify-center gap-2 text-[13px] font-black uppercase tracking-widest shadow-lg transition-all ${
                             (isOwner ? 
                                 (formData.locationId && formData.companyName && formData.companyAddress && formData.city && formData.postalCode && formData.taxNumber) : 
-                                Object.values(formData).every(v => v))
+                                (formData.locationId && formData.vehicleTypeId && formData.make && formData.model && formData.year && formData.number && formData.color))
                             ? 'bg-slate-900 text-white shadow-slate-900/10' 
                             : 'bg-slate-100 text-slate-300 pointer-events-none'
                         }`}
