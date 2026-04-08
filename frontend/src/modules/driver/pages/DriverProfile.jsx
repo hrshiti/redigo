@@ -15,149 +15,172 @@ import {
     ArrowRight, 
     Star, 
     Route, 
-    TrendingUp, 
     ChevronRight,
     Camera,
-    Edit3,
-    CheckCircle2
+    CheckCircle2,
+    ArrowLeft,
+    Wallet,
+    Info,
+    Gift,
+    Shield,
+    BarChart3,
+    Languages,
+    BadgePercent,
+    Check
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import DriverBottomNav from '../../shared/components/DriverBottomNav';
 
 const DriverProfile = () => {
     const navigate = useNavigate();
-    const [profileData, setProfileData] = useState({
-        name: 'Hritik Raghuwanshi',
-        rating: '4.9',
-        totalTrips: '1,240',
-        totalKm: '12.4k',
-        vehicleNo: 'MP 09 AB 1234',
-        model: 'Maruti Suzuki WagonR'
-    });
+    const [isRouteBookingEnabled, setIsRouteBookingEnabled] = useState(false);
 
-    const menuSections = [
-        {
-            title: 'Account Settings',
+    // Dynamic Section Data with Project-mapped Paths
+    const role = localStorage.getItem('role') || 'driver';
+    const isOwner = role === 'owner';
+
+    const sections = [
+        ...(isOwner ? [{
+            title: 'Fleet Management',
             items: [
-                { id: 'edit', label: 'Edit Profile', sub: 'Details & Avatar', icon: <User size={18} />, color: 'text-blue-500', bg: 'bg-blue-50', path: '/taxi/driver/edit-profile' },
-                { id: 'notifications', label: 'Notifications', sub: 'Hub settings', icon: <Bell size={18} />, color: 'text-amber-500', bg: 'bg-amber-50', path: '/taxi/driver/notifications' },
-                { id: 'security', label: 'Security & SOS', sub: 'Safety protocols', icon: <ShieldCheck size={18} />, color: 'text-emerald-500', bg: 'bg-emerald-50', path: '/taxi/driver/security' }
+                { id: 'fleet', label: 'Manage Fleet', icon: <Car size={20} />, path: '/taxi/driver/vehicle-fleet' },
+                { id: 'drivers', label: 'Manage Drivers', icon: <UserPlus size={20} />, path: '/taxi/driver/manage-drivers' },
+            ]
+        }] : []),
+        {
+            title: 'Your Account',
+            items: [
+                { id: 'personal', label: 'Personal Information', sub: '+91 95898 14119', icon: <User size={20} />, path: '/taxi/driver/edit-profile' },
+                { id: 'wallet', label: 'Wallet', icon: <Wallet size={20} />, path: '/taxi/driver/wallet' },
+                ...(!isOwner ? [
+                    { id: 'vehicle', label: 'My Vehicle', icon: <Car size={20} />, path: '/taxi/driver/vehicle-fleet' },
+                ] : []),
+                { id: 'docs', label: 'Documents', icon: <FileText size={20} />, path: '/taxi/driver/documents' },
+                { id: 'history', label: 'History', icon: <History size={20} />, path: '/taxi/driver/history' },
+                { id: 'notifications', label: 'Notifications', icon: <Bell size={20} />, path: '/taxi/driver/notifications' },
             ]
         },
         {
-            title: 'Business & Fleet',
+            title: 'Benefits',
             items: [
-                { id: 'vehicle', label: 'Vehicle Fleet', sub: 'MP 09 AB 1234', icon: <Car size={18} />, color: 'text-indigo-500', bg: 'bg-indigo-50', path: '/taxi/driver/vehicle-fleet' },
-                { id: 'earnings', label: 'Payout Methods', sub: 'Bank & UPI', icon: <CreditCard size={18} />, color: 'text-emerald-500', bg: 'bg-emerald-50', path: '/taxi/driver/payout-methods' },
-                { id: 'history', label: 'Job History', sub: 'Past requests', icon: <History size={18} />, color: 'text-slate-500', bg: 'bg-slate-50', path: '/taxi/driver/history' }
+                { id: 'refer', label: 'Refer & Earn', icon: <Gift size={20} />, path: '/taxi/driver/referral' },
+                { id: 'incentives', label: 'Incentives', icon: <BadgePercent size={20} />, path: '/taxi/driver/wallet' },
+                { id: 'sos', label: 'SOS', icon: <Shield size={20} />, path: '/taxi/driver/security' },
             ]
         },
         {
-            title: 'Support',
+            title: 'Earnings',
             items: [
-                { id: 'docs', label: 'My Documents', sub: 'Verified KYC', icon: <FileText size={18} />, color: 'text-rose-500', bg: 'bg-rose-50', badge: 'Verified', path: '/taxi/driver/documents' },
-                { id: 'refer', label: 'Refer Fellow', sub: 'Invite & Earn', icon: <UserPlus size={18} />, color: 'text-amber-500', bg: 'bg-amber-50', path: '/taxi/driver/referral' },
-                { id: 'help', label: 'Help Center', sub: 'Support & FAQ', icon: <HelpCircle size={18} />, color: 'text-blue-500', bg: 'bg-blue-50', path: '/taxi/driver/support' }
+                { id: 'earnings', label: 'My Earnings', icon: <Wallet size={20} />, path: '/taxi/driver/wallet' },
+                { id: 'reports', label: 'Reports', icon: <BarChart3 size={20} />, path: '/taxi/driver/history' },
+            ]
+        },
+        {
+            title: 'Preferences',
+            items: [
+                { id: 'languages', label: 'Languages', icon: <Languages size={20} />, path: '/taxi/driver/lang-select' },
+                { id: 'routeBooking', label: 'MyRouteBooking', icon: <Route size={20} />, type: 'toggle' },
+            ]
+        },
+        {
+            title: 'Settings',
+            items: [
+                { id: 'settings', label: 'Settings', icon: <Settings size={20} />, path: '/taxi/driver/settings' },
             ]
         }
     ];
 
     return (
-        <div className="min-h-screen bg-[#f8f9fb] font-sans select-none overflow-x-hidden p-5 pb-24 flex flex-col pt-6">
-            {/* Compact Professional Header */}
-            <header className="mb-8 space-y-5">
-                 <div className="flex items-center justify-between">
-                     <div className="flex items-center gap-4">
-                         <div className="relative group">
-                             <div className="w-16 h-16 bg-slate-900 rounded-[1.5rem] border-2 border-white shadow-lg flex items-center justify-center text-3xl overflow-hidden group-hover:scale-105 transition-transform">
-                                 👨🏻‍💼
-                                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                     <Camera size={20} className="text-white" />
-                                 </div>
-                             </div>
-                             <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 bg-taxi-primary rounded-lg border-2 border-white flex items-center justify-center shadow-md">
-                                 <CheckCircle2 size={12} strokeWidth={3} className="text-black" />
-                             </div>
-                         </div>
-                         <div className="space-y-0.5">
-                             <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase leading-none">{profileData.name}</h2>
-                             <div className="flex items-center gap-2">
-                                 <div className="flex items-center gap-1 bg-white px-2 py-0.5 rounded-full border border-slate-100 shadow-sm">
-                                     <Star size={10} fill="#fdd835" className="text-[#e5c100]" />
-                                     <p className="text-[10px] font-black text-slate-900">{profileData.rating}</p>
-                                 </div>
-                                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest opacity-60">Elite Platinum</p>
-                             </div>
-                         </div>
-                     </div>
-                     <button onClick={() => navigate('/taxi/driver/settings')} className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-slate-400 border border-slate-50 transition-transform active:scale-95"><Settings size={20} /></button>
-                 </div>
+        <div className="min-h-screen bg-white font-sans select-none overflow-x-hidden pb-32">
+            {/* Header - Compact & Aligned */}
+            <header className="px-5 pt-4 pb-4 border-b border-slate-50 sticky top-0 bg-white z-[60]">
+                <div className="flex items-center justify-between mb-4">
+                    <button onClick={() => navigate(-1)} className="p-1 -ml-2 text-slate-600 active:scale-95">
+                        <ArrowLeft size={22} strokeWidth={2.5} />
+                    </button>
+                    <button className="flex items-center gap-1.5 text-[#88B04B] font-black text-[13px] uppercase tracking-wider">
+                        <Info size={18} />
+                        Help
+                    </button>
+                </div>
 
-                 {/* Metrics grid: Compact */}
-                 <div className="grid grid-cols-3 gap-3">
-                     <div className="bg-white p-3 py-4 rounded-2xl border border-white shadow-sm flex flex-col items-center justify-center gap-1 transition-transform hover:scale-105 group">
-                         <div className="w-8 h-8 bg-emerald-50 text-emerald-500 rounded-xl flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition-colors">
-                             <CheckCircle2 size={16} />
-                         </div>
-                         <h4 className="text-[14px] font-black text-slate-900 leading-none mt-1.5">{profileData.totalTrips}</h4>
-                         <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest opacity-70">Trips</p>
-                     </div>
-                     <div className="bg-white p-3 py-4 rounded-2xl border border-white shadow-sm flex flex-col items-center justify-center gap-1 transition-transform hover:scale-105 group">
-                         <div className="w-8 h-8 bg-blue-50 text-blue-500 rounded-xl flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-colors">
-                             <Route size={16} />
-                         </div>
-                         <h4 className="text-[14px] font-black text-slate-900 leading-none mt-1.5">{profileData.totalKm}</h4>
-                         <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest opacity-70">KM Done</p>
-                     </div>
-                     <div className="bg-white p-3 py-4 rounded-2xl border border-white shadow-sm flex flex-col items-center justify-center gap-1 transition-transform hover:scale-105 group">
-                         <div className="w-8 h-8 bg-amber-50 text-amber-500 rounded-xl flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-colors">
-                             <TrendingUp size={16} />
-                         </div>
-                         <h4 className="text-[14px] font-black text-slate-900 leading-none mt-1.5">Top 5%</h4>
-                         <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest opacity-70">Global</p>
-                     </div>
-                 </div>
+                <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                        <h2 className="text-[22px] font-black text-slate-900 leading-tight uppercase">
+                            hritik<br/>raghuwanshi
+                        </h2>
+                        <div className="flex items-center gap-1.5 text-sky-500">
+                            <Star size={14} fill="currentColor" />
+                            <span className="text-[14px] font-black">0</span>
+                        </div>
+                    </div>
+                    {/* Integrated Profile Image */}
+                    <div className="relative">
+                        <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center shadow-lg relative overflow-hidden group">
+                             <User size={32} className="text-white" strokeWidth={1.5} />
+                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                 <Camera size={16} className="text-white" />
+                             </div>
+                        </div>
+                        <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-lg border-2 border-white flex items-center justify-center shadow-sm">
+                             <Check size={12} className="text-white" strokeWidth={4} />
+                        </div>
+                    </div>
+                </div>
             </header>
 
-            <main className="flex-1 space-y-6 overflow-y-auto scrollbar-hide pb-8">
-                {menuSections.map((section, idx) => (
-                    <div key={idx} className="space-y-3">
-                        <h3 className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] opacity-60 ml-2">{section.title}</h3>
-                        <div className="space-y-2.5">
+            {/* List Menu */}
+            <main className="space-y-1">
+                {sections.map((section, sIdx) => (
+                    <div key={sIdx} className="pt-5">
+                        <h3 className="px-6 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">{section.title}</h3>
+                        <div className="space-y-0">
                             {section.items.map((item) => (
                                 <motion.div 
                                     key={item.id}
-                                    whileTap={{ scale: 0.98 }}
-                                    onClick={() => navigate(item.path)}
-                                    className="bg-white p-4 rounded-2xl border border-white shadow-sm flex items-center justify-between group active:bg-slate-50 transition-all cursor-pointer"
+                                    whileTap={item.type !== 'toggle' ? { backgroundColor: '#F8F9FA' } : {}}
+                                    onClick={() => item.path && navigate(item.path)}
+                                    className="flex items-center justify-between px-6 py-4 group cursor-pointer border-b border-slate-50/50"
                                 >
-                                    <div className="flex items-center gap-4">
-                                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105 shadow-sm border border-slate-50 ${item.bg} ${item.color}`}>
+                                    <div className="flex items-center gap-5">
+                                        <div className="text-slate-400 group-hover:text-slate-900 transition-colors">
                                             {item.icon}
                                         </div>
-                                        <div className="space-y-0.5">
-                                            <h4 className="text-[14px] font-black text-slate-900 leading-tight tracking-tight">{item.label}</h4>
-                                            <p className="text-[10px] font-bold text-slate-400 opacity-60 leading-tight">{item.sub}</p>
+                                        <div>
+                                            <h4 className="text-[14px] font-black text-slate-800 tracking-tight uppercase">{item.label}</h4>
+                                            {item.sub && <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{item.sub}</p>}
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        {item.badge && <span className="bg-emerald-500/10 text-emerald-500 px-2.5 py-0.5 rounded-full text-[8.5px] font-black uppercase tracking-widest border border-emerald-500/10">{item.badge}</span>}
-                                        <ChevronRight size={16} className="text-slate-200 group-hover:text-slate-400 transition-colors" />
-                                    </div>
+                                    {item.type === 'toggle' ? (
+                                        <button 
+                                            onClick={(e) => { e.stopPropagation(); setIsRouteBookingEnabled(!isRouteBookingEnabled); }}
+                                            className={`w-10 h-5.5 rounded-full relative transition-colors duration-300 ${isRouteBookingEnabled ? 'bg-slate-900' : 'bg-slate-200'}`}
+                                        >
+                                            <motion.div 
+                                                animate={{ x: isRouteBookingEnabled ? 20 : 2 }}
+                                                className="absolute top-1 w-3.5 h-3.5 rounded-full bg-white shadow-sm"
+                                            />
+                                        </button>
+                                    ) : (
+                                        <ChevronRight size={16} className="text-slate-200" />
+                                    )}
                                 </motion.div>
                             ))}
                         </div>
                     </div>
                 ))}
-
-                {/* Compact Sign Out */}
-                <motion.button 
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full bg-white border border-rose-100/50 py-4 rounded-2xl flex items-center justify-center gap-2 text-[12px] font-black text-rose-500 uppercase tracking-widest transition-all mb-10 shadow-sm"
-                >
-                    Sign Out Account <LogOut size={16} strokeWidth={3} />
-                </motion.button>
             </main>
+
+            {/* Sign Out Section */}
+            <div className="px-6 py-10">
+                <button 
+                    onClick={() => navigate('/login')}
+                    className="flex items-center gap-3 text-rose-500 font-black text-[12px] uppercase tracking-[0.2em] active:translate-x-1 transition-transform"
+                >
+                    <LogOut size={16} strokeWidth={2.5} />
+                    Terminate Session
+                </button>
+            </div>
 
             <DriverBottomNav />
         </div>

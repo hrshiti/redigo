@@ -1,40 +1,44 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, Wallet, History, User, Bell } from 'lucide-react';
+import { Home, Award, IndianRupee, User } from 'lucide-react';
 
 const DriverBottomNav = () => {
     const location = useLocation();
 
+    // Matching user's latest screenshot labels: Home, LeaderBoard, Earnings, Accounts
     const navItems = [
-        { icon: <Home size={20} />, label: 'Home', path: '/taxi/driver/home' },
-        { icon: <Wallet size={20} />, label: 'Wallet', path: '/taxi/driver/wallet' },
-        { icon: <History size={20} />, label: 'Activity', path: '/taxi/driver/history' },
-        { icon: <User size={20} />, label: 'Profile', path: '/taxi/driver/profile' },
+        { icon: <Home size={22} />, label: 'Home', path: '/taxi/driver/home' },
+        { icon: <Award size={22} />, label: 'LeaderBoard', path: '/taxi/driver/leaderboard' },
+        { icon: <IndianRupee size={22} />, label: 'Earnings', path: '/taxi/driver/wallet' },
+        { icon: <User size={22} />, label: 'Accounts', path: '/taxi/driver/profile' },
     ];
 
     return (
-        <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg bg-white/80 backdrop-blur-xl border-t border-slate-100 px-6 py-3 flex items-center justify-between z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
+        <nav className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-100 flex items-center justify-around z-50 h-[72px] px-6 pb-2 shadow-[0_-10px_30px_rgba(0,0,0,0.03)]">
             {navItems.map((item) => {
-                const isActive = location.pathname === item.path;
+                const isActive = location.pathname === item.path || (item.path === '/taxi/driver/home' && location.pathname === '/taxi/driver/dashboard');
                 return (
                     <NavLink
                         key={item.path}
                         to={item.path}
-                        className={({ isActive }) => 
-                            `flex flex-col items-center gap-1 transition-all ${
-                                isActive ? 'text-taxi-secondary scale-110' : 'text-slate-400 opacity-60 hover:opacity-100'
-                            }`
-                        }
+                        className={`flex flex-col items-center justify-center gap-1 transition-all duration-300 relative ${
+                            isActive ? 'text-slate-900 translate-y-[-2px]' : 'text-slate-400 font-bold'
+                        }`}
                     >
-                        <div className={`p-2 rounded-2xl transition-colors ${isActive ? 'bg-taxi-primary/10 shadow-sm' : ''}`}>
+                        <div className={`transition-all duration-300 ${isActive ? 'scale-110 mb-0.5' : ''}`}>
                             {React.cloneElement(item.icon, { 
                                 strokeWidth: isActive ? 2.5 : 2,
-                                size: 20
+                                size: 22
                             })}
                         </div>
-                        <span className={`text-[10px] font-black uppercase tracking-widest transition-all ${isActive ? 'opacity-100' : 'opacity-0'}`}>
+                        <span className={`text-[10px] uppercase tracking-[0.08em] transition-all duration-300 ${
+                            isActive ? 'opacity-100 scale-100 font-black' : 'opacity-80 scale-95 font-bold'
+                        }`}>
                             {item.label}
                         </span>
+                        {isActive && (
+                            <div className="absolute -top-3 w-8 h-[2px] bg-slate-900 rounded-full" />
+                        )}
                     </NavLink>
                 );
             })}

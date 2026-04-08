@@ -30,7 +30,7 @@ import AutoIcon from '../../../../assets/icons/auto.png';
 import TruckIcon from '../../../../assets/icons/truck.png';
 import EhcvIcon from '../../../../assets/icons/ehcv.png';
 import HcvIcon from '../../../../assets/icons/hcv.png';
-import LcvIcon from '../../../../assets/icons/lcv.png';
+import LcvIcon from '../../../../assets/icons/LCV.png';
 import McvIcon from '../../../../assets/icons/mcv.png';
 import LuxuryIcon from '../../../../assets/icons/Luxury.png';
 import PremiumIcon from '../../../../assets/icons/Premium.png';

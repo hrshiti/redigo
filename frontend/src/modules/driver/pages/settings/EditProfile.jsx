@@ -46,7 +46,9 @@ const EditProfile = () => {
             <main className="space-y-6">
                 <div className="flex flex-col items-center gap-4 mb-8">
                     <div className="relative group">
-                        <div className="w-24 h-24 bg-slate-900 rounded-[2rem] border-4 border-white shadow-xl flex items-center justify-center text-4xl">👨🏻‍💼</div>
+                        <div className="w-24 h-24 bg-slate-900 rounded-[2.5rem] flex items-center justify-center shadow-premium relative">
+                            <User size={48} className="text-white" strokeWidth={1.5} />
+                        </div>
                         <button className="absolute bottom-0 right-0 w-8 h-8 bg-taxi-primary rounded-xl border-4 border-white shadow-lg flex items-center justify-center">
                             <Camera size={14} />
                         </button>

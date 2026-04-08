@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, MapPin, Calendar, Users, ChevronRight, Repeat } from 'lucide-react';
+import { ArrowLeft, ArrowRight, MapPin, Calendar, Users, ChevronRight, Repeat, Car, Truck, Bike } from 'lucide-react';
 
 const CITIES = ['Indore', 'Bhopal', 'Ujjain', 'Jabalpur', 'Ratlam', 'Dewas', 'Mumbai', 'Delhi', 'Pune'];
 
 const VEHICLES = [
-  { id: 'mini', name: 'Mini Cab', icon: '🚕', seats: 4, desc: 'Swift, Alto, WagonR', pricePerKm: 12, baseFare: 499 },
-  { id: 'sedan', name: 'Sedan', icon: '🚗', seats: 4, desc: 'Dzire, Amaze, Aspire', pricePerKm: 15, baseFare: 699 },
-  { id: 'suv', name: 'SUV', icon: '🚙', seats: 6, desc: 'Ertiga, Innova, Crysta', pricePerKm: 20, baseFare: 999 },
+  { id: 'mini', name: 'Mini Cab', icon: <Car size={24} />, seats: 4, desc: 'Swift, Alto, WagonR', pricePerKm: 12, baseFare: 499 },
+  { id: 'sedan', name: 'Sedan', icon: <Car size={24} className="text-primary" />, seats: 4, desc: 'Dzire, Amaze, Aspire', pricePerKm: 15, baseFare: 699 },
+  { id: 'suv', name: 'SUV', icon: <Truck size={24} />, seats: 6, desc: 'Ertiga, Innova, Crysta', pricePerKm: 20, baseFare: 999 },
 ];
 
 const CITY_DISTANCES = {
@@ -174,7 +174,7 @@ const IntercityHome = () => {
                   : 'border-gray-100 bg-white'
               }`}
             >
-              <span className="text-3xl">{v.icon}</span>
+              <span className="shrink-0">{v.icon}</span>
               <div className="flex-1">
                 <h4 className="text-[15px] font-black text-gray-900 leading-none">{v.name}</h4>
                 <p className="text-[12px] font-bold text-gray-400 mt-0.5">{v.desc} · {v.seats} seats</p>
