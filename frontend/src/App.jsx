@@ -77,6 +77,9 @@ const Referral = lazy(() => import('./modules/driver/pages/settings/Referral'));
 const SecuritySOS = lazy(() => import('./modules/driver/pages/settings/SecuritySOS'));
 const DriverSupport = lazy(() => import('./modules/driver/pages/settings/Support'));
 const VehicleFleet = lazy(() => import('./modules/driver/pages/settings/VehicleFleet'));
+const AddVehicle = lazy(() => import('./modules/driver/pages/settings/AddVehicle'));
+const ManageDrivers = lazy(() => import('./modules/driver/pages/settings/ManageDrivers'));
+const AddDriver = lazy(() => import('./modules/driver/pages/settings/AddDriver'));
 
 // Admin Module Pages
 const AdminLayout = lazy(() => import('./modules/admin/components/AdminLayout'));
@@ -264,6 +267,9 @@ function App() {
               <Route path="security" element={<SecuritySOS />} />
               <Route path="support" element={<DriverSupport />} />
               <Route path="vehicle-fleet" element={<VehicleFleet />} />
+              <Route path="add-vehicle" element={<AddVehicle />} />
+              <Route path="manage-drivers" element={<ManageDrivers />} />
+              <Route path="add-driver" element={<AddDriver />} />
             </Route>
 
             {/* Admin Module Routes */}

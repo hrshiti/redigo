@@ -76,9 +76,24 @@ const PhoneRegistration = () => {
                     >
                         Send OTP  <ArrowRight size={16} strokeWidth={3} />
                     </motion.button>
+
+                    <div className="pt-2">
+                        <button 
+                            onClick={() => {
+                                if (phone.length === 10) {
+                                    navigate('/taxi/driver/otp-verify', { state: { phone, role: 'owner' } });
+                                } else {
+                                    alert('Please enter a valid 10-digit mobile number to login as owner');
+                                }
+                            }}
+                            className="w-full h-12 rounded-xl flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-[0.15em] text-slate-400 hover:text-slate-900 transition-colors border border-dashed border-slate-200 hover:border-slate-900 group"
+                        >
+                            Login as a <span className="text-slate-900 group-hover:underline">Owner</span>
+                        </button>
+                    </div>
                 </div>
 
-                <div className="pt-8 flex items-center justify-center gap-2.5 text-slate-300 grayscale opacity-30">
+                <div className="pt-6 flex items-center justify-center gap-2.5 text-slate-300 grayscale opacity-30">
                     <ShieldCheck size={16} />
                     <p className="text-[9px] font-black uppercase tracking-widest">End-to-End Encrypted</p>
                 </div>

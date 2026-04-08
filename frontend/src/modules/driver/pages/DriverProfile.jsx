@@ -36,13 +36,21 @@ const DriverProfile = () => {
     const [isRouteBookingEnabled, setIsRouteBookingEnabled] = useState(false);
 
     // Dynamic Section Data with Project-mapped Paths
+    const role = localStorage.getItem('role') || 'driver';
+    const isOwner = role === 'owner';
+
     const sections = [
         {
             title: 'Your Account',
             items: [
-                { id: 'personal', label: 'Personal Information', sub: '+916260491554', icon: <User size={20} />, path: '/taxi/driver/edit-profile' },
+                { id: 'personal', label: 'Personal Information', sub: '+91 95898 14119', icon: <User size={20} />, path: '/taxi/driver/edit-profile' },
                 { id: 'wallet', label: 'Wallet', icon: <Wallet size={20} />, path: '/taxi/driver/wallet' },
-                { id: 'vehicle', label: 'My Vehicle', icon: <Car size={20} />, path: '/taxi/driver/vehicle-fleet' },
+                ...(isOwner ? [
+                    { id: 'fleet', label: 'Manage Fleet', icon: <Car size={20} />, path: '/taxi/driver/vehicle-fleet' },
+                    { id: 'drivers', label: 'Drivers', icon: <UserPlus size={20} />, path: '/taxi/driver/manage-drivers' },
+                ] : [
+                    { id: 'vehicle', label: 'My Vehicle', icon: <Car size={20} />, path: '/taxi/driver/vehicle-fleet' },
+                ]),
                 { id: 'docs', label: 'Documents', icon: <FileText size={20} />, path: '/taxi/driver/documents' },
                 { id: 'history', label: 'History', icon: <History size={20} />, path: '/taxi/driver/history' },
                 { id: 'notifications', label: 'Notifications', icon: <Bell size={20} />, path: '/taxi/driver/notifications' },
