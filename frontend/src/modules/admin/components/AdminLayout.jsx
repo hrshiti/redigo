@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import RedigoLogo from '../../../assets/redigologo.png';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import Rydon24Logo from '../../../assets/rydon24_logo.png';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { socketService } from '../../../shared/api/socket';
 import { 
@@ -150,7 +150,42 @@ const AdminLayout = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [isCollapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const [notifications, setNotifications] = useState([]);
+
+  // Dynamic Page Title Resolver
+  const getPageTitle = () => {
+    const path = location.pathname;
+    const allItems = [...homeItems, ...userItems, ...configurationItems, ...masterItems];
+    
+    // Check main items
+    const directMatch = allItems.find(i => i.path === path);
+    if (directMatch) return directMatch.label;
+
+    // Check sub items (recursive-ish)
+    for (const item of allItems) {
+      if (item.subItems) {
+        const subMatch = item.subItems.find(si => si.path === path);
+        if (subMatch) return subMatch.label;
+        
+        // Check nested subs
+        for (const sub of item.subItems) {
+           if (sub.subItems) {
+              const nestedMatch = sub.subItems.find(nsi => nsi.path === path);
+              if (nestedMatch) return nestedMatch.label;
+           }
+        }
+      }
+    }
+
+    // Default fallbacks for common segments
+    if (path.includes('general')) return 'General Settings';
+    if (path.includes('edit')) return 'Edit Data';
+    if (path.includes('add') || path.includes('create')) return 'Add New';
+    
+    return 'RYDON24 Admin';
+  };
+
 
   // Auth & Socket Check
   React.useEffect(() => {
@@ -351,7 +386,6 @@ const AdminLayout = () => {
         { label: 'Firebase Settings', path: '/admin/settings/third-party/firebase' },
         { label: 'Map and Map APIs Settings', path: '/admin/settings/third-party/map-apis' },
         { label: 'Mail Configuration', path: '/admin/settings/third-party/mail' },
-        { label: 'Recaptcha', path: '/admin/settings/third-party/recaptcha' },
         { label: 'Notification Channel', path: '/admin/settings/third-party/notification-channel' },
       ]
     },
@@ -395,7 +429,7 @@ const AdminLayout = () => {
           <div className="h-24 flex items-center px-6 border-b border-white/5 mb-4 group/sidebar-head">
              <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-xl bg-white/5 p-1 flex items-center justify-center group-hover:scale-105 transition-all border border-white/5">
-                   <img src={RedigoLogo} alt="Redigo" className="w-10 h-10 object-contain" />
+                   <img src={Rydon24Logo} alt="RYDON24" className="w-10 h-10 object-contain" />
                 </div>
                 {!isCollapsed && (
                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col">
@@ -469,10 +503,11 @@ const AdminLayout = () => {
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#f0f4f8]">
         <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-6 sticky top-0 z-40 shadow-sm">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-lg border border-slate-200">
-             <MapPin size={14} className="text-slate-400" />
-             <span className="text-[11px] font-black text-slate-600 uppercase tracking-widest">Global Filter</span>
+          <div className="flex items-center gap-3">
+             <div className="w-1.5 h-6 bg-[#2563EB] rounded-full mr-1"></div>
+             <h2 className="text-[15px] font-black text-slate-800 uppercase tracking-widest">{getPageTitle()}</h2>
           </div>
+
           <div className="flex items-center gap-3">
              <div className="flex items-center gap-1 mr-4 pr-4 border-r border-gray-100 leading-none">
                 <button className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"><Search size={18} /></button>

@@ -1,7 +1,9 @@
 import { useState, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { MapPin, FileText } from 'lucide-react';
+import { Toaster } from 'react-hot-toast';
 import './App.css';
+
 
 // Lazy loading pages for performance
 const UserHome = lazy(() => import('./modules/user/pages/Home'));
@@ -143,7 +145,25 @@ const AdminFinance = lazy(() => import('./modules/admin/pages/finance/Finance'))
 const AdminFareConfig = lazy(() => import('./modules/admin/pages/finance/FareConfiguration'));
 const AdminSafetyCenter = lazy(() => import('./modules/admin/pages/safety/SafetyCenter'));
 const AdminCMSBuilder = lazy(() => import('./modules/admin/pages/cms/CMSBuilder'));
+const AdminHeaderFooter = lazy(() => import('./modules/admin/pages/cms/HeaderFooter'));
 const AdminGlobalSettings = lazy(() => import('./modules/admin/pages/settings/GlobalSettings'));
+const AdminGeneralSettings = lazy(() => import('./modules/admin/pages/settings/GeneralSettings'));
+const AdminCustomizationSettings = lazy(() => import('./modules/admin/pages/settings/CustomizationSettings'));
+const AdminTransportRideSettings = lazy(() => import('./modules/admin/pages/settings/TransportRideSettings'));
+const AdminBidRideSettings = lazy(() => import('./modules/admin/pages/settings/BidRideSettings'));
+const AdminWalletSettings = lazy(() => import('./modules/admin/pages/settings/WalletSettings'));
+const AdminTipSettings = lazy(() => import('./modules/admin/pages/settings/TipSettings'));
+const AdminAppModules = lazy(() => import('./modules/admin/pages/settings/AppModules'));
+const AdminOnboardingScreens = lazy(() => import('./modules/admin/pages/settings/OnboardingScreens'));
+const AdminPaymentGateways = lazy(() => import('./modules/admin/pages/settings/PaymentGateways'));
+const AdminSMSGateways = lazy(() => import('./modules/admin/pages/settings/SMSGateways'));
+const AdminFirebaseSettings = lazy(() => import('./modules/admin/pages/settings/FirebaseSettings'));
+const AdminMapSettings = lazy(() => import('./modules/admin/pages/settings/MapSettings'));
+const AdminMailSettings = lazy(() => import('./modules/admin/pages/settings/MailSettings'));
+const AdminNotificationChannels = lazy(() => import('./modules/admin/pages/settings/NotificationChannels'));
+const AdminDispatcherAddons = lazy(() => import('./modules/admin/pages/settings/DispatcherAddons'));
+const AdminCountryManagement = lazy(() => import('./modules/admin/pages/masters/CountryManagement'));
+
 
 // Reports Module
 const AdminUserReport = lazy(() => import('./modules/admin/pages/reports/UserReport'));
@@ -193,7 +213,9 @@ function App() {
             <span className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></span>
           </div>
         }>
+          <Toaster position="top-right" />
           <Routes>
+
             {/* User Module Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/verify-otp" element={<VerifyOTP />} />
@@ -327,6 +349,7 @@ function App() {
               </Route>
               <Route path="safety" element={<AdminSafetyCenter />} />
               <Route path="cms" element={<AdminCMSBuilder />} />
+              <Route path="settings/cms/header-footer" element={<AdminHeaderFooter />} />
               <Route path="support" element={<div className="flex items-center justify-center min-h-[500px] text-gray-400 font-bold uppercase tracking-widest">Help & Ticket Management - Under Development</div>} />
               
               {/* Report Module Routes */}
@@ -339,13 +362,31 @@ function App() {
 
               {/* Masters Management */}
               <Route path="masters/languages" element={<AdminLanguages />} />
+              <Route path="masters/countries" element={<AdminCountryManagement />} />
               <Route path="masters/preferences" element={<AdminPreferences />} />
               <Route path="masters/roles" element={<AdminRoles />} />
 
-              {/* Settings & Config Placeholders */}
-              <Route path="settings/business/*" element={<AdminReportPlaceholder title="Business Settings" />} />
-              <Route path="settings/app/*" element={<AdminReportPlaceholder title="App Settings" />} />
-              <Route path="settings/third-party/*" element={<AdminReportPlaceholder title="Third-party Settings" />} />
+              <Route path="settings/business/general" element={<AdminGeneralSettings />} />
+              <Route path="settings/business/customization" element={<AdminCustomizationSettings />} />
+              <Route path="settings/business/transport-ride" element={<AdminTransportRideSettings />} />
+              <Route path="settings/business/bid-ride" element={<AdminBidRideSettings />} />
+              
+              <Route path="settings/app/wallet" element={<AdminWalletSettings />} />
+              <Route path="settings/app/tip" element={<AdminTipSettings />} />
+              <Route path="settings/app/country" element={<AdminCountryManagement />} />
+              <Route path="settings/app/modules" element={<AdminAppModules />} />
+              <Route path="settings/app/onboard" element={<AdminOnboardingScreens />} />
+              
+              <Route path="settings/business/*" element={<AdminGeneralSettings />} />
+              <Route path="settings/app/*" element={<AdminGeneralSettings />} />
+
+              <Route path="settings/third-party/payment" element={<AdminPaymentGateways />} />
+              <Route path="settings/third-party/sms" element={<AdminSMSGateways />} />
+              <Route path="settings/third-party/firebase" element={<AdminFirebaseSettings />} />
+              <Route path="settings/third-party/map-apis" element={<AdminMapSettings />} />
+              <Route path="settings/third-party/mail" element={<AdminMailSettings />} />
+              <Route path="settings/third-party/notification-channel" element={<AdminNotificationChannels />} />
+              <Route path="settings/addons/dispatcher" element={<AdminDispatcherAddons />} />
               <Route path="settings/addons/*" element={<AdminReportPlaceholder title="Addons Management" />} />
               <Route path="settings/cms/*" element={<AdminReportPlaceholder title="CMS Management" />} />
             </Route>

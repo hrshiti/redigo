@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Wallet } from 'lucide-react';
-import RedigoLogo from '@/assets/redigologo.png';
+import Rydon24Logo from '@/assets/rydon24_logo.png';
 
 const HeaderGreeting = () => {
   const navigate = useNavigate();
@@ -30,7 +30,7 @@ const HeaderGreeting = () => {
     <div className="pt-6 pb-2 space-y-3">
       {/* Brand Header */}
       <div className="px-4 md:px-5 flex items-center justify-between">
-         <img src={RedigoLogo} alt="Redigo" className="h-8 object-contain drop-shadow-sm" />
+         <img src={Rydon24Logo} alt="Rydon24" className="h-8 object-contain drop-shadow-sm" />
          <button 
            onClick={() => navigate('/wallet')}
            className="w-10 h-10 rounded-full border border-gray-100 bg-white flex items-center justify-center shadow-sm shrink-0 active:scale-95 transition-transform"

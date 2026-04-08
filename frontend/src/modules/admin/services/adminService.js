@@ -150,4 +150,57 @@ export const adminService = {
   getPermission: (id) => api.get(`/admin/permissions/${id}`),
   updatePermission: (id, data) => api.patch(`/admin/permissions/${id}`, data),
   deletePermission: (id) => api.delete(`/admin/permissions/${id}`),
+
+  /**
+   * App Modules Management
+   */
+  getAppModules: (params) => api.get('/admin/common/app-modules', { params }),
+  createAppModule: (formData) => api.post('/admin/common/app-modules', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  updateAppModule: (id, formData) => api.patch(`/admin/common/app-modules/${id}`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  deleteAppModule: (id) => api.delete(`/admin/common/app-modules/${id}`),
+
+  /**
+   * Notification Channels Management
+   */
+  getNotificationChannels: (params) => api.get('/admin/notification-channels', { params }),
+  updateNotificationChannel: (id, data) => api.patch(`/admin/notification-channels/${id}`, data),
+  toggleChannelPush: (id, active) => api.patch(`/admin/notification-channels/${id}/push`, { push_notification: active ? 1 : 0 }),
+  toggleChannelMail: (id, active) => api.patch(`/admin/notification-channels/${id}/mail`, { mail: active ? 1 : 0 }),
+
+  /**
+   * Integration Settings
+   */
+  getPaymentGateways: (params) => api.get('/admin/integration-settings/payment-gateways', { params }),
+  updatePaymentGateway: (id, data) => api.patch(`/admin/integration-settings/payment-gateways/${id}`, data),
+  getPaymentSettings: () => api.get('/admin/integration-settings/payment-settings'),
+  updatePaymentSettings: (data) => api.patch('/admin/integration-settings/payment-settings', data),
+  getSMSSettings: () => api.get('/admin/integration-settings/sms'),
+  updateSMSSettings: (data) => api.patch('/admin/integration-settings/sms', data),
+  getFirebaseSettings: () => api.get('/admin/integration-settings/firebase'),
+  updateFirebaseSettings: (data) => api.patch('/admin/integration-settings/firebase', data),
+  getMapSettings: () => api.get('/admin/integration-settings/map'),
+  updateMapSettings: (data) => api.patch('/admin/integration-settings/map', data),
+  getMailSettings: () => api.get('/admin/integration-settings/mail'),
+  updateMailSettings: (data) => api.patch('/admin/integration-settings/mail', data),
+
+  /**
+   * Onboarding Screens Management
+   * Note: Backend currently only supports public GET (DB/seed only)
+   */
+  getOnboardingScreens: (role = 'user') => {
+    // role: 'user' | 'driver' | 'owner'
+    const path = role === 'user' ? '/on-boarding' : `/on-boarding-${role}`;
+    return api.get(path);
+  },
+  createOnboardingScreen: (formData) => api.post('/on-boarding', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  updateOnboardingScreen: (id, formData) => api.patch(`/on-boarding/${id}`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  deleteOnboardingScreen: (id) => api.delete(`/on-boarding/${id}`),
 };

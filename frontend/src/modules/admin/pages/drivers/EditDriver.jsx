@@ -3,18 +3,16 @@ import {
   ChevronRight, 
   ArrowLeft, 
   Save, 
-  X, 
-  Upload, 
   User, 
   MapPin, 
   Phone, 
   Mail, 
-  Lock, 
   Users, 
   Car,
   CheckCircle2,
   AlertCircle,
-  Globe
+  Globe,
+  Loader2
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -57,8 +55,6 @@ const EditDriver = () => {
     const fetchInitialData = async () => {
       setIsFetching(true);
       try {
-        
-        // Fetch Service Locations
         const locRes = await fetch('https://taxi-a276.onrender.com/api/v1/admin/service-locations', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -68,7 +64,6 @@ const EditDriver = () => {
           setLocations(Array.isArray(results) ? results : []);
         }
 
-        // Fetch Countries
         const countRes = await fetch('https://taxi-a276.onrender.com/api/v1/countries', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -78,7 +73,6 @@ const EditDriver = () => {
           setCountries(Array.isArray(results) ? results : []);
         }
 
-        // Correct Transport Types API
         try {
           const transRes = await fetch('https://taxi-a276.onrender.com/api/v1/common/ride_modules', {
             headers: { 'Authorization': `Bearer ${token}` }
@@ -104,7 +98,6 @@ const EditDriver = () => {
           setTransportTypes([{ _id: 'taxi', name: 'Taxi' }, { _id: 'delivery', name: 'Delivery' }]);
         }
 
-        // Fetch Driver
         const response = await fetch(`https://taxi-a276.onrender.com/api/v1/admin/drivers/${id}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -112,9 +105,6 @@ const EditDriver = () => {
         
         if (response.ok && data.success) {
           const d = data.data;
-          // Log for debugging if needed
-          console.log("Driver Data:", d);
-          
           setFormData({
             area: d.service_location_id?._id || d.service_location_id || d.service_location?._id || d.service_location || '',
             country: d.country?._id || d.country || d.service_location?.country?._id || d.service_location?.country || '',
@@ -141,12 +131,10 @@ const EditDriver = () => {
     fetchInitialData();
   }, [id]);
 
-  // Reactive Vehicle Types Fetching
   useEffect(() => {
     const fetchVehiclesForArea = async () => {
       if (!formData.area || !formData.transportType) return;
       try {
-        // Map any existing transport type to 'taxi' or 'delivery' for the API filter
         const typeFilter = (formData.transportType.toLowerCase() === 'delivery') ? 'delivery' : 'taxi';
         const res = await fetch(`https://taxi-a276.onrender.com/api/v1/types/${formData.area}?transport_type=${typeFilter}`);
         const data = await res.json();
@@ -195,10 +183,6 @@ const EditDriver = () => {
     setError('');
     
     try {
-      const providedToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YzdiZTZhYmJlOTJlYjYwMGYwMmQxNiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwibW9iaWxlIjoiOTk5OTk5OTk5OSIsInJvbGUiOiJzdXBlci1hZG1pbiIsImlhdCI6MTc3NTA0OTExNywiZXhwIjoxODA2NTg1MTE3fQ.5KJmXJwaVefWhnc97EqtArkA1z7ZOhsJwA9fbyRVPdQ';
-      const storedToken = localStorage.getItem('adminToken');
-      const token = (storedToken && storedToken !== 'undefined' && storedToken !== 'null') ? storedToken : providedToken;
-
       const payload = {
         name: formData.name,
         email: formData.email,
@@ -237,332 +221,356 @@ const EditDriver = () => {
     }
   };
 
+  // --- Shared input class ---
+  const inputClass = "w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-800 bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors";
+  const labelClass = "block text-xs font-semibold text-gray-500 mb-1.5";
+
   if (isFetching) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50/30 font-sans">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
-          <p className="text-[14px] font-black text-gray-400 uppercase tracking-widest">Fetching Operator Profile...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
+          <p className="text-sm text-gray-500">Loading driver details...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/30 p-8 font-sans text-gray-950 animate-in fade-in duration-500">
-      {/* HEADER */}
-      <div className="flex items-center justify-between mb-10">
-        <div>
-          <div className="flex items-center gap-2 text-[13px] font-bold text-gray-400 mb-2">
-            <span className="text-gray-950 uppercase tracking-widest">Admin Control</span>
-            <ChevronRight size={14} />
-            <span className="uppercase tracking-widest">Approved Drivers</span>
-            <ChevronRight size={14} />
-            <span className="text-gray-950 uppercase tracking-widest">Edit operator</span>
-          </div>
-          <h1 className="text-4xl font-black tracking-tight text-gray-900">Edit Operator Profile</h1>
+    <div className="min-h-screen bg-gray-50 p-6 lg:p-8">
+      {/* Breadcrumb & Header */}
+      <div className="mb-6">
+        <div className="flex items-center gap-1.5 text-xs text-gray-400 mb-2">
+          <span>Drivers</span>
+          <ChevronRight size={12} />
+          <span>Approved</span>
+          <ChevronRight size={12} />
+          <span className="text-gray-700">Edit Driver</span>
         </div>
-        <button 
-          onClick={() => navigate('/admin/drivers')}
-          className="bg-white border border-gray-200 text-gray-950 px-6 py-3 rounded-2xl text-[14px] font-black flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm"
-        >
-          <ArrowLeft size={18} /> Discard Changes
-        </button>
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-semibold text-gray-900">Edit Driver</h1>
+          <button 
+            onClick={() => navigate('/admin/drivers')}
+            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <ArrowLeft size={16} />
+            Back
+          </button>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-        {/* LEFT COLUMN: BASIC INFO */}
-        <div className="xl:col-span-2 space-y-8">
-          <div className="bg-white rounded-[40px] border border-gray-100 shadow-xl shadow-gray-200/50 p-10">
-            <div className="flex items-center gap-4 mb-10 pb-6 border-b border-gray-50">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-inner">
-                <User size={24} />
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* LEFT: Form Fields */}
+        <div className="xl:col-span-2 space-y-6">
+
+          {/* Identity Section */}
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
+              <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
+                <User size={18} />
               </div>
               <div>
-                <h3 className="text-xl font-black text-gray-950 tracking-tight">Identity Details</h3>
-                <p className="text-[13px] font-bold text-gray-400">Manage names, contacts and regional access</p>
+                <h3 className="text-sm font-semibold text-gray-900">Identity Details</h3>
+                <p className="text-xs text-gray-400">Personal & contact information</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-[12px] font-black uppercase tracking-widest text-gray-400">
-              <div className="space-y-3">
-                <label className="flex items-center gap-2"><MapPin size={14} className="text-indigo-400" /> Select Area *</label>
-                 <select 
-                   name="area"
-                   required
-                   value={formData.area}
-                   onChange={handleChange}
-                   style={{ color: '#000000' }}
-                   className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-4 text-[14px] font-bold text-gray-950 focus:bg-white focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50/50 outline-none transition-all shadow-inner"
-                 >
-                   <option value="" className="bg-white text-gray-950 font-bold">Select Area</option>
-                   {locations.map(loc => (
-                     <option key={loc._id} value={loc._id} className="bg-white text-gray-950 font-bold">{loc.service_location_name}</option>
-                   ))}
-                 </select>
-               </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className={labelClass}>
+                  <MapPin size={12} className="inline mr-1 text-gray-400" />
+                  Select Area *
+                </label>
+                <select 
+                  name="area"
+                  required
+                  value={formData.area}
+                  onChange={handleChange}
+                  className={inputClass}
+                >
+                  <option value="">Select Area</option>
+                  {locations.map(loc => (
+                    <option key={loc._id} value={loc._id}>{loc.service_location_name}</option>
+                  ))}
+                </select>
+              </div>
 
-               <div className="space-y-3">
-                 <label className="text-gray-400 flex items-center gap-2">
-                   <Globe size={14} className="text-indigo-400" /> Country *
-                 </label>
-                 <select 
-                   name="country"
-                   required
-                   value={formData.country}
-                   onChange={handleChange}
-                   className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-4 text-[14px] font-bold text-gray-950 focus:bg-white focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50/50 outline-none transition-all shadow-inner"
-                 >
-                   <option value="" className="text-gray-900">Select Country</option>
-                   {countries.map(c => (
-                     <option key={c._id} value={c._id} className="text-gray-900">{c.name}</option>
-                   ))}
-                 </select>
-               </div>
+              <div>
+                <label className={labelClass}>
+                  <Globe size={12} className="inline mr-1 text-gray-400" />
+                  Country *
+                </label>
+                <select 
+                  name="country"
+                  required
+                  value={formData.country}
+                  onChange={handleChange}
+                  className={inputClass}
+                >
+                  <option value="">Select Country</option>
+                  {countries.map(c => (
+                    <option key={c._id} value={c._id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
 
-              <div className="space-y-3">
-                <label className="flex items-center gap-2"><User size={14} className="text-indigo-400" /> Name *</label>
+              <div>
+                <label className={labelClass}>
+                  <User size={12} className="inline mr-1 text-gray-400" />
+                  Name *
+                </label>
                 <input 
                   type="text" 
                   name="name"
                   required
-                  placeholder="Enter Name"
+                  placeholder="Driver name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-4 text-[14px] font-bold text-gray-950 focus:bg-white focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50/50 outline-none transition-all shadow-inner"
+                  className={inputClass}
                 />
               </div>
 
-              <div className="space-y-3">
-                <label className="flex items-center gap-2"><Phone size={14} className="text-indigo-400" /> Mobile *</label>
+              <div>
+                <label className={labelClass}>
+                  <Phone size={12} className="inline mr-1 text-gray-400" />
+                  Mobile *
+                </label>
                 <input 
                   type="tel" 
                   name="mobile"
                   required
-                  placeholder="Enter Number"
+                  placeholder="Mobile number"
                   value={formData.mobile}
                   onChange={handleChange}
-                  className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-4 text-[14px] font-bold text-gray-950 focus:bg-white focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50/50 outline-none transition-all shadow-inner"
+                  className={inputClass}
                 />
               </div>
 
-              <div className="space-y-3">
-                <label className="flex items-center gap-2"><Users size={14} className="text-indigo-400" /> Select Gender *</label>
+              <div>
+                <label className={labelClass}>
+                  <Users size={12} className="inline mr-1 text-gray-400" />
+                  Gender *
+                </label>
                 <select 
                   name="gender"
                   required
                   value={formData.gender}
                   onChange={handleChange}
-                  style={{ color: '#000000' }}
-                  className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-4 text-[14px] font-bold text-gray-950 focus:bg-white focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50/50 outline-none transition-all shadow-inner"
+                  className={inputClass}
                 >
-                  <option value="Male" className="bg-white text-gray-950 font-bold">Male</option>
-                  <option value="Female" className="bg-white text-gray-950 font-bold">Female</option>
-                  <option value="Other" className="bg-white text-gray-950 font-bold">Other</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
                 </select>
               </div>
 
-              <div className="space-y-3 md:col-span-2">
-                <label className="flex items-center gap-2"><Mail size={14} className="text-indigo-400" /> Email *</label>
+              <div>
+                <label className={labelClass}>
+                  <Mail size={12} className="inline mr-1 text-gray-400" />
+                  Email *
+                </label>
                 <input 
                   type="email" 
                   name="email"
                   required
-                  placeholder="Enter Email"
+                  placeholder="Email address"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-4 text-[14px] font-bold text-gray-950 focus:bg-white focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50/50 outline-none transition-all shadow-inner"
+                  className={inputClass}
                 />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-[40px] border border-gray-100 shadow-xl shadow-gray-200/50 p-10">
-            <div className="flex items-center gap-4 mb-10 pb-6 border-b border-gray-50">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 shadow-inner">
-                <Car size={24} />
+          {/* Vehicle Section */}
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
+              <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
+                <Car size={18} />
               </div>
               <div>
-                <h3 className="text-xl font-black text-gray-950 tracking-tight">Fleet Information</h3>
-                <p className="text-[13px] font-bold text-gray-400">Specifications of the assigned vehicle</p>
+                <h3 className="text-sm font-semibold text-gray-900">Vehicle Information</h3>
+                <p className="text-xs text-gray-400">Assigned vehicle specifications</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-[12px] font-black uppercase tracking-widest text-gray-400">
-               <div className="space-y-3">
-                  <label className="flex items-center gap-2">Transport Type *</label>
-                  <select 
-                     name="transportType"
-                     required
-                     value={formData.transportType}
-                     onChange={handleChange}
-                     style={{ color: '#000000' }}
-                     className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-4 text-[14px] font-bold text-gray-950 focus:bg-white focus:border-emerald-200 focus:ring-4 focus:ring-emerald-50/50 outline-none transition-all shadow-inner"
-                  >
-                     <option value="taxi" className="bg-white text-gray-950 font-bold">Taxi / Car / Auto</option>
-                     <option value="delivery" className="bg-white text-gray-950 font-bold">Delivery</option>
-                  </select>
-               </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className={labelClass}>Transport Type *</label>
+                <select 
+                  name="transportType"
+                  required
+                  value={formData.transportType}
+                  onChange={handleChange}
+                  className={inputClass}
+                >
+                  <option value="taxi">Taxi / Car / Auto</option>
+                  <option value="delivery">Delivery</option>
+                </select>
+              </div>
 
-               <div className="space-y-3">
-                  <label>Vehicle Type *</label>
-                  <select 
-                     name="vehicleType"
-                     required
-                     value={formData.vehicleType}
-                     onChange={handleChange}
-                     style={{ color: '#000000' }}
-                     className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-4 text-[14px] font-bold text-gray-950 focus:bg-white focus:border-emerald-200 focus:ring-4 focus:ring-emerald-50/50 outline-none transition-all shadow-inner"
-                  >
-                     <option value="" className="bg-white text-gray-950 font-bold">Select Vehicle Type</option>
-                     {vehicleTypes.map(vt => (
-                       <option key={vt._id} value={vt._id} className="bg-white text-gray-950 font-bold">{vt.vehicle_type || vt.name}</option>
-                     ))}
-                  </select>
-               </div>
+              <div>
+                <label className={labelClass}>Vehicle Type *</label>
+                <select 
+                  name="vehicleType"
+                  required
+                  value={formData.vehicleType}
+                  onChange={handleChange}
+                  className={inputClass}
+                >
+                  <option value="">Select Vehicle Type</option>
+                  {vehicleTypes.map(vt => (
+                    <option key={vt._id} value={vt._id}>{vt.vehicle_type || vt.name}</option>
+                  ))}
+                </select>
+              </div>
 
-               <div className="space-y-3">
-                  <label>Vehicle Make *</label>
-                  <input 
-                     type="text" 
-                     name="vehicleMake"
-                     required
-                     value={formData.vehicleMake}
-                     onChange={handleChange}
-                     className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-4 text-[14px] font-bold text-gray-950 focus:bg-white focus:border-emerald-200 focus:ring-4 focus:ring-emerald-50/50 outline-none transition-all shadow-inner"
-                  />
-               </div>
+              <div>
+                <label className={labelClass}>Vehicle Make *</label>
+                <input 
+                  type="text" 
+                  name="vehicleMake"
+                  required
+                  placeholder="e.g. Maruti Suzuki"
+                  value={formData.vehicleMake}
+                  onChange={handleChange}
+                  className={inputClass}
+                />
+              </div>
 
-               <div className="space-y-3">
-                  <label>Vehicle Model *</label>
-                  <input 
-                     type="text" 
-                     name="vehicleModel"
-                     required
-                     value={formData.vehicleModel}
-                     onChange={handleChange}
-                     className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-4 text-[14px] font-bold text-gray-950 focus:bg-white focus:border-emerald-200 focus:ring-4 focus:ring-emerald-50/50 outline-none transition-all shadow-inner"
-                  />
-               </div>
+              <div>
+                <label className={labelClass}>Vehicle Model *</label>
+                <input 
+                  type="text" 
+                  name="vehicleModel"
+                  required
+                  placeholder="e.g. Swift Dzire"
+                  value={formData.vehicleModel}
+                  onChange={handleChange}
+                  className={inputClass}
+                />
+              </div>
 
-               <div className="space-y-3">
-                  <label>Vehicle Color *</label>
-                  <input 
-                     type="text" 
-                     name="vehicleColor"
-                     required
-                     value={formData.vehicleColor}
-                     onChange={handleChange}
-                     className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-4 text-[14px] font-bold text-gray-950 focus:bg-white focus:border-emerald-200 focus:ring-4 focus:ring-emerald-50/50 outline-none transition-all shadow-inner"
-                  />
-               </div>
+              <div>
+                <label className={labelClass}>Vehicle Color *</label>
+                <input 
+                  type="text" 
+                  name="vehicleColor"
+                  required
+                  placeholder="e.g. White"
+                  value={formData.vehicleColor}
+                  onChange={handleChange}
+                  className={inputClass}
+                />
+              </div>
 
-               <div className="space-y-3">
-                  <label>Vehicle Number *</label>
-                  <input 
-                     type="text" 
-                     name="vehicleNumber"
-                     required
-                     value={formData.vehicleNumber}
-                     onChange={handleChange}
-                     className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-4 text-[14px] font-bold text-gray-950 focus:bg-white focus:border-emerald-200 focus:ring-4 focus:ring-emerald-50/50 outline-none transition-all shadow-inner"
-                  />
-               </div>
+              <div>
+                <label className={labelClass}>Vehicle Number *</label>
+                <input 
+                  type="text" 
+                  name="vehicleNumber"
+                  required
+                  placeholder="e.g. MH 12 AB 1234"
+                  value={formData.vehicleNumber}
+                  onChange={handleChange}
+                  className={inputClass}
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* RIGHT COLUMN: ACTIONS & IMAGE */}
-        <div className="space-y-8">
-           <div className="bg-white rounded-[40px] border border-gray-100 shadow-xl shadow-gray-200/50 p-10">
-              <h3 className="text-[14px] font-black text-gray-950 uppercase tracking-widest mb-8 text-center">Change profile Media</h3>
-              
-              <div className="relative group cursor-pointer">
-                 <div className="w-full aspect-square rounded-[32px] bg-gray-50 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center overflow-hidden transition-all group-hover:border-indigo-400 group-hover:bg-indigo-50/30">
-                    {imagePreview ? (
-                       <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                    ) : (
-                       <div className="flex flex-col items-center text-gray-400">
-                          <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-black mb-4">RS</div>
-                          <p className="text-[12px] font-black uppercase tracking-widest">Update Photo</p>
-                       </div>
-                    )}
-                 </div>
-                 <input 
-                    type="file" 
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="absolute inset-0 opacity-0 cursor-pointer" 
-                 />
+        {/* RIGHT: Sidebar */}
+        <div className="space-y-6">
+          {/* Photo Upload */}
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <h3 className="text-sm font-semibold text-gray-900 mb-4">Profile Photo</h3>
+            <div className="relative group cursor-pointer">
+              <div className="w-full aspect-square rounded-xl bg-gray-50 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center overflow-hidden transition-colors group-hover:border-indigo-300 group-hover:bg-indigo-50/30">
+                {imagePreview ? (
+                  <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="flex flex-col items-center text-gray-400 gap-2">
+                    <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-semibold text-lg">
+                      {formData.name ? formData.name.charAt(0).toUpperCase() : 'D'}
+                    </div>
+                    <p className="text-xs text-gray-400">Click to upload photo</p>
+                  </div>
+                )}
               </div>
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center mt-6 leading-relaxed">System allows updates twice every 30 days for identification security.</p>
-           </div>
+              <input 
+                type="file" 
+                accept="image/*"
+                onChange={handleImageChange}
+                className="absolute inset-0 opacity-0 cursor-pointer" 
+              />
+            </div>
+            <p className="text-[10px] text-gray-400 text-center mt-3">Allowed updates twice every 30 days.</p>
+          </div>
 
-           <div className="bg-gray-950 rounded-[40px] p-10 text-white shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-8 opacity-10"><CheckCircle2 size={120} strokeWidth={1} /></div>
-              <p className="text-[11px] font-black text-gray-500 uppercase tracking-widest mb-8 leading-none">Account Security</p>
-              
-              <div className="space-y-4 relative z-10">
-                 <button 
-                    type="submit"
-                    disabled={isLoading || success}
-                    className="w-full py-5 bg-white text-gray-950 rounded-2xl text-[14px] font-black uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 shadow-xl"
-                 >
-                    {isLoading ? (
-                       <div className="w-5 h-5 border-2 border-gray-200 border-t-gray-950 rounded-full animate-spin"></div>
-                    ) : success ? (
-                       <CheckCircle2 className="text-emerald-500" />
-                    ) : (
-                       <Save size={18} />
-                    )}
-                    {success ? 'Profile Updated!' : isLoading ? 'Updating...' : 'Save Changes'}
-                 </button>
-                 
-                 <button 
-                    type="button"
-                    onClick={() => navigate('/admin/drivers')}
-                    className="w-full py-5 bg-white/10 hover:bg-white/20 border border-white/10 rounded-2xl text-[12px] font-black uppercase tracking-widest transition-all"
-                 >
-                    Discard Edits
-                 </button>
-                 
-                 <div className="pt-6 border-t border-white/5 space-y-3">
-                   <p className="text-[10px] font-black text-gray-600 uppercase tracking-widest">Critical Actions</p>
-                   <button 
-                     type="button"
-                     className="w-full py-3 bg-rose-500/20 hover:bg-rose-500/30 text-rose-500 rounded-xl text-[12px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
-                   >
-                     <AlertCircle size={14} /> Disable Account
-                   </button>
-                 </div>
-              </div>
-
-              {success && (
-                 <div className="mt-8 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl animate-in slide-in-from-top-4 duration-500">
-                    <p className="text-[12px] font-bold text-emerald-400 text-center">Operator profile synced with master fleet.</p>
-                 </div>
+          {/* Actions */}
+          <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-3">
+            <button 
+              type="submit"
+              disabled={isLoading || success}
+              className="w-full py-3 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 active:bg-indigo-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+            >
+              {isLoading ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : success ? (
+                <CheckCircle2 size={16} />
+              ) : (
+                <Save size={16} />
               )}
+              {success ? 'Saved Successfully' : isLoading ? 'Saving...' : 'Save Changes'}
+            </button>
 
-              {error && (
-                 <div className="mt-8 p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl animate-in slide-in-from-top-4 duration-500">
-                    <p className="text-[12px] font-bold text-rose-500 text-center">{error}</p>
-                 </div>
-              )}
-           </div>
+            <button 
+              type="button"
+              onClick={() => navigate('/admin/drivers')}
+              className="w-full py-3 bg-gray-50 text-gray-600 border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors"
+            >
+              Cancel
+            </button>
 
-           <div className="p-8 border-2 border-dashed border-gray-100 rounded-[32px] bg-white/50">
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Metadata</p>
-              <div className="space-y-2">
-                 <div className="flex justify-between text-[11px] font-bold">
-                    <span className="text-gray-400 uppercase">Operator ID:</span>
-                    <span className="text-gray-950">DRV-{id?.substring(0, 8).toUpperCase() || 'NEW'}</span>
-                 </div>
-                 <div className="flex justify-between text-[11px] font-bold">
-                    <span className="text-gray-400 uppercase">Registered:</span>
-                    <span className="text-gray-950">12th Oct 2025</span>
-                 </div>
+            <div className="pt-3 border-t border-gray-100">
+              <button 
+                type="button"
+                className="w-full py-2.5 text-red-500 bg-red-50 border border-red-100 rounded-lg text-xs font-medium hover:bg-red-100 transition-colors flex items-center justify-center gap-1.5"
+              >
+                <AlertCircle size={13} />
+                Disable Account
+              </button>
+            </div>
+          </div>
+
+          {/* Metadata */}
+          <div className="bg-white rounded-xl border border-gray-200 p-5">
+            <p className="text-xs font-semibold text-gray-500 mb-3">Metadata</p>
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between">
+                <span className="text-gray-400">Driver ID</span>
+                <span className="text-gray-700 font-medium">DRV-{id?.substring(0, 8).toUpperCase() || 'NEW'}</span>
               </div>
-           </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Status</span>
+                <span className="text-emerald-600 font-medium">Active</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Status Messages */}
+          {success && (
+            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+              <p className="text-xs text-emerald-700 text-center font-medium">Driver profile updated successfully.</p>
+            </div>
+          )}
+
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-xs text-red-600 text-center font-medium">{error}</p>
+            </div>
+          )}
         </div>
       </form>
     </div>

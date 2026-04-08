@@ -38,7 +38,7 @@ const FEATURE_META = {
   '/cab-sharing': {
     emoji: '🚌',
     title: 'Cab Sharing',
-    subtitle: 'Share rides, save big — Redigo\'s USP',
+    subtitle: 'Share rides, save big — RYDON24\'s USP',
     description: 'Real-time seat booking in shared cabs. Choose your seat, split the fare, and travel smart.',
     color: 'bg-green-50',
     accent: 'text-green-600',

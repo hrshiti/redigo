@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, ShieldCheck, Wallet, Clock, Star } from 'lucide-react';
 import DriverHero from '@/assets/driver_welcome_hero.png';
-import RedigoLogo from '@/assets/redigologo.png';
+import Rydon24Logo from '@/assets/rydon24_logo.png';
 
 const DriverWelcome = () => {
     const navigate = useNavigate();
@@ -22,13 +22,13 @@ const DriverWelcome = () => {
                 <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent z-10" />
                 <img 
                     src={DriverHero} 
-                    alt="Drive with Redigo" 
+                    alt="Drive with RYDON24" 
                     className="w-full h-full object-cover"
                 />
                 
                 {/* Branding Top Overlay */}
                 <div className="absolute top-10 left-8 z-20">
-                     <img src={RedigoLogo} alt="Redigo" className="h-10 drop-shadow-xl" />
+                     <img src={Rydon24Logo} alt="RYDON24" className="h-10 drop-shadow-xl" />
                 </div>
 
                 {/* Overlay Greeting */}
@@ -94,7 +94,7 @@ const DriverWelcome = () => {
                         </div>
                     </div>
                     <p className="text-[13px] font-bold text-slate-500 italic leading-relaxed">
-                        "Joining Redigo was the best decision for my family. The payouts are always on time and the support team is incredible."
+                        "Joining RYDON24 was the best decision for my family. The payouts are always on time and the support team is incredible."
                     </p>
                 </div>
             </main>

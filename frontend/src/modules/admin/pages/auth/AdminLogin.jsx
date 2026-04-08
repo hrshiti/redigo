@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import RedigoLogo from '../../../../assets/redigologo.png';
+import Rydon24Logo from '../../../../assets/rydon24_logo.png';
 import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, Mail, Lock, ArrowRight, Car, Loader2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -72,8 +72,8 @@ const AdminLogin = () => {
 
         <div className="flex flex-col items-center mb-10 text-center">
            <img 
-              src={RedigoLogo} 
-              alt="Redigo Logo" 
+              src={Rydon24Logo} 
+              alt="RYDON24 Logo" 
               className="w-56 h-auto mb-8 object-contain drop-shadow-2xl cursor-pointer hover:scale-105 transition-transform"
               onClick={() => navigate('/')}
            />
@@ -173,7 +173,7 @@ const AdminLogin = () => {
 
       {/* Footer Branding */}
       <div className="absolute bottom-8 left-0 right-0 text-center pointer-events-none px-6">
-         <p className="text-[11px] font-bold text-gray-400 tracking-[3px] uppercase mb-2">Redigo Systems Enterprise © 2026</p>
+         <p className="text-[11px] font-bold text-gray-400 tracking-[3px] uppercase mb-2">RYDON24 Systems Enterprise © 2026</p>
          <p className="text-[10px] font-bold text-gray-300 max-w-xl mx-auto leading-relaxed">
            This terminal is strictly for authorized administrative use. Unauthorized access attempts are monitored and recorded.
          </p>

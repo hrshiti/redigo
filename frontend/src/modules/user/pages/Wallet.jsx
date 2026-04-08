@@ -185,7 +185,7 @@ const Wallet = () => {
             </div>
             <div className="flex-1">
                <h4 className="text-[15px] font-black text-gray-900 tracking-tight">Refer & Earn ₹50</h4>
-               <p className="text-[11px] font-bold text-gray-400 mt-0.5 uppercase tracking-wider">Invite friends to Redigo</p>
+               <p className="text-[11px] font-bold text-gray-400 mt-0.5 uppercase tracking-wider">Invite friends to RYDON24</p>
             </div>
             <ArrowLeft size={20} className="text-orange-200 rotate-180 group-hover:text-orange-500 transition-colors" />
          </div>

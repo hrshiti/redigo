@@ -1,42 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Search, 
-  Filter, 
-  MoreHorizontal, 
-  Download, 
-  UserPlus, 
-  Mail, 
-  Phone, 
-  Star, 
-  History, 
-  Ban,
-  ShieldCheck,
-  ChevronDown,
-  X,
-  CreditCard,
-  User as UserIcon,
-  Trash2,
-  CheckCircle2,
-  ArrowUpRight,
-  ArrowDownRight,
-  Printer,
-  Copy,
-  ChevronRight,
-  ArrowRight,
-  UserCheck,
-  Edit2,
-  Lock,
-  ToggleRight as ToggleIcon,
-  ToggleLeft
+  Search, Download, UserPlus, Star, MoreHorizontal, X,
+  ChevronRight, UserCheck, Edit2, Lock, Trash2,
+  CheckCircle2, Printer, Copy, Loader2
 } from 'lucide-react';
 
 const StatusToggle = ({ status, onToggle }) => (
   <button 
     onClick={(e) => { e.stopPropagation(); onToggle(); }}
-    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${status === 'Active' ? 'bg-emerald-500' : 'bg-gray-200'}`}
+    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${status === 'Active' ? 'bg-emerald-500' : 'bg-gray-300'}`}
   >
-    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${status === 'Active' ? 'translate-x-6' : 'translate-x-1'}`} />
+    <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${status === 'Active' ? 'translate-x-[18px]' : 'translate-x-0.5'}`} />
   </button>
 );
 
@@ -46,16 +21,12 @@ import { adminService } from '../../services/adminService';
 const UserList = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
-  const [dateFilter, setDateFilter] = useState('This Year');
   const [activeMenu, setActiveMenu] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = React.useState(null);
+  const [error, setError] = useState(null);
   const [users, setUsers] = useState([]);
-  
-  // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
 
@@ -63,7 +34,6 @@ const UserList = () => {
     try {
       setIsLoading(true);
       const resData = await adminService.getUsers(1, 50);
-      
       if (resData.success) {
         const mapped = (resData.data?.results || []).map(u => ({
           id: u._id,
@@ -87,25 +57,19 @@ const UserList = () => {
     }
   };
 
-  // Hook 1: Data Fetching
-  React.useEffect(() => {
-    fetchUsers();
-  }, []);
+  useEffect(() => { fetchUsers(); }, []);
 
-  // Hook 2: Menu Closing
   useEffect(() => {
     const closeMenu = () => setActiveMenu(null);
     window.addEventListener('click', closeMenu);
     return () => window.removeEventListener('click', closeMenu);
   }, []);
 
-  // Logic & Handlers
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           user.phone.includes(searchTerm);
-    const matchesStatus = statusFilter === 'All' || user.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    return matchesSearch;
   });
 
   const handleToggleStatus = async (userId, currentStatus) => {
@@ -120,23 +84,14 @@ const UserList = () => {
     }
   };
 
-  const handleAddUser = () => {
-    setEditingUser(null);
-    setIsModalOpen(true);
-  };
-
-  const handleEditUser = (user) => {
-    setEditingUser(user);
-    setIsModalOpen(true);
-  };
+  const handleAddUser = () => { setEditingUser(null); setIsModalOpen(true); };
+  const handleEditUser = (user) => { setEditingUser(user); setIsModalOpen(true); };
 
   const handleDeleteUser = async (userId) => {
-    if (window.confirm('Are you sure you want to delete this passenger? This action cannot be undone.')) {
+    if (window.confirm('Are you sure you want to delete this user?')) {
       try {
         const resData = await adminService.deleteUser(userId);
-        if (resData.success) {
-          setUsers(users.filter(u => u.id !== userId));
-        }
+        if (resData.success) setUsers(users.filter(u => u.id !== userId));
       } catch (err) {
         console.error('Failed to delete user', err);
       }
@@ -149,15 +104,13 @@ const UserList = () => {
       const resData = editingUser 
         ? await adminService.updateUser(editingUser.id, formData)
         : await adminService.createUser(formData);
-
       if (resData.success) {
         setIsModalOpen(false);
-        fetchUsers(); // Refresh list
+        fetchUsers();
       } else {
         alert(resData.message || 'Operation failed');
       }
     } catch (err) {
-      console.error('Error submitting form', err);
       alert(err.message || 'Network error');
     } finally {
       setIsSubmitting(false);
@@ -165,19 +118,11 @@ const UserList = () => {
   };
 
   const toggleSelectAll = () => {
-    if (selectedRows.length === filteredUsers.length) {
-      setSelectedRows([]);
-    } else {
-      setSelectedRows(filteredUsers.map(u => u.id));
-    }
+    setSelectedRows(selectedRows.length === filteredUsers.length ? [] : filteredUsers.map(u => u.id));
   };
 
   const toggleRowSelect = (id) => {
-    if (selectedRows.includes(id)) {
-      setSelectedRows(selectedRows.filter(rideId => rideId !== id));
-    } else {
-      setSelectedRows([...selectedRows, id]);
-    }
+    setSelectedRows(selectedRows.includes(id) ? selectedRows.filter(r => r !== id) : [...selectedRows, id]);
   };
 
   const toggleMenu = (e, userId) => {
@@ -185,225 +130,140 @@ const UserList = () => {
     setActiveMenu(activeMenu === userId ? null : userId);
   };
 
-  // Conditional Return after Hooks
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-         <div className="w-10 h-10 border-4 border-gray-100 border-t-black rounded-full animate-spin"></div>
-         <p className="text-[12px] font-black text-gray-400 uppercase tracking-widest">Fetching Passengers...</p>
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
+        <Loader2 className="w-7 h-7 text-indigo-600 animate-spin" />
+        <p className="text-sm text-gray-400">Loading users...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 p-1 animate-in fade-in duration-700 relative text-gray-950 font-sans">
-      <div className="flex items-start justify-between">
-         <div>
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 mb-2">Passengers</h1>
-            <div className="flex items-center gap-2 text-[13px] font-bold text-gray-400">
-               <span className="text-gray-950">Overview</span>
-               <ChevronRight size={14} />
-               <span>All Customers</span>
-            </div>
-         </div>
-         <div className="flex items-center gap-3">
-            <button className="bg-white border border-gray-200 text-gray-950 px-5 py-2.5 rounded-xl text-[13px] font-bold flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm">
-               <Download size={16} className="text-gray-400" /> Export
-            </button>
-            <button 
-              onClick={handleAddUser}
-              className="bg-black text-white px-5 py-2.5 rounded-xl text-[13px] font-bold flex items-center gap-2 hover:opacity-90 transition-all shadow-md"
-            >
-               <UserPlus size={16} /> New User
-            </button>
-         </div>
+    <div className="p-6 lg:p-8 bg-gray-50 min-h-screen">
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-1.5 text-xs text-gray-400 mb-2">
+        <span>Users</span>
+        <ChevronRight size={12} />
+        <span className="text-gray-700">All Users</span>
       </div>
 
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-         <div className="flex flex-wrap items-center gap-2">
-            <div className="px-3 py-1 bg-black text-white text-[12px] font-bold rounded-lg cursor-pointer">All Users</div>
-         </div>
-         <div className="relative w-full md:w-80">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-            <input 
-               type="text" 
-               placeholder="Search customers..." 
-               value={searchTerm}
-               onChange={(e) => setSearchTerm(e.target.value)}
-               className="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-[13px] font-bold focus:ring-2 focus:ring-gray-100 outline-none transition-all"
-            />
-         </div>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-xl font-semibold text-gray-900">Passengers</h1>
+        <div className="flex items-center gap-3">
+          <button className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+            <Download size={15} /> Export
+          </button>
+          <button 
+            onClick={handleAddUser}
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+          >
+            <UserPlus size={15} /> New User
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-8 items-start">
-         <div className="xl:col-span-3">
-            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-visible">
-               <div className="overflow-x-auto no-scrollbar">
-                  <table className="w-full text-left">
-                     <thead>
-                        <tr className="border-b border-gray-50 text-[11px] font-bold text-gray-400 uppercase tracking-widest">
-                           <th className="px-6 py-5">
-                              <div 
-                                onClick={toggleSelectAll}
-                                className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer ${selectedRows.length === filteredUsers.length && filteredUsers.length > 0 ? 'bg-black border-black text-white' : 'border-gray-200 hover:border-gray-300'}`}
-                              >
-                                 {selectedRows.length === filteredUsers.length && filteredUsers.length > 0 && <CheckCircle2 size={12} />}
-                              </div>
-                           </th>
-                           <th className="px-4 py-5 font-bold">User</th>
-                           <th className="px-4 py-5 font-bold text-center">Status Toggle</th>
-                           <th className="px-4 py-5 font-bold">Rating</th>
-                           <th className="px-4 py-5 font-bold">Wallet</th>
-                           <th className="px-4 py-5 font-bold">Joined</th>
-                           <th className="px-6 py-5 text-right font-bold"></th>
-                        </tr>
-                     </thead>
-                     <tbody className="divide-y divide-gray-50">
-                        {filteredUsers.map((user) => (
-                           <tr key={user.id} className={`group hover:bg-gray-50/50 transition-all ${selectedRows.includes(user.id) ? 'bg-gray-50/80 shadow-inner' : ''}`}>
-                              <td className="px-6 py-4">
-                                 <div 
-                                   onClick={(e) => { e.stopPropagation(); toggleRowSelect(user.id); }}
-                                   className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer ${selectedRows.includes(user.id) ? 'bg-black border-black text-white' : 'border-gray-100 group-hover:border-gray-300'}`}
-                                 >
-                                    {selectedRows.includes(user.id) && <CheckCircle2 size={12} />}
-                                 </div>
-                              </td>
-                              <td className="px-4 py-4">
-                                 <div className="flex items-center gap-3 font-sans">
-                                    <div className="w-10 h-10 rounded-full bg-gray-50 border border-gray-100 text-gray-900 font-bold text-[13px] flex items-center justify-center shadow-sm">
-                                       {user.name.split(' ').map(n => n[0]).join('')}
-                                    </div>
-                                    <div>
-                                       <p className="text-[14px] font-black text-gray-900 tracking-tight leading-none">{user.name}</p>
-                                       <p className="text-[12px] text-gray-400 mt-1.5 font-bold">{user.email}</p>
-                                    </div>
-                                 </div>
-                              </td>
-                              <td className="px-4 py-4 text-center">
-                                 <StatusToggle status={user.status} onToggle={() => handleToggleStatus(user.id, user.status)} />
-                              </td>
-                              <td className="px-4 py-4">
-                                 <div className="flex items-center gap-1 text-[13px] font-black text-gray-900">
-                                    {user.rating} <Star size={12} className="fill-gray-950 text-gray-950" />
-                                 </div>
-                              </td>
-                              <td className="px-4 py-4">
-                                 <p className="text-[13px] font-black text-gray-950 tracking-tighter">{user.wallet}</p>
-                              </td>
-                              <td className="px-4 py-4">
-                                 <p className="text-[12px] font-black text-gray-400 border border-gray-100 rounded-lg px-2 py-1 w-fit uppercase tracking-tighter">{user.joined}</p>
-                              </td>
-                              <td className="px-6 py-4 text-right">
-                                 <div className="relative">
-                                    <button 
-                                      onClick={(e) => toggleMenu(e, user.id)}
-                                      className="p-2 text-gray-400 hover:text-gray-900 hover:bg-white rounded-lg transition-all"
-                                    >
-                                       <MoreHorizontal size={18} />
-                                    </button>
-                                    {activeMenu === user.id && (
-                                       <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50 animate-in fade-in zoom-in-95 duration-200">
-                                          <button 
-                                            onClick={() => navigate(`/admin/users/${user.id}`)}
-                                            className="w-full text-left px-4 py-2.5 text-[12px] font-black text-gray-700 hover:bg-gray-50 flex items-center gap-3">
-                                             <UserCheck size={14} className="text-emerald-500" /> View Profile
-                                          </button>
-                                          <button 
-                                            onClick={() => handleEditUser(user)}
-                                            className="w-full text-left px-4 py-2.5 text-[12px] font-black text-gray-700 hover:bg-gray-50 flex items-center gap-3">
-                                             <Edit2 size={14} className="text-blue-500" /> Edit Profile
-                                          </button>
-                                          <button 
-                                            onClick={() => handleEditUser(user)}
-                                            className="w-full text-left px-4 py-2.5 text-[12px] font-black text-gray-700 hover:bg-gray-50 flex items-center gap-3">
-                                             <Lock size={14} className="text-amber-500" /> Update Password
-                                          </button>
-                                          <div className="h-px bg-gray-50 my-1.5 mx-2"></div>
-                                          <button 
-                                            onClick={() => handleDeleteUser(user.id)}
-                                            className="w-full text-left px-4 py-2.5 text-[12px] font-black text-rose-600 hover:bg-rose-50 flex items-center gap-3">
-                                             <Trash2 size={14} /> Delete User
-                                          </button>
-                                       </div>
-                                    )}
-                                 </div>
-                              </td>
-                           </tr>
-                        ))}
-                     </tbody>
-                  </table>
-               </div>
-            </div>
-         </div>
+      {/* Search */}
+      <div className="mb-6">
+        <div className="relative w-full max-w-sm">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input 
+            type="text" 
+            placeholder="Search users..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
+          />
+        </div>
+      </div>
 
-         <div className="space-y-6">
-            <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm relative overflow-hidden">
-               <h4 className="text-[12px] font-black text-gray-400 uppercase tracking-widest mb-8 px-1">User Stats Summary</h4>
-               
-               <div className="flex flex-col items-center mb-10">
-                  <div className="relative w-36 h-36 flex items-center justify-center">
-                     <svg className="w-full h-full -rotate-90 scale-110">
-                        <circle cx="72" cy="72" r="64" stroke="currentColor" strokeWidth="10" fill="transparent" className="text-gray-50" />
-                        <circle cx="72" cy="72" r="64" stroke="currentColor" strokeWidth="10" fill="transparent" strokeDasharray="402" strokeDashoffset="44" className="text-emerald-500 transition-all duration-1000" />
-                     </svg>
-                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <p className="text-3xl font-black text-gray-950 leading-none">89%</p>
-                        <p className="text-[10px] font-black text-gray-400 mt-2 uppercase tracking-widest">Active</p>
-                     </div>
+      {/* Table */}
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-100">
+                <th className="px-4 py-3 w-10">
+                  <div 
+                    onClick={toggleSelectAll}
+                    className={`w-4 h-4 rounded border flex items-center justify-center cursor-pointer ${selectedRows.length === filteredUsers.length && filteredUsers.length > 0 ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-gray-300'}`}
+                  >
+                    {selectedRows.length === filteredUsers.length && filteredUsers.length > 0 && <CheckCircle2 size={10} />}
                   </div>
-               </div>
-
-               <div className="space-y-5">
-                  <div className="flex items-center justify-between">
-                     <div className="flex items-center gap-3">
-                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
-                        <span className="text-[13px] font-bold text-gray-500">Active users</span>
-                     </div>
-                     <span className="text-[13px] font-black text-gray-950">1.24k</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                     <div className="flex items-center gap-3">
-                        <div className="w-2.5 h-2.5 rounded-full bg-rose-500"></div>
-                        <span className="text-[13px] font-bold text-gray-500">Blocked users</span>
-                     </div>
-                     <span className="text-[13px] font-black text-gray-950">42</span>
-                  </div>
-                  <div className="flex items-center justify-between pb-4 border-b border-gray-50">
-                     <div className="flex items-center gap-3">
-                        <div className="w-2.5 h-2.5 rounded-full bg-amber-500"></div>
-                        <span className="text-[13px] font-bold text-gray-500">New this week</span>
-                     </div>
-                     <span className="text-[13px] font-black text-gray-950">128</span>
-                  </div>
-               </div>
-
-               <div className="mt-10 grid grid-cols-2 gap-8">
-                  <div>
-                     <p className="text-2xl font-black text-gray-950 tracking-tighter">4.8k</p>
-                     <p className="text-[9px] font-black text-gray-400 uppercase mt-2 tracking-widest leading-none">Total Rides</p>
-                  </div>
-                  <div>
-                     <p className="text-2xl font-black text-rose-500 tracking-tighter">12%</p>
-                     <p className="text-[9px] font-black text-gray-400 uppercase mt-2 tracking-widest leading-none">Churn Rate</p>
-                  </div>
-               </div>
-            </div>
-
-            <div className="bg-gray-950 p-8 rounded-[32px] text-white shadow-2xl relative overflow-hidden group">
-               <div className="absolute top-0 right-0 p-6 opacity-20"><ArrowUpRight size={100} strokeWidth={1} /></div>
-               <div className="relative z-10">
-                  <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-6 px-1">Wallet Balance Pool</p>
-                  <p className="text-4xl font-black mb-1 tracking-tighter">₹8,42,010</p>
-                  <p className="text-[12px] font-bold text-emerald-400 flex items-center gap-2 mt-4">
-                     <ArrowUpRight size={16} /> +24.8% <span className="text-gray-500">from last month</span>
-                  </p>
-                  <button className="w-full mt-12 py-4 bg-white text-gray-950 rounded-2xl text-[12px] font-black uppercase tracking-widest transition-all hover:bg-gray-100 shadow-xl">
-                     View Ledger
-                  </button>
-               </div>
-            </div>
-         </div>
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">User</th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500">Status</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">Rating</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">Wallet</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">Joined</th>
+                <th className="px-4 py-3 w-12"></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {filteredUsers.map((user) => (
+                <tr key={user.id} className={`hover:bg-gray-50/50 transition-colors ${selectedRows.includes(user.id) ? 'bg-indigo-50/30' : ''}`}>
+                  <td className="px-4 py-3">
+                    <div 
+                      onClick={(e) => { e.stopPropagation(); toggleRowSelect(user.id); }}
+                      className={`w-4 h-4 rounded border flex items-center justify-center cursor-pointer ${selectedRows.includes(user.id) ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-gray-300'}`}
+                    >
+                      {selectedRows.includes(user.id) && <CheckCircle2 size={10} />}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-gray-100 text-gray-600 font-medium text-xs flex items-center justify-center">
+                        {user.name.split(' ').map(n => n[0]).join('')}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                        <p className="text-xs text-gray-400">{user.email}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <StatusToggle status={user.status} onToggle={() => handleToggleStatus(user.id, user.status)} />
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1 text-sm text-gray-700">
+                      {user.rating} <Star size={12} className="fill-amber-400 text-amber-400" />
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-700">{user.wallet}</td>
+                  <td className="px-4 py-3 text-xs text-gray-400">{user.joined}</td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="relative">
+                      <button 
+                        onClick={(e) => toggleMenu(e, user.id)}
+                        className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        <MoreHorizontal size={16} />
+                      </button>
+                      {activeMenu === user.id && (
+                        <div className="absolute right-0 top-full mt-1 w-44 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                          <button onClick={() => navigate(`/admin/users/${user.id}`)} className="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                            <UserCheck size={13} className="text-emerald-500" /> View Profile
+                          </button>
+                          <button onClick={() => handleEditUser(user)} className="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                            <Edit2 size={13} className="text-blue-500" /> Edit
+                          </button>
+                          <button onClick={() => handleEditUser(user)} className="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                            <Lock size={13} className="text-amber-500" /> Update Password
+                          </button>
+                          <div className="h-px bg-gray-100 my-1" />
+                          <button onClick={() => handleDeleteUser(user.id)} className="w-full text-left px-3 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
+                            <Trash2 size={13} /> Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <UserModal 
@@ -414,34 +274,20 @@ const UserList = () => {
         isLoading={isSubmitting}
       />
 
+      {/* Selection bar */}
       {selectedRows.length > 0 && (
-        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 bg-gray-950 text-white px-8 py-4 rounded-[28px] shadow-2xl flex items-center gap-8 animate-in slide-in-from-bottom-10 duration-500 z-[100] border border-white/10 min-w-[500px]">
-           <div className="flex items-center gap-3 pr-8 border-r border-white/20">
-              <button 
-                onClick={() => setSelectedRows([])}
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all"
-              >
-                 <X size={16} />
-              </button>
-              <p className="text-[14px] font-black tracking-tight leading-none">
-                 {selectedRows.length} <span className="text-gray-500 uppercase text-[10px] font-black ml-2 tracking-widest">Selected</span>
-              </p>
-           </div>
-           
-           <div className="flex items-center gap-8">
-              <button className="flex items-center gap-2 text-[12px] font-black hover:text-indigo-400 transition-colors cursor-pointer uppercase tracking-widest">
-                 <Printer size={16} className="text-gray-500" /> Print
-              </button>
-              <button className="flex items-center gap-2 text-[12px] font-black hover:text-indigo-400 transition-colors cursor-pointer uppercase tracking-widest">
-                 <Copy size={16} className="text-gray-500" /> Duplicate
-              </button>
-              <button className="flex items-center gap-2 text-[12px] font-black hover:text-indigo-400 transition-colors cursor-pointer uppercase tracking-widest">
-                 <Download size={16} className="text-gray-500" /> Export
-              </button>
-              <button className="p-2 text-gray-500 hover:text-white transition-colors ml-4">
-                 <MoreHorizontal size={18} />
-              </button>
-           </div>
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-xl shadow-xl flex items-center gap-6 z-[100]">
+          <div className="flex items-center gap-3 pr-6 border-r border-white/20">
+            <button onClick={() => setSelectedRows([])} className="p-1 hover:bg-white/10 rounded transition-colors">
+              <X size={14} />
+            </button>
+            <span className="text-sm font-medium">{selectedRows.length} selected</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <button className="flex items-center gap-1.5 text-xs hover:text-indigo-300 transition-colors"><Printer size={14} /> Print</button>
+            <button className="flex items-center gap-1.5 text-xs hover:text-indigo-300 transition-colors"><Copy size={14} /> Copy</button>
+            <button className="flex items-center gap-1.5 text-xs hover:text-indigo-300 transition-colors"><Download size={14} /> Export</button>
+          </div>
         </div>
       )}
     </div>

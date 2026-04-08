@@ -17,7 +17,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { IndianRupee, TrendingUp, Star, ChevronRight } from 'lucide-react';
 import MapGrid from '@/assets/premium_grid_map.png';
-import RedigoLogo from '@/assets/redigologo.png';
+import Rydon24Logo from '@/assets/rydon24_logo.png';
 import DriverBottomNav from '../../shared/components/DriverBottomNav';
 import IncomingRideRequest from './IncomingRideRequest';
 
@@ -123,7 +123,7 @@ const DriverHome = () => {
             {/* Header: Compact Version */}
             <header className="fixed top-0 left-0 right-0 px-6 pt-6 pb-2.5 flex items-center justify-between z-50 bg-white/90 backdrop-blur-xl border-b border-slate-100 shadow-md">
                 <div className="flex items-center gap-3 pt-2">
-                    <img src={RedigoLogo} alt="Redigo" className="h-7 drop-shadow-sm" />
+                    <img src={Rydon24Logo} alt="Rydon24" className="h-7 drop-shadow-sm" />
                     <div className="h-5 w-px bg-slate-200" />
                     <div className="flex items-center gap-1.5">
                         <div className={`w-2 h-2 rounded-full shadow-sm ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`} />

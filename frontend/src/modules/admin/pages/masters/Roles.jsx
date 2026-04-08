@@ -1,15 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  ChevronRight,
-  Shield,
-  Edit2,
-  Trash2,
-  Search,
-  UserCheck,
-  Loader2,
-  Plus
-} from 'lucide-react';
-import { motion } from "framer-motion";
+import { ChevronRight, Shield, Edit2, Trash2, Search, UserCheck, Loader2, Plus } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 
 const Roles = () => {
@@ -17,14 +7,14 @@ const Roles = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [formData, setFormData] = useState({ name: '', description: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const fetchRoles = async () => {
     try {
       setIsLoading(true);
       const response = await adminService.getRoles();
-      // Backend returns: { success, data: { results: [...], paginator: {...} } }
-      const rolesData = response?.data?.results || response?.results || response?.paginator?.data || (Array.isArray(response) ? response : []);
-      setRoles(rolesData);
+      const data = response?.data?.results || response?.results || response?.paginator?.data || (Array.isArray(response) ? response : []);
+      setRoles(data);
     } catch (err) {
       console.error('Fetch Roles Error:', err);
     } finally {
@@ -32,14 +22,11 @@ const Roles = () => {
     }
   };
 
-  useEffect(() => {
-    fetchRoles();
-  }, []);
+  useEffect(() => { fetchRoles(); }, []);
 
   const handleCreateRole = async (e) => {
     e.preventDefault();
     if (!formData.name) return alert('Role name is required');
-    
     try {
       setIsSubmitting(true);
       await adminService.createRole(formData);
@@ -64,135 +51,125 @@ const Roles = () => {
     }
   };
 
+  const filtered = roles.filter(r =>
+    r.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    r.slug?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC] p-4 lg:p-8 font-['Inter']">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-6"
-      >
-        {/* Header Area */}
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-6 mb-8">
-           <div>
-              <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase tracking-widest">Roles</h1>
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest font-['Inter']">
-                 <span>Roles</span>
-                 <ChevronRight size={14} />
-                 <span className="text-indigo-600 font-black italic">Roles</span>
-              </div>
-           </div>
+    <div className="min-h-screen bg-gray-50 p-6 lg:p-8">
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-1.5 text-xs text-gray-400 mb-2">
+        <span>Masters</span>
+        <ChevronRight size={12} />
+        <span className="text-gray-700">Roles</span>
+      </div>
+      <h1 className="text-xl font-semibold text-gray-900 mb-6">Roles</h1>
+
+      {/* Create Form */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+        <h3 className="text-sm font-semibold text-gray-900 mb-4">Create New Role</h3>
+        <form onSubmit={handleCreateRole} className="flex items-end gap-5 flex-wrap">
+          <div className="flex-1 min-w-[200px]">
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">Role Name <span className="text-red-500">*</span></label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              placeholder="e.g. Manager"
+              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
+            />
+          </div>
+          <div className="flex-1 min-w-[200px]">
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">Description</label>
+            <input
+              type="text"
+              value={formData.description}
+              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              placeholder="Role description"
+              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="px-6 py-2.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+          >
+            {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
+            Create
+          </button>
+        </form>
+      </div>
+
+      {/* Table */}
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        {/* Toolbar */}
+        <div className="p-4 border-b border-gray-100 flex items-center justify-end">
+          <div className="relative">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search roles..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg w-56 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
+            />
+          </div>
         </div>
 
-        {/* Roles Creation Form */}
-        <div className="bg-white rounded-[40px] border border-slate-100 shadow-2xl shadow-slate-200 overflow-hidden mb-12 transform hover:scale-[1.01] transition-transform duration-500">
-           <form onSubmit={handleCreateRole} className="p-10 lg:p-14 space-y-10 group">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                 {/* Role name */}
-                 <div className="space-y-3 relative">
-                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block pl-2">Role Name <span className="text-rose-500 font-bold">*</span></label>
-                    <input 
-                      type="text" 
-                      value={formData.name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                      placeholder="Enter Role Name (e.g. Manager)"
-                      className="w-full bg-slate-50 border-slate-200 border rounded-2xl py-4.5 px-6 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition-all outline-none placeholder:text-slate-300 shadow-inner"
-                    />
-                 </div>
-                 
-                 {/* Description */}
-                 <div className="space-y-3 relative">
-                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block pl-2">Description</label>
-                    <input 
-                      type="text" 
-                      value={formData.description}
-                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                      placeholder="Enter Description"
-                      className="w-full bg-slate-50 border-slate-200 border rounded-2xl py-4.5 px-6 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600 transition-all outline-none placeholder:text-slate-300 shadow-inner"
-                    />
-                 </div>
-              </div>
-
-              <div className="pt-4 border-t border-slate-50 flex justify-end">
-                  <button 
-                    disabled={isSubmitting}
-                    className="bg-[#10B981] text-white px-12 py-3.5 rounded-xl font-black text-sm hover:bg-emerald-600 transition-all shadow-xl shadow-emerald-100 active:scale-95 uppercase tracking-widest flex items-center gap-2"
-                  >
-                    {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : 'Create'}
-                  </button>
-              </div>
-           </form>
-        </div>
-
-        {/* List Card Area */}
-        <div className="bg-white rounded-[40px] border border-slate-100 shadow-xl shadow-slate-100/50 overflow-hidden border border-slate-200/50">
-           {/* Section Filter with padding-top check */}
-           <div className="p-8 border-b border-slate-50 flex items-center justify-between gap-6 bg-slate-50/20">
-              <div className="relative flex-1 max-w-md group/search">
-                 <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within/search:text-indigo-600 transition-colors">
-                    <Search size={18} />
-                 </div>
-                 <input 
-                   type="text" 
-                   placeholder="Search slug or name..." 
-                   className="w-full bg-white border border-slate-200 rounded-2xl py-3.5 pl-14 pr-6 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-indigo-600/20 outline-none transition-all placeholder:text-slate-300 hover:border-slate-300"
-                 />
-              </div>
-           </div>
-
-           <div className="overflow-x-auto min-h-[400px]">
-              {isLoading ? (
-                <div className="flex flex-col items-center justify-center p-40 gap-4">
-                   <Loader2 className="w-12 h-12 text-indigo-600 animate-spin" />
-                   <p className="text-sm font-black text-slate-400 tracking-widest uppercase">Fetching Roles...</p>
-                </div>
-              ) : (
-                <table className="w-full border-collapse">
-                   <thead>
-                      <tr className="bg-slate-50/50 border-b border-slate-100">
-                         <th className="px-10 py-6 text-left text-[11px] font-black text-slate-400 uppercase tracking-widest">S.NO</th>
-                         <th className="px-10 py-6 text-left text-[11px] font-black text-slate-400 uppercase tracking-widest">Name</th>
-                         <th className="px-10 py-6 text-left text-[11px] font-black text-slate-400 uppercase tracking-widest">Description</th>
-                         <th className="px-10 py-6 text-right text-[11px] font-black text-slate-400 uppercase tracking-widest pr-14">Action</th>
-                      </tr>
-                   </thead>
-                   <tbody className="divide-y divide-slate-50">
-                      {roles.length > 0 ? roles.map((role, idx) => (
-                        <tr key={role._id || role.id || idx} className="hover:bg-slate-50/50 transition-all group">
-                           <td className="px-10 py-7 text-sm font-bold text-slate-900/60 leading-tight">{idx + 1}</td>
-                           <td className="px-10 py-7">
-                              <span className="text-[14px] font-black text-slate-900 tracking-tight">{role.name}</span>
-                              {role.slug && <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">{role.slug}</span>}
-                           </td>
-                           <td className="px-10 py-7">
-                              <p className="text-[13px] font-bold text-slate-500 max-w-xs">{role.description || 'No description provided'}</p>
-                           </td>
-                           <td className="px-10 py-7 pr-14">
-                              <div className="flex items-center justify-end gap-2.5">
-                                 <button className="p-3 bg-teal-50 text-teal-600 rounded-xl hover:bg-teal-100 transition-all active:scale-90 shadow-sm" title="Permissions"><UserCheck size={16} /></button>
-                                 <button className="p-3 bg-amber-50 text-amber-600 rounded-xl hover:bg-amber-100 transition-all active:scale-90 shadow-sm"><Edit2 size={16} /></button>
-                                 <button 
-                                   onClick={() => handleDelete(role._id || role.id)}
-                                   className="p-3 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-100 transition-all active:scale-90 shadow-sm"
-                                  ><Trash2 size={16} /></button>
-                              </div>
-                           </td>
-                        </tr>
-                      )) : (
-                        <tr>
-                          <td colSpan="4" className="px-10 py-20 text-center">
-                             <div className="flex flex-col items-center opacity-40">
-                                <Shield size={40} className="text-slate-300 mb-4" />
-                                <p className="text-slate-400 font-black uppercase tracking-widest text-xs">No administrative roles found</p>
-                             </div>
-                          </td>
-                        </tr>
-                      )}
-                   </tbody>
-                </table>
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-3">
+            <Loader2 className="w-7 h-7 text-indigo-600 animate-spin" />
+            <p className="text-sm text-gray-400">Loading roles...</p>
+          </div>
+        ) : (
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-100">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">#</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Name</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500">Description</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {filtered.length > 0 ? filtered.map((role, idx) => (
+                <tr key={role._id || role.id || idx} className="hover:bg-gray-50/50 transition-colors">
+                  <td className="px-6 py-4 text-sm text-gray-500">{idx + 1}</td>
+                  <td className="px-6 py-4">
+                    <span className="text-sm font-medium text-gray-900">{role.name}</span>
+                    {role.slug && <span className="block text-xs text-gray-400 mt-0.5">{role.slug}</span>}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500 max-w-xs">{role.description || '—'}</td>
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <button className="p-1.5 text-gray-400 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors" title="Permissions">
+                        <UserCheck size={15} />
+                      </button>
+                      <button className="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors">
+                        <Edit2 size={15} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(role._id || role.id)}
+                        className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              )) : (
+                <tr>
+                  <td colSpan="4" className="px-6 py-16 text-center text-sm text-gray-400">
+                    <Shield size={28} className="mx-auto mb-2 text-gray-300" />
+                    No roles found.
+                  </td>
+                </tr>
               )}
-           </div>
-        </div>
-      </motion.div>
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 };

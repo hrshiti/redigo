@@ -206,7 +206,7 @@ const SelectVehicle = () => {
                         <span className="text-2xl font-bold">₹</span>
                     </div>
                     <div className="flex-1">
-                        <p className="font-black text-gray-900 text-lg">Redigo Wallet</p>
+                        <p className="font-black text-gray-900 text-lg">RYDON24 Wallet</p>
                         <p className="text-xs font-bold text-gray-400">Balance: ₹450.00</p>
                     </div>
                     {paymentMethod === 'Wallet' && <div className="w-6 h-6 rounded-full bg-[#E85D04] flex items-center justify-center text-white"><X size={14} className="rotate-45" strokeWidth={3} /></div>}
