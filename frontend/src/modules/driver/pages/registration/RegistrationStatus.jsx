@@ -13,6 +13,10 @@ const RegistrationStatus = () => {
     };
 
     useEffect(() => {
+        if (location.state?.role) {
+            localStorage.setItem('role', location.state.role);
+        }
+        
         const timer = setInterval(() => {
             setTimeLeft(prev => {
                 if (prev <= 1) {
@@ -24,7 +28,7 @@ const RegistrationStatus = () => {
             });
         }, 1000);
         return () => clearInterval(timer);
-    }, [navigate]);
+    }, [navigate, location.state]);
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans p-5 pt-12 select-none overflow-x-hidden flex flex-col items-center text-center">
