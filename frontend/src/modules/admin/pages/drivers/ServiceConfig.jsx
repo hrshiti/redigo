@@ -1,9 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import {
-  Plus, Trash2, X, ChevronRight, MapPin, Car,
-  CheckCircle2, AlertCircle, ToggleLeft, ToggleRight,
-  Search, Settings2, Globe, Bike, Package, Zap,
-  ArrowRight, Edit3, MoreHorizontal
+  Plus, Search, Filter, Edit, Trash, Check, X, Shield, Globe, Car, Bike, Info, LayoutGrid,
+  Trash2, ChevronRight, MapPin, CheckCircle2, AlertCircle, ToggleLeft, ToggleRight,
+  Settings2, Package, Zap, ArrowRight, Edit3, MoreHorizontal
 } from 'lucide-react';
 
 // ─── Tiny helpers ──────────────────────────────────────────────────────────────
@@ -22,6 +21,17 @@ const Pill = ({ label, variant = 'gray' }) => {
     dark:  'bg-gray-950  text-white       border-gray-950',
   }[variant];
   return <span className={`px-2 py-0.5 text-[9px] font-black uppercase tracking-widest border rounded-md ${cls}`}>{label}</span>;
+};
+
+const getLucideIcon = (iconId, size = 18) => {
+  switch(iconId) {
+    case 'taxi_icon': return <Car size={size} />;
+    case 'bike_icon': return <Bike size={size} />;
+    case 'delivery_icon': return <Package size={size} />;
+    case 'auto_icon': return <Zap size={size} />;
+    case 'cab_icon': return <Car size={size} />;
+    default: return <Car size={size} />;
+  }
 };
 
 // ─── Modal shell ───────────────────────────────────────────────────────────────
@@ -122,7 +132,7 @@ const ServiceConfig = () => {
           const vList = (data.data || []).map(v => ({
             id: v._id,
             label: v.name,
-            emoji: v.transport_type === 'bike' ? '🏍️' : '🚗',
+            icon: v.transport_type === 'bike' ? 'bike_icon' : 'taxi_icon',
             services: [v.transport_type],
             active: true
           }));
@@ -277,8 +287,8 @@ const ServiceConfig = () => {
       {/* ── TABS ── */}
       <div className="flex gap-1 bg-gray-50 border border-gray-100 rounded-2xl p-1 w-fit">
         {[
-          { id: 'services',  label: '⚙️  Service Types' },
-          { id: 'locations', label: '📍  Locations & Vehicles' },
+          { id: 'services',  label: <div className="flex items-center gap-2"><LayoutGrid size={14} /> Service Types</div> },
+          { id: 'locations', label: <div className="flex items-center gap-2"><MapPin size={14} /> Locations & Vehicles</div> },
         ].map(t => (
           <button
             key={t.id}
@@ -315,7 +325,7 @@ const ServiceConfig = () => {
             {/* Fixed "Both" card */}
             <div className="bg-gradient-to-br from-gray-950 to-gray-800 rounded-2xl p-5 text-white shadow-xl">
               <div className="flex items-start justify-between mb-4">
-                <span className="text-3xl">🚀</span>
+                <span className="text-3xl text-primary"><Rocket size={32} /></span>
                 <Pill label="Always On" variant="green" />
               </div>
               <h3 className="text-[16px] font-black leading-none">Both Services</h3>
@@ -329,7 +339,7 @@ const ServiceConfig = () => {
             {services.map(s => (
               <div key={s.id} className={`bg-white border rounded-2xl p-5 shadow-sm transition-all ${s.active ? 'border-gray-100' : 'border-gray-100 opacity-50'}`}>
                 <div className="flex items-start justify-between mb-4">
-                  <span className="text-3xl">{s.emoji}</span>
+                  <span className="text-3xl text-primary">{getLucideIcon(s.icon_id || 'taxi_icon', 32)}</span>
                   <div className="flex items-center gap-2">
                     <Pill label={s.active ? 'Active' : 'Off'} variant={s.active ? 'green' : 'gray'} />
                     <button
@@ -399,7 +409,7 @@ const ServiceConfig = () => {
                   }`}
                 >
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm shrink-0 ${selLocId === loc.id ? 'bg-white/10' : 'bg-gray-50'}`}>
-                    📍
+                    <MapPin size={14} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className={`text-[13px] font-black leading-tight truncate ${selLocId === loc.id ? 'text-white' : 'text-gray-950'}`}>{loc.city}</p>
@@ -422,7 +432,7 @@ const ServiceConfig = () => {
               {/* Selected location header */}
               <div className="bg-white border border-gray-100 rounded-2xl px-5 py-4 flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div className="text-2xl">📍</div>
+                  <div className="text-2xl text-primary"><MapPin size={24} /></div>
                   <div>
                     <div className="flex items-center gap-2">
                       <h2 className="text-[17px] font-black text-gray-950">{selLoc.city}</h2>
@@ -472,7 +482,7 @@ const ServiceConfig = () => {
                       className={`bg-white border rounded-2xl p-4 shadow-sm transition-all hover:shadow-md ${v.active ? 'border-gray-100' : 'border-gray-100 opacity-50'}`}
                     >
                       <div className="flex items-start justify-between mb-3">
-                        <span className="text-2xl">{v.emoji}</span>
+                        <span className="text-2xl text-primary">{getLucideIcon(v.icon_id || 'taxi_icon', 24)}</span>
                         <Tog on={v.active} onToggle={() => toggleVehicle(selLoc.id, v.id)} />
                       </div>
                       <h4 className="text-[14px] font-black text-gray-950 leading-none">{v.label}</h4>
@@ -482,8 +492,8 @@ const ServiceConfig = () => {
                         {v.services.map(sid => {
                           const svc = services.find(s => s.id === sid);
                           return svc ? (
-                            <span key={sid} className="text-[9px] font-black bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full border border-gray-200 uppercase tracking-widest">
-                              {svc.emoji} {svc.label}
+                            <span key={sid} className="text-[9px] font-black bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full border border-gray-200 uppercase tracking-widest flex items-center gap-1.5">
+                              {getLucideIcon(svc.icon_id || 'taxi_icon', 10)} {svc.label}
                             </span>
                           ) : null;
                         })}
@@ -529,7 +539,7 @@ const ServiceConfig = () => {
                 type="text" maxLength={2} value={draft.emoji || ''}
                 onChange={e => setDraft(p => ({ ...p, emoji: e.target.value }))}
                 className="w-full h-11 border border-gray-100 bg-gray-50 rounded-xl px-3 text-xl text-center focus:outline-none focus:border-gray-300 transition-all"
-                placeholder="🚗"
+                placeholder="e.g., taxi_icon"
               />
             </div>
             <div className="col-span-2">
@@ -578,7 +588,7 @@ const ServiceConfig = () => {
                 type="text" maxLength={2} value={draft.emoji || ''}
                 onChange={e => setDraft(p => ({ ...p, emoji: e.target.value }))}
                 className="w-full h-11 border border-gray-100 bg-gray-50 rounded-xl px-3 text-xl text-center focus:outline-none focus:border-gray-300 transition-all"
-                placeholder="🚗"
+                placeholder="e.g., taxi_icon"
               />
             </div>
             <div className="col-span-2">
@@ -589,18 +599,18 @@ const ServiceConfig = () => {
             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Link to Services</label>
             <div className="flex flex-wrap gap-2">
               {services.filter(s => s.active).map(svc => (
-                <button
-                  key={svc.id}
-                  type="button"
-                  onClick={() => toggleDraftService(svc.id)}
-                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[11px] font-black border transition-all ${
-                    (draft.services || []).includes(svc.id)
-                      ? 'bg-gray-950 text-white border-gray-950 shadow-md'
-                      : 'bg-gray-50 text-gray-500 border-gray-100 hover:border-gray-300'
-                  }`}
-                >
-                  {svc.emoji} {svc.label}
-                </button>
+                   <button
+                    key={svc.id}
+                    type="button"
+                    onClick={() => toggleDraftService(svc.id)}
+                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[11px] font-black border transition-all ${
+                      (draft.services || []).includes(svc.id)
+                        ? 'bg-gray-950 text-white border-gray-950 shadow-md'
+                        : 'bg-gray-50 text-gray-500 border-gray-100 hover:border-gray-300'
+                    }`}
+                  >
+                    {getLucideIcon(svc.icon_id || 'taxi_icon', 12)} {svc.label}
+                  </button>
               ))}
             </div>
           </div>

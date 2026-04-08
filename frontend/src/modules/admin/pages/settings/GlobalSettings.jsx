@@ -142,14 +142,24 @@ const GlobalSettings = () => {
                        { title: 'Surge Pricing Automation', desc: 'Allow algorithm to increase prices during peak demands globally.', status: true },
                        { title: 'Cash Payments', desc: 'Allow users to select Cash as a payment method for rides.', status: true },
                        { title: 'Parcel Delivery Module', desc: 'Enable the local parcel delivery capability in the User App.', status: false },
+                       { title: 'Maximum Distance Limit', desc: 'Enable maximum distance restrictions for zone-based rides.', status: true, key: 'max_distance_limit' },
                      ].map((toggle, idx) => (
                         <div key={idx} className="flex items-center justify-between p-5 bg-gray-50 rounded-2xl border border-gray-100">
                            <div className="w-2/3">
                               <h4 className="text-[14px] font-black text-gray-900 mb-1">{toggle.title}</h4>
                               <p className="text-[11px] font-bold text-gray-500 leading-relaxed pr-6">{toggle.desc}</p>
                            </div>
-                           <div className={`w-12 h-6 rounded-full relative cursor-pointer transition-all ${toggle.status ? 'bg-primary' : 'bg-gray-300'}`}>
-                              <div className={`w-4 h-4 bg-white rounded-full absolute top-1 shadow-sm transition-all ${toggle.status ? 'right-1' : 'left-1'}`}></div>
+                           <div 
+                             onClick={() => {
+                               if (toggle.key === 'max_distance_limit') {
+                                 const current = localStorage.getItem('enable_max_distance') === 'true';
+                                 localStorage.setItem('enable_max_distance', !current);
+                                 window.location.reload(); // Quick way to sync for this demo
+                               }
+                             }}
+                             className={`w-12 h-6 rounded-full relative cursor-pointer transition-all ${((toggle.key === 'max_distance_limit' ? localStorage.getItem('enable_max_distance') === 'true' : toggle.status)) ? 'bg-primary' : 'bg-gray-300'}`}
+                           >
+                              <div className={`w-4 h-4 bg-white rounded-full absolute top-1 shadow-sm transition-all ${((toggle.key === 'max_distance_limit' ? localStorage.getItem('enable_max_distance') === 'true' : toggle.status)) ? 'right-1' : 'left-1'}`}></div>
                            </div>
                         </div>
                      ))}

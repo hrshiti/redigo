@@ -24,24 +24,6 @@ const VehicleFleet = () => {
                 <h1 className="text-lg font-black tracking-tight tracking-tighter uppercase">My Fleet</h1>
             </header>
 
-            <AnimatePresence>
-                {showAdd && (
-                    <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/60 backdrop-blur-sm">
-                        <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} className="bg-white w-full rounded-t-[2.5rem] p-7 pb-10 space-y-6">
-                            <div className="flex justify-between items-center">
-                                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Register Car</h3>
-                                <button onClick={() => setShowAdd(false)} className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-400"><X size={18} /></button>
-                            </div>
-                            <div className="space-y-4">
-                                <input placeholder="CAR MODEL (E.G. WAGONR)" className="w-full h-14 bg-slate-50 border-none rounded-2xl px-5 text-[12px] font-black tracking-widest placeholder:text-slate-200" />
-                                <input placeholder="PLATE NUMBER (E.G. MP 09 AB 1234)" className="w-full h-14 bg-slate-50 border-none rounded-2xl px-5 text-[12px] font-black tracking-widest placeholder:text-slate-200" />
-                                <button onClick={() => setShowAdd(false)} className="w-full h-14 bg-slate-900 text-white rounded-2xl text-[12px] font-black uppercase tracking-widest shadow-xl mt-4">Submit Registration</button>
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
-
             <main className="space-y-6">
                 <div className="bg-gradient-to-br from-[#1a1c24] to-[#3a3d4d] p-6 rounded-[2rem] text-white relative overflow-hidden group shadow-2xl">
                     <div className="absolute top-[-30%] right-[-10%] w-48 h-48 bg-taxi-primary/10 rounded-full blur-3xl shadow-taxi-primary/10" />
@@ -66,7 +48,7 @@ const VehicleFleet = () => {
                 <div className="space-y-4">
                      <div className="flex items-center justify-between px-1">
                           <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest opacity-60">Registered Fleet</h3>
-                          <button onClick={() => setShowAdd(true)} className="text-[10px] font-black text-blue-500 uppercase tracking-widest font-black">+ Add New</button>
+                          <button onClick={() => navigate('/taxi/driver/add-vehicle')} className="text-[10px] font-black text-blue-500 uppercase tracking-widest font-black">+ Add New Fleet</button>
                      </div>
 
                      <div className="space-y-3">

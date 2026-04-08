@@ -54,7 +54,7 @@ const SetPrices = () => {
     vehicle_type: '',
     app_modules: '',
     vehicle_preference: '',
-    payment_type: [],
+    payment_type: ['cash'],
     customer_commission_type: 'percentage',
     customer_commission: '',
     driver_commission_type: 'percentage',
@@ -76,7 +76,7 @@ const SetPrices = () => {
     user_cancellation_fee: '',
     driver_cancellation_fee_type: 'percentage',
     driver_cancellation_fee: '',
-    cancellation_fee_goes_to: '',
+    cancellation_fee_goes_to: 'admin',
     enable_ride_sharing: false,
     status: 'active'
   });
@@ -97,7 +97,7 @@ const SetPrices = () => {
         fetch(`${baseUrl}/types/vehicle-types`, { headers: { 'Authorization': `Bearer ${token}` } }),
         fetch(`${baseUrl}/common/app-modules`, { headers: { 'Authorization': `Bearer ${token}` } }),
         fetch(`${baseUrl}/service-locations`, { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch(`${baseUrl}/vehicle_preference`, { headers: { 'Authorization': `Bearer ${token}` } })
+        fetch(`${baseUrl}/preferences`, { headers: { 'Authorization': `Bearer ${token}` } })
       ]);
 
       const prizesData = await prizesRes.json();
@@ -127,9 +127,9 @@ const SetPrices = () => {
         const items = locationsData.data?.service_locations || (Array.isArray(locationsData.data) ? locationsData.data : (locationsData.data?.results || locationsData.results || []));
         setServiceLocations(items);
       }
-      if (prefsData.success) {
-        const rawItems = prefsData.data || [];
-        const items = Array.isArray(rawItems) ? rawItems : (rawItems.results || rawItems.vehicle_preferences || rawItems.vehicle_preference || []);
+      if (prefsData.status === 200 || prefsData.success) {
+        const rawItems = prefsData.data || (Array.isArray(prefsData) ? prefsData : []);
+        const items = Array.isArray(rawItems) ? rawItems : (rawItems.results || rawItems.preferences || []);
         setVehiclePreferences(items);
       }
 
@@ -189,6 +189,8 @@ const SetPrices = () => {
       ...prize,
       zone_id: prize.zone_id?._id || prize.zone_id || '',
       vehicle_type: prize.vehicle_type?._id || prize.vehicle_type || '',
+      app_modules: prize.app_modules?._id || prize.app_modules || '',
+      vehicle_preference: prize.vehicle_preference?._id || prize.vehicle_preference || '',
     });
     setView('create');
   };
@@ -221,6 +223,7 @@ const SetPrices = () => {
                   setView('create');
                   setFormData({
                     zone_id: '', transport_type: '', vehicle_type: '', app_modules: '',
+                    vehicle_preference: '',
                     payment_type: ['cash'], customer_commission_type: 'percentage',
                     customer_commission: '', driver_commission_type: 'percentage',
                     driver_commission: '', owner_commission_type: 'percentage',
@@ -405,10 +408,11 @@ const SetPrices = () => {
                     <select 
                       value={formData.zone_id}
                       onChange={(e) => setFormData({...formData, zone_id: e.target.value})}
+                      style={{ color: '#000000' }}
                       className="w-full bg-slate-50 border-slate-200 border rounded-2xl py-4 px-5 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all outline-none"
                     >
-                      <option value="">Select Zone</option>
-                      {zones.map(z => <option key={z._id} value={z._id}>{z.name}</option>)}
+                      <option value="" className="bg-white text-gray-950 font-bold">Select Zone</option>
+                      {zones.map(z => <option key={z._id} value={z._id} className="bg-white text-gray-950 font-bold">{z.name}</option>)}
                     </select>
                   </div>
 
@@ -417,11 +421,12 @@ const SetPrices = () => {
                     <select 
                       value={formData.transport_type}
                       onChange={(e) => setFormData({...formData, transport_type: e.target.value})}
+                      style={{ color: '#000000' }}
                       className="w-full bg-slate-50 border-slate-200 border rounded-2xl py-4 px-5 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all outline-none"
                     >
-                      <option value="">Select Transport Type</option>
-                      <option value="taxi">Taxi</option>
-                      <option value="delivery">Delivery</option>
+                      <option value="" className="bg-white text-gray-950 font-bold">Select Transport Type</option>
+                      <option value="taxi" className="bg-white text-gray-950 font-bold">Taxi</option>
+                      <option value="delivery" className="bg-white text-gray-950 font-bold">Delivery</option>
                     </select>
                   </div>
 
@@ -447,11 +452,14 @@ const SetPrices = () => {
                     <select 
                       value={formData.app_modules}
                       onChange={(e) => setFormData({...formData, app_modules: e.target.value})}
+                      style={{ color: '#000000' }}
                       className="w-full bg-slate-50 border-slate-200 border rounded-2xl py-4 px-5 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all outline-none"
                     >
-                      <option value="">Select App Modules</option>
+                      <option value="" className="bg-white text-gray-950 font-bold">Select App Modules</option>
                       {appModules.map(m => (
-                        <option key={m._id || m.id} value={m._id || m.id}>{m.name || m.module_name || m}</option>
+                        <option key={m._id || m.id} value={m._id || m.id} className="bg-white text-gray-950 font-bold">
+                          {m.name || m.module_name || m}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -462,11 +470,14 @@ const SetPrices = () => {
                       <select 
                         value={formData.vehicle_preference}
                         onChange={(e) => setFormData({...formData, vehicle_preference: e.target.value})}
+                        style={{ color: '#000000' }}
                         className="w-full bg-slate-50 border-slate-200 border rounded-2xl py-4 px-5 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all outline-none appearance-none"
                       >
-                        <option value="">Select Preference</option>
+                        <option value="" className="bg-white text-gray-950 font-bold">Select Preference</option>
                         {Array.isArray(vehiclePreferences) && vehiclePreferences.map(pref => (
-                          <option key={pref._id || pref.id} value={pref._id || pref.id}>{pref.name}</option>
+                          <option key={pref._id || pref.id} value={pref._id || pref.id} className="bg-white text-gray-950 font-bold">
+                            {pref.name || pref.vehicle_preference_name || pref.title}
+                          </option>
                         ))}
                       </select>
                       <ChevronDown size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-indigo-600 transition-colors" />
@@ -476,11 +487,14 @@ const SetPrices = () => {
                   <div>
                     <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Payment Type *</label>
                     <select 
+                      value={formData.payment_type?.[0] || 'cash'}
+                      onChange={(e) => setFormData({...formData, payment_type: [e.target.value]})}
+                      style={{ color: '#000000' }}
                       className="w-full bg-slate-50 border-slate-200 border rounded-2xl py-4 px-5 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all outline-none"
                     >
-                      <option value="cash">Cash</option>
-                      <option value="wallet">Wallet</option>
-                      <option value="card">Card</option>
+                      <option value="cash" className="bg-white text-gray-950 font-bold">Cash</option>
+                      <option value="wallet" className="bg-white text-gray-950 font-bold">Wallet</option>
+                      <option value="card" className="bg-white text-gray-950 font-bold">Card</option>
                     </select>
                   </div>
 
@@ -489,10 +503,11 @@ const SetPrices = () => {
                     <select 
                       value={formData.customer_commission_type}
                       onChange={(e) => setFormData({...formData, customer_commission_type: e.target.value})}
+                      style={{ color: '#000000' }}
                       className="w-full bg-slate-50 border-slate-200 border rounded-2xl py-4 px-5 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all outline-none"
                     >
-                      <option value="percentage">Percentage</option>
-                      <option value="fixed">Fixed</option>
+                      <option value="percentage" className="bg-white text-gray-950 font-bold">Percentage</option>
+                      <option value="fixed" className="bg-white text-gray-950 font-bold">Fixed</option>
                     </select>
                   </div>
 
@@ -512,10 +527,11 @@ const SetPrices = () => {
                     <select 
                       value={formData.driver_commission_type}
                       onChange={(e) => setFormData({...formData, driver_commission_type: e.target.value})}
+                      style={{ color: '#000000' }}
                       className="w-full bg-slate-50 border-slate-200 border rounded-2xl py-4 px-5 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 transition-all outline-none"
                     >
-                      <option value="percentage">Percentage</option>
-                      <option value="fixed">Fixed</option>
+                      <option value="percentage" className="bg-white text-gray-950 font-bold">Percentage</option>
+                      <option value="fixed" className="bg-white text-gray-950 font-bold">Fixed</option>
                     </select>
                   </div>
                   
@@ -523,24 +539,48 @@ const SetPrices = () => {
                   <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
                      <div>
                         <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 block">ETA Sequence *</label>
-                        <input type="number" placeholder="Enter Order Number" className="w-full bg-slate-50 border-slate-200 border rounded-2xl py-4 px-5 text-sm font-bold text-slate-900 outline-none" />
+                        <input 
+                           type="number" 
+                           placeholder="Enter Order Number" 
+                           value={formData.eta_sequence}
+                           onChange={(e) => setFormData({...formData, eta_sequence: e.target.value})}
+                           className="w-full bg-slate-50 border-slate-200 border rounded-2xl py-4 px-5 text-sm font-bold text-slate-900 outline-none" 
+                        />
                      </div>
                      <div>
                         <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Base Price *</label>
-                        <input type="number" placeholder="Enter Base Price" className="w-full bg-slate-50 border-slate-200 border rounded-2xl py-4 px-5 text-sm font-bold text-slate-900 outline-none" />
+                        <input 
+                           type="number" 
+                           placeholder="Enter Base Price" 
+                           value={formData.base_price}
+                           onChange={(e) => setFormData({...formData, base_price: e.target.value})}
+                           className="w-full bg-slate-50 border-slate-200 border rounded-2xl py-4 px-5 text-sm font-bold text-slate-900 outline-none" 
+                        />
                      </div>
                      <div>
                         <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Base Distance *</label>
-                        <input type="number" placeholder="Enter Base Distance" className="w-full bg-slate-50 border-slate-200 border rounded-2xl py-4 px-5 text-sm font-bold text-slate-900 outline-none" />
+                        <input 
+                           type="number" 
+                           placeholder="Enter Base Distance" 
+                           value={formData.base_distance}
+                           onChange={(e) => setFormData({...formData, base_distance: e.target.value})}
+                           className="w-full bg-slate-50 border-slate-200 border rounded-2xl py-4 px-5 text-sm font-bold text-slate-900 outline-none" 
+                        />
                      </div>
                      <div>
                         <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Price Per Distance *</label>
-                        <input type="number" placeholder="Enter Price Per Distance" className="w-full bg-slate-50 border-slate-200 border rounded-2xl py-4 px-5 text-sm font-bold text-slate-900 outline-none" />
+                        <input 
+                           type="number" 
+                           placeholder="Enter Price Per Distance" 
+                           value={formData.price_per_distance}
+                           onChange={(e) => setFormData({...formData, price_per_distance: e.target.value})}
+                           className="w-full bg-slate-50 border-slate-200 border rounded-2xl py-4 px-5 text-sm font-bold text-slate-900 outline-none" 
+                        />
                      </div>
                   </div>
                 </div>
 
-                {/* Section 2: Cancellation Fees (Grouped like Image 2) */}
+                {/* Section 2: Cancellation Fees */}
                 <div className="pt-12 border-t border-slate-100">
                   <h3 className="text-[11px] font-black text-indigo-600 uppercase tracking-widest mb-8 flex items-center gap-2">
                     <Trash2 size={16} /> Cancellation Fee Structure
@@ -549,21 +589,43 @@ const SetPrices = () => {
                     <div>
                       <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Cancellation Fee for User *</label>
                       <div className="flex gap-2">
-                        <select className="w-24 bg-slate-50 border-slate-200 border rounded-2xl py-4 px-3 text-sm font-bold text-slate-900 outline-none">
-                          <option>%</option>
-                          <option>₹</option>
+                        <select 
+                          value={formData.user_cancellation_fee_type}
+                          onChange={(e) => setFormData({...formData, user_cancellation_fee_type: e.target.value})}
+                          style={{ color: '#000000' }}
+                          className="w-24 bg-slate-50 border-slate-200 border rounded-2xl py-4 px-3 text-sm font-bold text-slate-900 outline-none"
+                        >
+                          <option value="percentage" className="bg-white text-gray-950 font-bold">%</option>
+                          <option value="fixed" className="bg-white text-gray-950 font-bold">₹</option>
                         </select>
-                        <input type="number" placeholder="Amount" className="flex-1 bg-slate-50 border-slate-200 border rounded-2xl py-4 px-5 text-sm font-bold text-slate-900 outline-none" />
+                        <input 
+                          type="number" 
+                          placeholder="Amount" 
+                          value={formData.user_cancellation_fee}
+                          onChange={(e) => setFormData({...formData, user_cancellation_fee: e.target.value})}
+                          className="flex-1 bg-slate-50 border-slate-200 border rounded-2xl py-4 px-5 text-sm font-bold text-slate-900 outline-none" 
+                        />
                       </div>
                     </div>
                     <div>
                       <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Cancellation Fee for Driver *</label>
                       <div className="flex gap-2">
-                        <select className="w-24 bg-slate-50 border-slate-200 border rounded-2xl py-4 px-3 text-sm font-bold text-slate-900 outline-none">
-                          <option>%</option>
-                          <option>₹</option>
+                        <select 
+                          value={formData.driver_cancellation_fee_type}
+                          onChange={(e) => setFormData({...formData, driver_cancellation_fee_type: e.target.value})}
+                          style={{ color: '#000000' }}
+                          className="w-24 bg-slate-50 border-slate-200 border rounded-2xl py-4 px-3 text-sm font-bold text-slate-900 outline-none"
+                        >
+                          <option value="percentage" className="bg-white text-gray-950 font-bold">%</option>
+                          <option value="fixed" className="bg-white text-gray-950 font-bold">₹</option>
                         </select>
-                        <input type="number" placeholder="Amount" className="flex-1 bg-slate-50 border-slate-200 border rounded-2xl py-4 px-5 text-sm font-bold text-slate-900 outline-none" />
+                        <input 
+                          type="number" 
+                          placeholder="Amount" 
+                          value={formData.driver_cancellation_fee}
+                          onChange={(e) => setFormData({...formData, driver_cancellation_fee: e.target.value})}
+                          className="flex-1 bg-slate-50 border-slate-200 border rounded-2xl py-4 px-5 text-sm font-bold text-slate-900 outline-none" 
+                        />
                       </div>
                     </div>
                   </div>
@@ -572,15 +634,33 @@ const SetPrices = () => {
                 {/* Section 3: Switches */}
                 <div className="pt-12 border-t border-slate-100 flex flex-wrap gap-x-16 gap-y-8">
                   <div className="flex items-center gap-4">
-                    <input type="checkbox" id="airport" className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600/20" />
+                    <input 
+                      type="checkbox" 
+                      id="airport" 
+                      checked={formData.enable_airport_ride}
+                      onChange={(e) => setFormData({...formData, enable_airport_ride: e.target.checked})}
+                      className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600/20" 
+                    />
                     <label htmlFor="airport" className="text-sm font-bold text-slate-700 tracking-tight">Enable Airport Ride</label>
                   </div>
                   <div className="flex items-center gap-4">
-                    <input type="checkbox" id="outstation" className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600/20" />
+                    <input 
+                      type="checkbox" 
+                      id="outstation" 
+                      checked={formData.enable_outstation_ride}
+                      onChange={(e) => setFormData({...formData, enable_outstation_ride: e.target.checked})}
+                      className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600/20" 
+                    />
                     <label htmlFor="outstation" className="text-sm font-bold text-slate-700 tracking-tight">Enable Outstation Ride</label>
                   </div>
                   <div className="flex items-center gap-4">
-                    <input type="checkbox" id="sharing" className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600/20" />
+                    <input 
+                      type="checkbox" 
+                      id="sharing" 
+                      checked={formData.enable_ride_sharing}
+                      onChange={(e) => setFormData({...formData, enable_ride_sharing: e.target.checked})}
+                      className="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600/20" 
+                    />
                     <label htmlFor="sharing" className="text-sm font-bold text-slate-700 tracking-tight">Enable Ride Sharing</label>
                   </div>
                 </div>
