@@ -295,6 +295,24 @@ const EditDriver = () => {
                 </select>
               </div>
 
+               <div className="space-y-3">
+                 <label className="text-gray-400 flex items-center gap-2">
+                   <Globe size={14} className="text-indigo-400" /> Country *
+                 </label>
+                 <select 
+                   name="country"
+                   required
+                   value={formData.country}
+                   onChange={handleChange}
+                   style={{ color: '#000000' }}
+                   className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-4 text-[14px] font-bold text-gray-950 focus:bg-white focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50/50 outline-none transition-all shadow-inner"
+                 >
+                   <option value="" className="bg-white text-gray-950 font-bold">Select Country</option>
+                   {countries.map(c => (
+                     <option key={c._id} value={c._id} className="bg-white text-gray-950 font-bold">{c.name}</option>
+                   ))}
+                 </select>
+               </div>
               <div>
                 <label className={labelClass}>
                   <Globe size={12} className="inline mr-1 text-gray-400" />

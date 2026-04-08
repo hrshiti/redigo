@@ -48,6 +48,8 @@ const ZoneManagement = () => {
     peak_zone_selection_duration: '',
     peak_zone_duration: '',
     peak_zone_surge_percentage: '',
+    maximum_distance_for_regular_rides: '',
+    maximum_distance_for_outstation_rides: '',
     status: 'active'
   });
 
@@ -133,6 +135,8 @@ const ZoneManagement = () => {
           peak_zone_selection_duration: '',
           peak_zone_duration: '',
           peak_zone_surge_percentage: '',
+          maximum_distance_for_regular_rides: '',
+          maximum_distance_for_outstation_rides: '',
           status: 'active'
         });
         setPolygonCoords([]);
@@ -205,6 +209,8 @@ const ZoneManagement = () => {
       peak_zone_selection_duration: zone.peak_zone_selection_duration || '',
       peak_zone_duration: zone.peak_zone_duration || '',
       peak_zone_surge_percentage: zone.peak_zone_surge_percentage || '',
+      maximum_distance_for_regular_rides: zone.maximum_distance_for_regular_rides || '',
+      maximum_distance_for_outstation_rides: zone.maximum_distance_for_outstation_rides || '',
       status: zone.active ? 'active' : 'inactive'
     });
 
@@ -275,6 +281,8 @@ const ZoneManagement = () => {
                      peak_zone_selection_duration: '',
                      peak_zone_duration: '',
                      peak_zone_surge_percentage: '',
+                     maximum_distance_for_regular_rides: '',
+                     maximum_distance_for_outstation_rides: '',
                      status: 'active'
                    });
                    setPolygonCoords([]);
@@ -468,16 +476,47 @@ const ZoneManagement = () => {
                 </div>
 
                 {/* Select Unit */}
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-slate-600">Select Unit</label>
-                  <select 
-                    value={formData.unit}
-                    onChange={(e) => setFormData({...formData, unit: e.target.value})}
-                    className="w-full border border-gray-200 rounded-lg py-3 px-4 text-slate-700 bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
-                  >
-                    <option value="km">Kilometers</option>
-                    <option value="miles">Miles</option>
-                  </select>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-slate-600">Select Unit</label>
+                    <select 
+                      value={formData.unit}
+                      onChange={(e) => setFormData({...formData, unit: e.target.value})}
+                      className="w-full border border-gray-200 rounded-lg py-3 px-4 text-slate-700 bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                    >
+                      <option value="km">Kilometers</option>
+                      <option value="miles">Miles</option>
+                    </select>
+                  </div>
+
+                  {localStorage.getItem('enable_max_distance') === 'true' && (
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }} 
+                      animate={{ opacity: 1, height: 'auto' }}
+                      className="space-y-4 border-t border-slate-50 pt-4"
+                    >
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold text-slate-600">Maximum Distance for Regular Rides <span className="text-rose-500">*</span></label>
+                        <input 
+                          type="number" 
+                          placeholder="Enter Maximum Distance for Regular Rides"
+                          value={formData.maximum_distance_for_regular_rides}
+                          onChange={(e) => setFormData({...formData, maximum_distance_for_regular_rides: e.target.value})}
+                          className="w-full border border-gray-200 rounded-lg py-3 px-4 text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold text-slate-600">Maximum Distance for Outstation Rides <span className="text-rose-500">*</span></label>
+                        <input 
+                          type="number" 
+                          placeholder="Enter Maximum Distance for Outstation Rides"
+                          value={formData.maximum_distance_for_outstation_rides}
+                          onChange={(e) => setFormData({...formData, maximum_distance_for_outstation_rides: e.target.value})}
+                          className="w-full border border-gray-200 rounded-lg py-3 px-4 text-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                        />
+                      </div>
+                    </motion.div>
+                  )}
                 </div>
 
                 {/* Peak Zone Parameters Grid */}
